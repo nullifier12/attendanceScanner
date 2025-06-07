@@ -8,7 +8,7 @@ const Header = () => {
   return (
     <View style={styles.headerContainer}>
       <TouchableOpacity onPress={() => router.back()} style={styles.button}>
-        <Ionicons name="arrow-back" size={28} color="black" />
+        <Ionicons name="arrow-back" size={28} color="white" />
       </TouchableOpacity>
     </View>
   );
@@ -20,7 +20,7 @@ const styles = StyleSheet.create({
     height: 90,
     paddingHorizontal: 16,
     paddingTop: 13,
-    backgroundColor: "#fff",
+    backgroundColor: "#112866",
     elevation: 5,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },

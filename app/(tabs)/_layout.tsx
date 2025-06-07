@@ -1,6 +1,5 @@
 import { HapticTab } from "@/components/HapticTab";
 import TabBarBackground from "@/components/ui/TabBarBackground";
-import { Colors } from "@/constants/Colors";
 import { useColorScheme } from "@/hooks/useColorScheme";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { Tabs, useRouter } from "expo-router";
@@ -13,10 +12,16 @@ export default function TabLayout() {
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme ?? "light"].tint,
-
+        //  tabBarActiveTintColor: Colors[colorScheme ?? "light"].tint,
+        tabBarActiveTintColor: "white",
         tabBarButton: HapticTab,
         tabBarBackground: TabBarBackground,
+        headerStyle: {
+          backgroundColor: "#112866",
+        },
+        headerTitleStyle: {
+          color: "white", // Makes title text white
+        },
         tabBarStyle: Platform.select({
           ios: {
             // Use a transparent background on iOS to show the blur effect
@@ -30,9 +35,13 @@ export default function TabLayout() {
         name="index"
         options={{
           title: "Profile",
+
           tabBarIcon: ({ color }) => (
             <Ionicons name="person" size={32} color={color} />
           ),
+          tabBarStyle: {
+            backgroundColor: "#112866",
+          },
         }}
       />
       <Tabs.Screen
@@ -42,12 +51,15 @@ export default function TabLayout() {
           tabBarIcon: ({ color }) => (
             <Ionicons name="time" size={32} color={color} />
           ),
+          tabBarStyle: {
+            backgroundColor: "#112866",
+          },
           headerLeft: () => (
             <TouchableOpacity
               onPress={() => router.back()}
               style={{ paddingLeft: 16 }}
             >
-              <Ionicons name="arrow-back" size={28} color="black" />
+              <Ionicons name="arrow-back" size={28} color="white" />
             </TouchableOpacity>
           ),
         }}
@@ -60,15 +72,18 @@ export default function TabLayout() {
             <View
               style={{ flexDirection: "row", alignItems: "center", gap: 4 }}
             >
-              <Ionicons name="clipboard-outline" size={24} color={color} />
+              <Ionicons name="clipboard" size={24} color={color} />
             </View>
           ),
+          tabBarStyle: {
+            backgroundColor: "#112866",
+          },
           headerLeft: () => (
             <TouchableOpacity
               onPress={() => router.back()}
               style={{ paddingLeft: 16 }}
             >
-              <Ionicons name="arrow-back" size={28} color="black" />
+              <Ionicons name="arrow-back" size={28} color="white" />
             </TouchableOpacity>
           ),
         }}
@@ -79,17 +94,20 @@ export default function TabLayout() {
           title: "Payslip",
           tabBarIcon: ({ color }) => (
             <MaterialCommunityIcons
-              name="file-document-outline"
+              name="file-document"
               size={32}
               color={color}
             />
           ),
+          tabBarStyle: {
+            backgroundColor: "#112866",
+          },
           headerLeft: () => (
             <TouchableOpacity
               onPress={() => router.back()}
               style={{ paddingLeft: 16 }}
             >
-              <Ionicons name="arrow-back" size={28} color="black" />
+              <Ionicons name="arrow-back" size={28} color="white" />
             </TouchableOpacity>
           ),
         }}

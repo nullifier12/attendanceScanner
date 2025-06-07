@@ -35,7 +35,7 @@ const QRScanner = () => {
     if (!scanned) {
       setScanned(true);
       Alert.alert("Scanned Data", `${data}`);
-      router.push("/");
+      router.push("/userinfo/userinfo");
       setTimeout(() => setScanned(false), 1000);
     }
   };
