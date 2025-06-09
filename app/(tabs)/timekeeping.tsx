@@ -1,12 +1,7 @@
-import ViewWrapper from "@/components/Layout/View";
-import { Text } from "react-native";
+import TimeKeeping from "@/components/TimeKeeping/TimeKeeping";
 
-const TimeKeeping = () => {
-  return (
-    <ViewWrapper>
-      <Text>Time keeping</Text>
-    </ViewWrapper>
-  );
+const TimeKeep = () => {
+  return <TimeKeeping />;
 };
 
-export default TimeKeeping;
+export default TimeKeep;
