@@ -1,12 +1,7 @@
-import ViewWrapper from "@/components/Layout/View";
-import { Text } from "react-native";
+import RequestAndDispute from "@/components/RequestAndDisputes/RequestAndDisputes";
 
 const RequestAndDisputes = () => {
-  return (
-    <ViewWrapper>
-      <Text>Request and disputes section</Text>
-    </ViewWrapper>
-  );
+  return <RequestAndDispute />;
 };
 
 export default RequestAndDisputes;
