@@ -1,4 +1,5 @@
 import ViewWrapper from "@/components/Layout/View";
+import { useAuth } from "@/contexts/AuthContext";
 import {
   EvilIcons,
   Ionicons,
@@ -6,19 +7,29 @@ import {
 } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Divider } from "react-native-paper";
 
 export default function Profile() {
   const router = useRouter();
+  const { session } = useAuth();
+
   const announcements = [
-    { id: "1", title: "Team Meeting at 3 PM" },
-    { id: "2", title: "New Policy Update" },
-    { id: "3", title: "System Maintenance Tonight" },
-    { id: "4", title: "Holiday Schedule Released" },
-    { id: "5", title: "Holiday Schedule Released" },
-    { id: "6", title: "Holiday Schedule Released" },
-    { id: "7", title: "Holiday Schedule Released" },
-    { id: "8", title: "Holiday Schedule Released" },
-    { id: "9", title: "Holiday Schedule Released" },
+    { id: "1", title: "Team Meeting at 3 PM", date: "2024-03-20" },
+    { id: "2", title: "New Policy Update", date: "2024-03-19" },
+    { id: "3", title: "System Maintenance Tonight", date: "2024-03-18" },
+    { id: "4", title: "Holiday Schedule Released", date: "2024-03-17" },
+    { id: "5", title: "Office Renovation Notice", date: "2024-03-16" },
+    { id: "6", title: "New Employee Onboarding", date: "2024-03-15" },
+    { id: "7", title: "Quarterly Review Meeting", date: "2024-03-14" },
+    { id: "8", title: "Health and Safety Training", date: "2024-03-13" },
+    { id: "9", title: "Team Building Event", date: "2024-03-12" },
+  ];
+
+  const birthdays = [
+    { id: "1", name: "John Doe", date: "March 25" },
+    { id: "2", name: "Jane Smith", date: "March 28" },
+    { id: "3", name: "Mike Johnson", date: "March 30" },
+    { id: "4", name: "Sarah Williams", date: "March 31" },
   ];
 
   const getCurrentMonth = () => {
@@ -29,75 +40,124 @@ export default function Profile() {
   return (
     <ScrollView contentContainerStyle={styles.scrollContainer}>
       <ViewWrapper>
-        <View style={styles.gridContainer}>
-          <View style={styles.buttonWrapper}>
-            <Pressable
-              style={styles.button}
-              android_ripple={{ color: "gray", borderless: false }}
-              onPress={() => router.push("/profile/profile")}
-            >
-              <Ionicons name="person" size={32} color={"white"} />
-              <Text style={styles.buttonText}>Go to Profile</Text>
-            </Pressable>
+        {/* Profile Header */}
+        <View style={styles.header}>
+          <View style={styles.profileInfo}>
+            <Text style={styles.welcomeText}>Welcome back</Text>
+            <Text style={styles.nameText}>{session?.user.name || "User"}</Text>
+            <Text style={styles.roleText}></Text>
           </View>
-          <View style={styles.buttonWrapper}>
-            <Pressable
-              style={styles.button}
-              android_ripple={{ color: "gray", borderless: false }}
-              onPress={() => router.push("/profile/worksched")}
-            >
-              <EvilIcons name="calendar" size={42} color="white" />
-              <Text style={styles.buttonText}>Work Schedule</Text>
-            </Pressable>
-          </View>
-          <View style={styles.box}>
+        </View>
+
+        <Divider style={styles.divider} />
+
+        <View style={styles.quickActions}>
+          <Pressable
+            style={styles.actionButton}
+            android_ripple={{
+              color: "rgba(255,255,255,0.2)",
+              borderless: false,
+            }}
+            onPress={() => router.push("/profile/profile")}
+          >
+            <Ionicons name="person" size={24} color={"white"} />
+            <Text style={styles.actionButtonText}>User Details</Text>
+          </Pressable>
+
+          <Pressable
+            style={styles.actionButton}
+            android_ripple={{
+              color: "rgba(255,255,255,0.2)",
+              borderless: false,
+            }}
+            onPress={() => router.push("/profile/worksched")}
+          >
+            <EvilIcons name="calendar" size={32} color="white" />
+            <Text style={styles.actionButtonText}>Schedule</Text>
+          </Pressable>
+        </View>
+
+        {/* Department Info */}
+        <View style={styles.infoSection}>
+          <View style={styles.infoCard}>
             <MaterialCommunityIcons
               name="office-building"
-              size={32}
-              color="white"
+              size={24}
+              color="#112866"
             />
-            <Text style={styles.text}>Department: IT</Text>
-          </View>
-          <View style={styles.box}>
-            <MaterialCommunityIcons name="briefcase" size={32} color="white" />
-            <Text style={styles.text}>Designation: Top Lane Support</Text>
+            <View style={styles.infoContent}>
+              <Text style={styles.infoLabel}>Department</Text>
+              <Text style={styles.infoValue}>Information Technology</Text>
+            </View>
           </View>
 
-          {/* Announcements Section */}
-          <View style={styles.announcementWrapper}>
-            <Text style={styles.text}>Announcements</Text>
+          <View style={styles.infoCard}>
+            <MaterialCommunityIcons
+              name="briefcase"
+              size={24}
+              color="#112866"
+            />
+            <View style={styles.infoContent}>
+              <Text style={styles.infoLabel}>Designation</Text>
+              <Text style={styles.infoValue}>Software Developer</Text>
+            </View>
+          </View>
+        </View>
+
+        {/* Announcements Section */}
+        <View style={styles.section}>
+          <View style={styles.sectionHeader}>
+            <MaterialCommunityIcons name="bullhorn" size={24} color="#112866" />
+            <Text style={styles.sectionTitle}>Announcements</Text>
+          </View>
+          <View style={styles.card}>
             <ScrollView
-              style={{ maxHeight: 200 }}
+              style={styles.scrollableContent}
               nestedScrollEnabled={true}
               showsVerticalScrollIndicator={false}
             >
               {announcements.map((item) => (
                 <View key={item.id} style={styles.announcementItem}>
-                  <Text style={styles.announcementText}>{item?.title}</Text>
+                  <View style={styles.announcementContent}>
+                    <Text style={styles.announcementTitle}>{item.title}</Text>
+                    <Text style={styles.announcementDate}>{item.date}</Text>
+                  </View>
                   <MaterialCommunityIcons
-                    name="eye"
-                    size={20}
-                    color="white"
-                    onPress={() => console.log("item ID", item.id)}
+                    name="chevron-right"
+                    size={24}
+                    color="#666"
                   />
                 </View>
               ))}
             </ScrollView>
           </View>
+        </View>
 
-          {/* Birthday Celebrants Section */}
-          <View style={styles.announcementWrapper}>
-            <Text style={styles.text}>
-              Birthday Celebrant for the month of {getCurrentMonth()}
+        {/* Birthday Celebrants Section */}
+        <View style={styles.section}>
+          <View style={styles.sectionHeader}>
+            <MaterialCommunityIcons
+              name="cake-variant"
+              size={24}
+              color="#112866"
+            />
+            <Text style={styles.sectionTitle}>
+              Birthday Celebrants - {getCurrentMonth()}
             </Text>
+          </View>
+          <View style={styles.card}>
             <ScrollView
-              style={{ maxHeight: 200 }}
+              style={styles.scrollableContent}
               nestedScrollEnabled={true}
               showsVerticalScrollIndicator={false}
             >
-              {announcements.map((item) => (
-                <View key={item.id} style={styles.announcementItem}>
-                  <Text style={styles.announcementText}>{item?.title}</Text>
+              {birthdays.map((item) => (
+                <View key={item.id} style={styles.birthdayItem}>
+                  <View style={styles.birthdayContent}>
+                    <Text style={styles.birthdayName}>{item.name}</Text>
+                    <Text style={styles.birthdayDate}>{item.date}</Text>
+                  </View>
+                  <MaterialCommunityIcons name="gift" size={24} color="#666" />
                 </View>
               ))}
             </ScrollView>
@@ -113,61 +173,156 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     paddingBottom: 16,
   },
-  gridContainer: {
+  header: {
+    padding: 16,
+    backgroundColor: "#fff",
+    borderRadius: 12,
+    marginBottom: 16,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  profileInfo: {
+    gap: 4,
+  },
+  welcomeText: {
+    fontSize: 16,
+    color: "#666",
+  },
+  nameText: {
+    fontSize: 24,
+    fontWeight: "bold",
+    color: "#112866",
+  },
+  roleText: {
+    fontSize: 14,
+    color: "#666",
+  },
+  divider: {
+    height: 1,
+    backgroundColor: "#e0e0e0",
+    marginVertical: 16,
+  },
+  quickActions: {
     flexDirection: "row",
-    flexWrap: "wrap",
-    justifyContent: "space-between",
     gap: 12,
+    marginBottom: 16,
   },
-  box: {
-    width: "48%",
-    padding: 12,
+  actionButton: {
+    flex: 1,
     backgroundColor: "#112866",
+    padding: 16,
+    borderRadius: 12,
     alignItems: "center",
-    justifyContent: "center",
-    borderRadius: 8,
-    overflow: "hidden",
+    gap: 8,
   },
-  text: {
+  actionButtonText: {
     color: "white",
-    fontSize: 16,
-    textAlign: "center",
-    fontWeight: "bold",
+    fontSize: 14,
+    fontWeight: "600",
   },
-  button: {
-    backgroundColor: "#112866",
-    padding: 12,
-    borderRadius: 8,
+  infoSection: {
+    flexDirection: "row",
+    gap: 12,
+    marginBottom: 16,
+  },
+  infoCard: {
+    flex: 1,
+    backgroundColor: "#fff",
+    padding: 16,
+    borderRadius: 12,
+    flexDirection: "row",
     alignItems: "center",
+    gap: 12,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2,
   },
-  buttonText: {
-    color: "white",
-    fontSize: 16,
-    fontWeight: "bold",
+  infoContent: {
+    flex: 1,
   },
-  buttonWrapper: {
-    borderRadius: 8,
-    overflow: "hidden",
-    width: "48%",
+  infoLabel: {
+    fontSize: 12,
+    color: "#666",
+    marginBottom: 2,
   },
-  announcementWrapper: {
-    width: "100%",
-    padding: 12,
-    backgroundColor: "#112866",
-    borderRadius: 8,
-    overflow: "hidden",
+  infoValue: {
+    fontSize: 14,
+    fontWeight: "600",
+    color: "#112866",
+  },
+  section: {
+    marginBottom: 16,
+  },
+  sectionHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 12,
+    gap: 8,
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: "600",
+    color: "#112866",
+  },
+  card: {
+    backgroundColor: "#fff",
+    borderRadius: 12,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2,
+  },
+  scrollableContent: {
+    maxHeight: 200,
   },
   announcementItem: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    backgroundColor: "#334699",
-    padding: 10,
-    borderRadius: 6,
-    marginTop: 8,
+    padding: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: "#f0f0f0",
   },
-  announcementText: {
-    color: "white",
+  announcementContent: {
+    flex: 1,
+    marginRight: 12,
+  },
+  announcementTitle: {
     fontSize: 14,
+    fontWeight: "500",
+    color: "#112866",
+    marginBottom: 4,
+  },
+  announcementDate: {
+    fontSize: 12,
+    color: "#666",
+  },
+  birthdayItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    padding: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: "#f0f0f0",
+  },
+  birthdayContent: {
+    flex: 1,
+    marginRight: 12,
+  },
+  birthdayName: {
+    fontSize: 14,
+    fontWeight: "500",
+    color: "#112866",
+    marginBottom: 4,
+  },
+  birthdayDate: {
+    fontSize: 12,
+    color: "#666",
   },
 });

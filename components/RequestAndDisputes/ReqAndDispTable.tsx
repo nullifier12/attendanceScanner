@@ -1,129 +1,457 @@
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { ScrollView, StyleSheet, Text, View } from "react-native";
-import { DataTable } from "react-native-paper";
-const RequestAndDisp = () => {
+import { Chip, DataTable } from "react-native-paper";
+
+interface RequestAndDispProps {
+  type: string;
+}
+
+const RequestAndDisp = ({ type }: RequestAndDispProps) => {
   const leaveArray = [
-    { type: "SL", from: "2025-06-01", to: "2025-06-02" },
-    { type: "VL", from: "2025-06-03", to: "2025-06-07" },
-    { type: "SL", from: "2025-06-10", to: "2025-06-10" },
-    { type: "VL", from: "2025-06-15", to: "2025-06-19" },
-    { type: "SL", from: "2025-06-20", to: "2025-06-21" },
-    { type: "VL", from: "2025-06-22", to: "2025-06-24" },
-    { type: "SL", from: "2025-06-25", to: "2025-06-25" },
-    { type: "VL", from: "2025-06-26", to: "2025-06-30" },
-    { type: "SL", from: "2025-07-01", to: "2025-07-02" },
-    { type: "VL", from: "2025-07-03", to: "2025-07-05" },
+    {
+      type: "SL",
+      from: "2025-06-01",
+      to: "2025-06-02",
+      status: "Approved",
+      reason: "Medical Checkup",
+    },
+    {
+      type: "VL",
+      from: "2025-06-03",
+      to: "2025-06-07",
+      status: "Pending",
+      reason: "Family Vacation",
+    },
+    {
+      type: "SL",
+      from: "2025-06-10",
+      to: "2025-06-10",
+      status: "Rejected",
+      reason: "Dental Appointment",
+    },
+    {
+      type: "SL",
+      from: "2025-06-10",
+      to: "2025-06-10",
+      status: "Rejected",
+      reason: "Dental Appointment",
+    },
+    {
+      type: "SL",
+      from: "2025-06-10",
+      to: "2025-06-10",
+      status: "Rejected",
+      reason: "Dental Appointment",
+    },
+    {
+      type: "SL",
+      from: "2025-06-10",
+      to: "2025-06-10",
+      status: "Rejected",
+      reason: "Dental Appointment",
+    },
+    {
+      type: "SL",
+      from: "2025-06-10",
+      to: "2025-06-10",
+      status: "Rejected",
+      reason: "Dental Appointment",
+    },
+    {
+      type: "SL",
+      from: "2025-06-10",
+      to: "2025-06-10",
+      status: "Rejected",
+      reason: "Dental Appointment",
+    },
+    {
+      type: "SL",
+      from: "2025-06-10",
+      to: "2025-06-10",
+      status: "Rejected",
+      reason: "Dental Appointment",
+    },
+    {
+      type: "SL",
+      from: "2025-06-10",
+      to: "2025-06-10",
+      status: "Rejected",
+      reason: "Dental Appointment",
+    },
+    {
+      type: "SL",
+      from: "2025-06-10",
+      to: "2025-06-10",
+      status: "Rejected",
+      reason: "Dental Appointment",
+    },
+    {
+      type: "SL",
+      from: "2025-06-10",
+      to: "2025-06-10",
+      status: "Rejected",
+      reason: "Dental Appointment",
+    },
   ];
+
+  const otArray = [
+    {
+      date: "2025-06-01",
+      hours: "2",
+      status: "Approved",
+      reason: "Project Deadline",
+    },
+    {
+      date: "2025-06-02",
+      hours: "3",
+      status: "Pending",
+      reason: "System Update",
+    },
+    {
+      date: "2025-06-03",
+      hours: "4",
+      status: "Rejected",
+      reason: "Client Meeting",
+    },
+  ];
+
+  const obArray = [
+    {
+      date: "2025-06-01",
+      location: "Client Office",
+      status: "Approved",
+      reason: "Project Meeting",
+    },
+    {
+      date: "2025-06-02",
+      location: "Training Center",
+      status: "Pending",
+      reason: "Training Session",
+    },
+    {
+      date: "2025-06-03",
+      location: "Conference Hall",
+      status: "Rejected",
+      reason: "Team Building",
+    },
+  ];
+
+  const disputesArray = [
+    {
+      date: "2025-06-01",
+      type: "Time In",
+      status: "Pending",
+      reason: "System Error",
+    },
+    {
+      date: "2025-06-02",
+      type: "Time Out",
+      status: "Approved",
+      reason: "Network Issue",
+    },
+    {
+      date: "2025-06-03",
+      type: "Break Time",
+      status: "Rejected",
+      reason: "Manual Entry",
+    },
+  ];
+
+  const getStatusColor = (status: string) => {
+    switch (status.toLowerCase()) {
+      case "approved":
+        return "#4CAF50";
+      case "pending":
+        return "#FFA000";
+      case "rejected":
+        return "#F44336";
+      default:
+        return "#666";
+    }
+  };
+
+  const renderTableContent = () => {
+    switch (type) {
+      case "leave":
+        return (
+          <>
+            <DataTable.Header>
+              <DataTable.Title style={styles.typeColumn}>
+                <Text style={styles.headerText}>Type</Text>
+              </DataTable.Title>
+              <DataTable.Title style={styles.dateColumn}>
+                <Text style={styles.headerText}>From</Text>
+              </DataTable.Title>
+              <DataTable.Title style={styles.dateColumn}>
+                <Text style={styles.headerText}>To</Text>
+              </DataTable.Title>
+              <DataTable.Title style={styles.statusColumn}>
+                <Text style={styles.headerText}>Status</Text>
+              </DataTable.Title>
+              <DataTable.Title style={styles.actionColumn}>
+                <Text style={styles.headerText}>Action</Text>
+              </DataTable.Title>
+            </DataTable.Header>
+            <ScrollView style={styles.scrollView}>
+              {leaveArray.map((item, index) => (
+                <DataTable.Row key={index}>
+                  <DataTable.Cell style={styles.typeColumn}>
+                    <Text style={styles.cellText}>{item.type}</Text>
+                  </DataTable.Cell>
+                  <DataTable.Cell style={styles.dateColumn}>
+                    <Text style={styles.cellText}>{item.from}</Text>
+                  </DataTable.Cell>
+                  <DataTable.Cell style={styles.dateColumn}>
+                    <Text style={styles.cellText}>{item.to}</Text>
+                  </DataTable.Cell>
+                  <DataTable.Cell style={styles.statusColumn}>
+                    <Chip
+                      mode="flat"
+                      style={[
+                        styles.statusChip,
+                        { backgroundColor: getStatusColor(item.status) },
+                      ]}
+                      textStyle={styles.statusChipText}
+                    >
+                      {item.status}
+                    </Chip>
+                  </DataTable.Cell>
+                  <DataTable.Cell style={styles.actionColumn}>
+                    <MaterialCommunityIcons
+                      name="eye"
+                      size={20}
+                      color="#112866"
+                      onPress={() => console.log("View details", item)}
+                    />
+                  </DataTable.Cell>
+                </DataTable.Row>
+              ))}
+            </ScrollView>
+          </>
+        );
+      case "ot":
+        return (
+          <>
+            <DataTable.Header>
+              <DataTable.Title style={styles.dateColumn}>
+                <Text style={styles.headerText}>Date</Text>
+              </DataTable.Title>
+              <DataTable.Title style={styles.hoursColumn}>
+                <Text style={styles.headerText}>Hours</Text>
+              </DataTable.Title>
+              <DataTable.Title style={styles.statusColumn}>
+                <Text style={styles.headerText}>Status</Text>
+              </DataTable.Title>
+              <DataTable.Title style={styles.actionColumn}>
+                <Text style={styles.headerText}>Action</Text>
+              </DataTable.Title>
+            </DataTable.Header>
+            <ScrollView style={styles.scrollView}>
+              {otArray.map((item, index) => (
+                <DataTable.Row key={index}>
+                  <DataTable.Cell style={styles.dateColumn}>
+                    <Text style={styles.cellText}>{item.date}</Text>
+                  </DataTable.Cell>
+                  <DataTable.Cell style={styles.hoursColumn}>
+                    <Text style={styles.cellText}>{item.hours}</Text>
+                  </DataTable.Cell>
+                  <DataTable.Cell style={styles.statusColumn}>
+                    <Chip
+                      mode="flat"
+                      style={[
+                        styles.statusChip,
+                        { backgroundColor: getStatusColor(item.status) },
+                      ]}
+                      textStyle={styles.statusChipText}
+                    >
+                      {item.status}
+                    </Chip>
+                  </DataTable.Cell>
+                  <DataTable.Cell style={styles.actionColumn}>
+                    <MaterialCommunityIcons
+                      name="eye"
+                      size={20}
+                      color="#112866"
+                      onPress={() => console.log("View details", item)}
+                    />
+                  </DataTable.Cell>
+                </DataTable.Row>
+              ))}
+            </ScrollView>
+          </>
+        );
+      case "ob":
+        return (
+          <>
+            <DataTable.Header>
+              <DataTable.Title style={styles.dateColumn}>
+                <Text style={styles.headerText}>Date</Text>
+              </DataTable.Title>
+              <DataTable.Title style={styles.locationColumn}>
+                <Text style={styles.headerText}>Location</Text>
+              </DataTable.Title>
+              <DataTable.Title style={styles.statusColumn}>
+                <Text style={styles.headerText}>Status</Text>
+              </DataTable.Title>
+              <DataTable.Title style={styles.actionColumn}>
+                <Text style={styles.headerText}>Action</Text>
+              </DataTable.Title>
+            </DataTable.Header>
+            <ScrollView style={styles.scrollView}>
+              {obArray.map((item, index) => (
+                <DataTable.Row key={index}>
+                  <DataTable.Cell style={styles.dateColumn}>
+                    <Text style={styles.cellText}>{item.date}</Text>
+                  </DataTable.Cell>
+                  <DataTable.Cell style={styles.locationColumn}>
+                    <Text style={styles.cellText}>{item.location}</Text>
+                  </DataTable.Cell>
+                  <DataTable.Cell style={styles.statusColumn}>
+                    <Chip
+                      mode="flat"
+                      style={[
+                        styles.statusChip,
+                        { backgroundColor: getStatusColor(item.status) },
+                      ]}
+                      textStyle={styles.statusChipText}
+                    >
+                      {item.status}
+                    </Chip>
+                  </DataTable.Cell>
+                  <DataTable.Cell style={styles.actionColumn}>
+                    <MaterialCommunityIcons
+                      name="eye"
+                      size={20}
+                      color="#112866"
+                      onPress={() => console.log("View details", item)}
+                    />
+                  </DataTable.Cell>
+                </DataTable.Row>
+              ))}
+            </ScrollView>
+          </>
+        );
+      case "disputes":
+        return (
+          <>
+            <DataTable.Header>
+              <DataTable.Title style={styles.dateColumn}>
+                <Text style={styles.headerText}>Date</Text>
+              </DataTable.Title>
+              <DataTable.Title style={styles.typeColumn}>
+                <Text style={styles.headerText}>Type</Text>
+              </DataTable.Title>
+              <DataTable.Title style={styles.statusColumn}>
+                <Text style={styles.headerText}>Status</Text>
+              </DataTable.Title>
+              <DataTable.Title style={styles.actionColumn}>
+                <Text style={styles.headerText}>Action</Text>
+              </DataTable.Title>
+            </DataTable.Header>
+            <ScrollView style={styles.scrollView}>
+              {disputesArray.map((item, index) => (
+                <DataTable.Row key={index}>
+                  <DataTable.Cell style={styles.dateColumn}>
+                    <Text style={styles.cellText}>{item.date}</Text>
+                  </DataTable.Cell>
+                  <DataTable.Cell style={styles.typeColumn}>
+                    <Text style={styles.cellText}>{item.type}</Text>
+                  </DataTable.Cell>
+                  <DataTable.Cell style={styles.statusColumn}>
+                    <Chip
+                      mode="flat"
+                      style={[
+                        styles.statusChip,
+                        { backgroundColor: getStatusColor(item.status) },
+                      ]}
+                      textStyle={styles.statusChipText}
+                    >
+                      {item.status}
+                    </Chip>
+                  </DataTable.Cell>
+                  <DataTable.Cell style={styles.actionColumn}>
+                    <MaterialCommunityIcons
+                      name="eye"
+                      size={20}
+                      color="#112866"
+                      onPress={() => console.log("View details", item)}
+                    />
+                  </DataTable.Cell>
+                </DataTable.Row>
+              ))}
+            </ScrollView>
+          </>
+        );
+      default:
+        return null;
+    }
+  };
+
   return (
-    <View style={styles.forApprovalWrapper}>
-      <Text style={styles.textApproval}>Approved Leave </Text>
-      <DataTable>
-        <DataTable.Header>
-          <DataTable.Title>
-            <Text style={styles.dataTableTitle}>Type</Text>
-          </DataTable.Title>
-          <DataTable.Title>
-            <Text style={styles.dataTableTitle}>From</Text>
-          </DataTable.Title>
-          <DataTable.Title>
-            <Text style={styles.dataTableTitle}>To</Text>
-          </DataTable.Title>
-          <DataTable.Title>
-            <Text style={styles.dataTableTitle}>Action</Text>
-          </DataTable.Title>
-        </DataTable.Header>
-        <ScrollView
-          style={{ maxHeight: 200 }}
-          nestedScrollEnabled={true}
-          showsVerticalScrollIndicator={false}
-        >
-          {leaveArray.map((d, index) => (
-            <DataTable.Row key={index}>
-              <DataTable.Cell>
-                <Text style={styles.dataTableTitle}>{d?.type}</Text>
-              </DataTable.Cell>
-              <DataTable.Cell>
-                <Text style={styles.dataTableTitle}>{d.from}</Text>
-              </DataTable.Cell>
-              <DataTable.Cell>
-                <Text style={styles.dataTableTitle}>{d.to}</Text>
-              </DataTable.Cell>
-              <DataTable.Cell>
-                <MaterialCommunityIcons
-                  name="eye"
-                  size={20}
-                  color="white"
-                  onPress={() => console.log("item ID", index)}
-                />
-              </DataTable.Cell>
-            </DataTable.Row>
-          ))}
-        </ScrollView>
-      </DataTable>
+    <View style={styles.container}>
+      <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+        <DataTable>{renderTableContent()}</DataTable>
+      </ScrollView>
     </View>
   );
 };
+
 export default RequestAndDisp;
+
 const styles = StyleSheet.create({
-  gridContainer: {
-    flexDirection: "column",
-    flexWrap: "wrap",
-    justifyContent: "space-between",
-    gap: 12,
-  },
-
-  cardRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    gap: 12,
-    marginBottom: 10,
-  },
-  card: {
-    flex: 1,
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "#112866",
-    padding: 16,
-    borderRadius: 12,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
-    shadowRadius: 4,
-    elevation: 4,
-  },
-  icon: {
-    marginRight: 12,
-  },
-  cardLabel: {
-    color: "white",
-    fontSize: 14,
-    fontWeight: "600",
-  },
-  cardValue: {
-    color: "white",
-    fontSize: 20,
-    fontWeight: "bold",
-  },
-
-  forApprovalWrapper: {
-    width: "100%",
-    padding: 10,
-    backgroundColor: "#112866",
+  container: {
+    backgroundColor: "#fff",
     borderRadius: 8,
     overflow: "hidden",
   },
-  textApproval: {
-    color: "white",
-    fontSize: 16,
-    textAlign: "center",
-    fontWeight: "bold",
-    textDecorationLine: "underline",
-    marginBottom: 10,
+  scrollView: {
+    maxHeight: 200,
   },
-  dataTableTitle: {
+  headerText: {
+    color: "#112866",
+    fontSize: 14,
+    fontWeight: "600",
+  },
+  cellText: {
+    color: "#333",
+    fontSize: 14,
+  },
+  typeColumn: {
+    width: 100,
+    paddingHorizontal: 8,
+  },
+  dateColumn: {
+    width: 120,
+    paddingHorizontal: 8,
+  },
+  statusColumn: {
+    width: 150,
+    paddingHorizontal: 8,
+  },
+  actionColumn: {
+    width: 80,
+    paddingHorizontal: 8,
+  },
+  hoursColumn: {
+    width: 100,
+    paddingHorizontal: 8,
+  },
+  locationColumn: {
+    width: 200,
+    paddingHorizontal: 8,
+  },
+  statusChip: {
+    height: 28,
+    minWidth: 120,
+    paddingHorizontal: 12,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  statusChipText: {
     color: "white",
-    fontSize: 10,
+    fontSize: 13,
+    height: 40,
+    fontWeight: "500",
     textAlign: "center",
-    fontWeight: "bold",
   },
 });
