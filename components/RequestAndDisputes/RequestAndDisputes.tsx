@@ -26,10 +26,13 @@ const RequestAndDispute = () => {
         contentContainerStyle={styles.scrollContent}
       >
         {/* Header Section */}
-        <View style={styles.header}>
-          <View style={styles.headerContent}>
-            <Text style={styles.welcomeText}>Welcome back, {session?.user.name || 'User'}</Text>
-            <Text style={styles.dateText}>{currentDate}</Text>
+        <View style={styles.pageHeader}>
+          <View style={styles.headerLeft}>
+            <MaterialCommunityIcons name="file-document-edit" size={24} color="#112866" />
+            <Text style={styles.headerTitle}>Requests & Disputes</Text>
+          </View>
+          <View style={styles.headerRight}>
+            <MaterialCommunityIcons name="plus-circle" size={24} color="#112866" />
           </View>
         </View>
 
@@ -122,10 +125,13 @@ const styles = StyleSheet.create({
   scrollContent: {
     paddingBottom: 16,
   },
-  header: {
+  pageHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     backgroundColor: "#fff",
-    padding: 16,
     borderRadius: 12,
+    padding: 16,
     marginBottom: 16,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
@@ -133,17 +139,18 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 3,
   },
-  headerContent: {
-    gap: 4,
+  headerLeft: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
   },
-  welcomeText: {
-    fontSize: 16,
-    color: "#666",
-  },
-  dateText: {
-    fontSize: 20,
-    fontWeight: "bold",
+  headerTitle: {
+    fontSize: 18,
+    fontWeight: "600",
     color: "#112866",
+  },
+  headerRight: {
+    padding: 4,
   },
   divider: {
     height: 1,

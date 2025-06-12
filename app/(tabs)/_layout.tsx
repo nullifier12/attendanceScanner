@@ -5,14 +5,14 @@ import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { Tabs, useRouter } from "expo-router";
 import React from "react";
 import { Platform, TouchableOpacity, View } from "react-native";
+
 export default function TabLayout() {
   const colorScheme = useColorScheme();
-
   const router = useRouter();
+
   return (
     <Tabs
       screenOptions={{
-        //  tabBarActiveTintColor: Colors[colorScheme ?? "light"].tint,
         tabBarActiveTintColor: "white",
         tabBarButton: HapticTab,
         tabBarBackground: TabBarBackground,
@@ -20,39 +20,52 @@ export default function TabLayout() {
           backgroundColor: "#112866",
         },
         headerTitleStyle: {
-          color: "white", // Makes title text white
+          color: "white",
         },
         tabBarStyle: Platform.select({
           ios: {
-            // Use a transparent background on iOS to show the blur effect
             position: "absolute",
+            display: "none", // Hide tab bar on iOS
           },
-          default: {},
+          default: {
+            display: "none", // Hide tab bar on Android
+          },
         }),
       }}
     >
       <Tabs.Screen
         name="index"
         options={{
-          title: "Profile",
-
+          title: "Menu",
+          headerTitle: "",
           tabBarIcon: ({ color }) => (
             <Ionicons name="person" size={32} color={color} />
           ),
           tabBarStyle: {
             backgroundColor: "#112866",
+            display: "none",
           },
+          headerLeft: () => (
+            <TouchableOpacity
+              onPress={() => router.back()}
+              style={{ paddingLeft: 16 }}
+            >
+              <Ionicons name="arrow-back" size={28} color="white" />
+            </TouchableOpacity>
+          ),
         }}
       />
       <Tabs.Screen
         name="timekeeping"
         options={{
           title: "TimeKeeping",
+          headerTitle: "",
           tabBarIcon: ({ color }) => (
             <Ionicons name="time" size={32} color={color} />
           ),
           tabBarStyle: {
             backgroundColor: "#112866",
+            display: "none", // Hide tab bar for this screen
           },
           headerLeft: () => (
             <TouchableOpacity
@@ -68,6 +81,7 @@ export default function TabLayout() {
         name="reqAndDis"
         options={{
           title: "Requests & Disputes",
+          headerTitle: "",
           tabBarIcon: ({ color }) => (
             <View
               style={{ flexDirection: "row", alignItems: "center", gap: 4 }}
@@ -77,6 +91,7 @@ export default function TabLayout() {
           ),
           tabBarStyle: {
             backgroundColor: "#112866",
+            display: "none", // Hide tab bar for this screen
           },
           headerLeft: () => (
             <TouchableOpacity
@@ -92,6 +107,7 @@ export default function TabLayout() {
         name="payslip"
         options={{
           title: "Payslip",
+          headerTitle: "",
           tabBarIcon: ({ color }) => (
             <MaterialCommunityIcons
               name="file-document"
@@ -101,6 +117,7 @@ export default function TabLayout() {
           ),
           tabBarStyle: {
             backgroundColor: "#112866",
+            display: "none", // Hide tab bar for this screen
           },
           headerLeft: () => (
             <TouchableOpacity

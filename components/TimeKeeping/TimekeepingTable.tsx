@@ -30,9 +30,14 @@ const TimeKeepingTable = ({ attendance }: TimeKeepingTableProps) => {
 
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
-        <MaterialCommunityIcons name="calendar-clock" size={24} color="#112866" />
-        <Text style={styles.title}>Attendance Records</Text>
+      <View style={styles.pageHeader}>
+        <View style={styles.headerLeft}>
+          <MaterialCommunityIcons name="calendar-clock" size={24} color="#112866" />
+          <Text style={styles.headerTitle}>Attendance Records</Text>
+        </View>
+        <View style={styles.headerRight}>
+          <MaterialCommunityIcons name="calendar-check" size={24} color="#112866" />
+        </View>
       </View>
       <ScrollView horizontal showsHorizontalScrollIndicator={false}>
         <DataTable>
@@ -114,16 +119,25 @@ const styles = StyleSheet.create({
     shadowRadius: 2,
     elevation: 2,
   },
-  header: {
+  pageHeader: {
     flexDirection: "row",
+    justifyContent: "space-between",
     alignItems: "center",
     marginBottom: 16,
     gap: 8,
   },
-  title: {
+  headerLeft: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+  },
+  headerTitle: {
     fontSize: 18,
     fontWeight: "600",
     color: "#112866",
+  },
+  headerRight: {
+    padding: 4,
   },
   scrollView: {
     maxHeight: 300,

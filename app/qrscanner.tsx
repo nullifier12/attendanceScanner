@@ -3,14 +3,25 @@ import { Ionicons } from "@expo/vector-icons";
 import { useFocusEffect } from "@react-navigation/native";
 import { BlurView } from "expo-blur";
 import { CameraType, CameraView, useCameraPermissions } from "expo-camera";
+import Constants from "expo-constants";
 import { useRouter } from "expo-router";
 import React, { useCallback, useState } from "react";
-import { Alert, Animated, Dimensions, Easing, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import {
+    Alert,
+    Animated,
+    Dimensions,
+    Easing,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
+} from "react-native";
 
-const { width } = Dimensions.get('window');
+const { width } = Dimensions.get("window");
 const SCAN_AREA_SIZE = Math.min(width * 0.7, 300);
 
 const QRScanner = () => {
+  const url = Constants.expoConfig?.extra?.apiUrl;
   const [facing, setFacing] = useState<CameraType>("back");
   const [permission, requestPermission] = useCameraPermissions();
   const [scanned, setScanned] = useState(false);
@@ -62,7 +73,7 @@ const QRScanner = () => {
           <Text style={styles.permissionSubText}>
             Please grant camera permission to continue
           </Text>
-          <TouchableOpacity 
+          <TouchableOpacity
             style={styles.permissionButton}
             onPress={requestPermission}
           >
@@ -77,30 +88,47 @@ const QRScanner = () => {
     if (!scanned) {
       setScanned(true);
       try {
-        // Create a mock session (replace this with your actual API call)
-        const mockSession = {
+        const response = await fetch(`${url}/api/mobile/mobileAuth`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(data),
+        });
+
+        console.log("API Response Status:", response.status);
+        const responseData = await response.json();
+        console.log("API Response Data:", responseData);
+
+        const session = {
           token: "mock-jwt-token-" + Date.now(),
           user: {
-            id: "1",
-            name: "Roland Capinpin",
-            email: "capinpin@mail.com"
-          }
+            id: responseData[0].ID,
+            name: `${responseData[0].pi_fname} ${responseData[0].pi_lname}`,
+            email: responseData[0].pi_email,
+          },
         };
 
-        await setSession(mockSession);
-        
+        await setSession(session);
+
         Alert.alert(
           "Success",
           "QR Code scanned successfully",
           [{ text: "OK" }],
           { cancelable: false }
         );
-        
-        router.push("/userinfo/userinfo");
+
+        router.push({
+          pathname: "/userinfo/userinfo",
+          params: {
+            userData: JSON.stringify(responseData)
+          }
+        });
       } catch (error) {
+        console.error("Scan error:", error);
         Alert.alert(
           "Error",
-          "Failed to process QR code",
+          "Failed to process QR code. Please try again.",
           [{ text: "OK" }],
           { cancelable: false }
         );
@@ -147,7 +175,9 @@ const QRScanner = () => {
               </View>
             </BlurView>
             <Text style={styles.scanText}>Position QR code within frame</Text>
-            <Text style={styles.scanSubText}>Scanning will start automatically</Text>
+            <Text style={styles.scanSubText}>
+              Scanning will start automatically
+            </Text>
           </View>
         </>
       )}
@@ -158,114 +188,114 @@ const QRScanner = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#000',
+    backgroundColor: "#000",
   },
   overlay: {
     ...StyleSheet.absoluteFillObject,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
   scanAreaContainer: {
     width: SCAN_AREA_SIZE,
     height: SCAN_AREA_SIZE,
     borderRadius: 20,
-    overflow: 'hidden',
+    overflow: "hidden",
   },
   scanArea: {
-    width: '100%',
-    height: '100%',
-    justifyContent: 'center',
-    alignItems: 'center',
+    width: "100%",
+    height: "100%",
+    justifyContent: "center",
+    alignItems: "center",
   },
   cornerTL: {
-    position: 'absolute',
+    position: "absolute",
     top: 0,
     left: 0,
     width: 20,
     height: 20,
     borderTopWidth: 4,
     borderLeftWidth: 4,
-    borderColor: '#fff',
+    borderColor: "#fff",
   },
   cornerTR: {
-    position: 'absolute',
+    position: "absolute",
     top: 0,
     right: 0,
     width: 20,
     height: 20,
     borderTopWidth: 4,
     borderRightWidth: 4,
-    borderColor: '#fff',
+    borderColor: "#fff",
   },
   cornerBL: {
-    position: 'absolute',
+    position: "absolute",
     bottom: 0,
     left: 0,
     width: 20,
     height: 20,
     borderBottomWidth: 4,
     borderLeftWidth: 4,
-    borderColor: '#fff',
+    borderColor: "#fff",
   },
   cornerBR: {
-    position: 'absolute',
+    position: "absolute",
     bottom: 0,
     right: 0,
     width: 20,
     height: 20,
     borderBottomWidth: 4,
     borderRightWidth: 4,
-    borderColor: '#fff',
+    borderColor: "#fff",
   },
   scanLine: {
-    width: '100%',
+    width: "100%",
     height: 2,
-    backgroundColor: '#112866',
-    position: 'absolute',
+    backgroundColor: "#112866",
+    position: "absolute",
   },
   scanText: {
-    color: '#fff',
+    color: "#fff",
     fontSize: 18,
-    fontWeight: '600',
+    fontWeight: "600",
     marginTop: 20,
   },
   scanSubText: {
-    color: '#fff',
+    color: "#fff",
     fontSize: 14,
     opacity: 0.8,
     marginTop: 8,
   },
   permissionContainer: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
     padding: 20,
-    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+    backgroundColor: "rgba(255, 255, 255, 0.9)",
   },
   permissionText: {
     fontSize: 18,
-    fontWeight: '600',
-    color: '#112866',
-    textAlign: 'center',
+    fontWeight: "600",
+    color: "#112866",
+    textAlign: "center",
     marginTop: 20,
   },
   permissionSubText: {
     fontSize: 14,
-    color: '#666',
-    textAlign: 'center',
+    color: "#666",
+    textAlign: "center",
     marginTop: 10,
   },
   permissionButton: {
-    backgroundColor: '#112866',
+    backgroundColor: "#112866",
     paddingHorizontal: 20,
     paddingVertical: 12,
     borderRadius: 8,
     marginTop: 20,
   },
   permissionButtonText: {
-    color: '#fff',
+    color: "#fff",
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: "600",
   },
 });
 

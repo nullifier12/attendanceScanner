@@ -13,4 +13,4 @@ export interface AuthState {
   session: AuthSession | null;
   isLoading: boolean;
   error: string | null;
-} 
+}

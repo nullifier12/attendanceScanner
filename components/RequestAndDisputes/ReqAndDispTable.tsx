@@ -389,6 +389,15 @@ const RequestAndDisp = ({ type }: RequestAndDispProps) => {
 
   return (
     <View style={styles.container}>
+      <View style={styles.pageHeader}>
+        <View style={styles.headerLeft}>
+          <MaterialCommunityIcons name="file-document" size={24} color="#112866" />
+          <Text style={styles.headerTitle}>{type.charAt(0).toUpperCase() + type.slice(1)} Requests</Text>
+        </View>
+        <View style={styles.headerRight}>
+          <MaterialCommunityIcons name="filter-variant" size={24} color="#112866" />
+        </View>
+      </View>
       <ScrollView horizontal showsHorizontalScrollIndicator={false}>
         <DataTable>{renderTableContent()}</DataTable>
       </ScrollView>
@@ -453,5 +462,25 @@ const styles = StyleSheet.create({
     height: 40,
     fontWeight: "500",
     textAlign: "center",
+  },
+  pageHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 16,
+    gap: 8,
+  },
+  headerLeft: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+  },
+  headerTitle: {
+    fontSize: 18,
+    fontWeight: "600",
+    color: "#112866",
+  },
+  headerRight: {
+    padding: 4,
   },
 });
