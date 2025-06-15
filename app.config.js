@@ -1,21 +1,23 @@
 export default {
   expo: {
-    name: "ScnnrAttndc",
+    name: "HR APP",
     slug: "ScnnrAttndc",
-    version: "1.0.0",
+    version: "1.0.2",
     orientation: "portrait",
-    icon: "./assets/images/icon.png",
+    icon: "./assets/Logo.png",
     scheme: "scnnrattndc",
     userInterfaceStyle: "automatic",
     newArchEnabled: true,
     ios: {
-      supportsTablet: true
+      supportsTablet: true,
+      icon: "./assets/Logo.png"
     },
     android: {
       adaptiveIcon: {
-        foregroundImage: "./assets/images/adaptive-icon.png",
-        backgroundColor: "#ffffff"
+        foregroundImage: "./assets/Logo.png",
+        backgroundColor: "#112866"
       },
+      icon: "./assets/Logo.png",
       edgeToEdgeEnabled: true,
       permissions: ["android.permission.CAMERA"],
       package: "com.attScnnr"
@@ -23,14 +25,14 @@ export default {
     web: {
       bundler: "metro",
       output: "static",
-      favicon: "./assets/images/favicon.png"
+      favicon: "./assets/Logo.png"
     },
     plugins: [
       "expo-router",
       [
         "expo-splash-screen",
         {
-          "image": "./assets/images/splash-icon.png",
+          "image": "./assets/Logo.png",
           "imageWidth": 200,
           "resizeMode": "contain",
           "backgroundColor": "#ffffff"
