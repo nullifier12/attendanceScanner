@@ -1,4 +1,6 @@
+import { useThemeColor } from "@/hooks/useThemeColor";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
+import React from "react";
 import { ScrollView, StyleSheet, Text, View } from "react-native";
 import { Button } from "react-native-paper";
 import { currencyFormatter } from "../../utils/currencyFormatter";
@@ -18,6 +20,11 @@ interface PayslipDetailProps {
 }
 
 const PayslipDetail = ({ payslip, onClose }: PayslipDetailProps) => {
+  // Get theme colors
+  const textColor = useThemeColor({}, 'text');
+  const backgroundColor = useThemeColor({}, 'background');
+  const iconColor = useThemeColor({}, 'icon');
+
   const getStatusColor = (status: string) => {
     switch (status.toLowerCase()) {
       case "paid":
@@ -32,21 +39,21 @@ const PayslipDetail = ({ payslip, onClose }: PayslipDetailProps) => {
   };
 
   return (
-    <View style={styles.container}>
-      <View style={styles.header}>
+    <View style={[styles.container, { backgroundColor }]}>
+      <View style={[styles.header, { backgroundColor }]}>
         <View style={styles.headerLeft}>
           <MaterialCommunityIcons
             name="file-document-outline"
             size={24}
-            color="#112866"
+            color={iconColor}
           />
-          <Text style={styles.headerTitle}>Payslip Details</Text>
+          <Text style={[styles.headerTitle, { color: textColor }]}>Payslip Details</Text>
         </View>
         <Button
           mode="text"
           onPress={onClose}
           icon="close"
-          textColor="#666"
+          textColor={iconColor}
         >
           Close
         </Button>

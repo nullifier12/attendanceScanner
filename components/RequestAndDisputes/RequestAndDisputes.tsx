@@ -1,5 +1,6 @@
 import ViewWrapper from "@/components/Layout/View";
 import { useAuth } from "@/contexts/AuthContext";
+import { useThemeColor } from "@/hooks/useThemeColor";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import React, { useState } from "react";
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
@@ -11,6 +12,11 @@ const RequestAndDispute = () => {
   const [modalVisible, setModalVisible] = useState(false);
   const [activeTab, setActiveTab] = useState("leave");
   const { session } = useAuth();
+  
+  // Get theme colors
+  const textColor = useThemeColor({}, 'text');
+  const backgroundColor = useThemeColor({}, 'background');
+  const iconColor = useThemeColor({}, 'icon');
 
   const currentDate = new Date().toLocaleDateString('en-US', {
     weekday: 'long',
@@ -26,14 +32,14 @@ const RequestAndDispute = () => {
         contentContainerStyle={styles.scrollContent}
       >
         {/* Header Section */}
-        <View style={styles.pageHeader}>
+        <View style={[styles.pageHeader, { backgroundColor }]}>
           <View style={styles.headerLeft}>
-            <MaterialCommunityIcons name="file-document-edit" size={24} color="#112866" />
-            <Text style={styles.headerTitle}>Requests & Disputes</Text>
+            <MaterialCommunityIcons name="file-document-edit" size={24} color={iconColor} />
+            <Text style={[styles.headerTitle, { color: textColor }]}>Requests & Disputes</Text>
           </View>
-          <View style={styles.headerRight}>
-            <MaterialCommunityIcons name="plus-circle" size={24} color="#112866" />
-          </View>
+          <Pressable onPress={() => setModalVisible(true)} style={styles.addButton}>
+            <MaterialCommunityIcons name="plus-circle" size={24} color={iconColor} />
+          </Pressable>
         </View>
 
         <Divider style={styles.divider} />
@@ -50,7 +56,7 @@ const RequestAndDispute = () => {
         </View>
 
         {/* Tabs */}
-        <View style={styles.tabsContainer}>
+        <View style={[styles.tabsContainer, { backgroundColor }]}>
           <Pressable
             style={[styles.tab, activeTab === 'leave' && styles.activeTab]}
             onPress={() => setActiveTab('leave')}
@@ -58,9 +64,9 @@ const RequestAndDispute = () => {
             <MaterialCommunityIcons 
               name="calendar-clock" 
               size={20} 
-              color={activeTab === 'leave' ? '#112866' : '#666'} 
+              color={activeTab === 'leave' ? '#112866' : iconColor} 
             />
-            <Text style={[styles.tabText, activeTab === 'leave' && styles.activeTabText]}>
+            <Text style={[styles.tabText, { color: textColor }, activeTab === 'leave' && styles.activeTabText]}>
               Leave
             </Text>
           </Pressable>
@@ -71,9 +77,9 @@ const RequestAndDispute = () => {
             <MaterialCommunityIcons 
               name="clock-time-four" 
               size={20} 
-              color={activeTab === 'ot' ? '#112866' : '#666'} 
+              color={activeTab === 'ot' ? '#112866' : iconColor} 
             />
-            <Text style={[styles.tabText, activeTab === 'ot' && styles.activeTabText]}>
+            <Text style={[styles.tabText, { color: textColor }, activeTab === 'ot' && styles.activeTabText]}>
               OT/UT
             </Text>
           </Pressable>
@@ -84,9 +90,9 @@ const RequestAndDispute = () => {
             <MaterialCommunityIcons 
               name="briefcase" 
               size={20} 
-              color={activeTab === 'ob' ? '#112866' : '#666'} 
+              color={activeTab === 'ob' ? '#112866' : iconColor} 
             />
-            <Text style={[styles.tabText, activeTab === 'ob' && styles.activeTabText]}>
+            <Text style={[styles.tabText, { color: textColor }, activeTab === 'ob' && styles.activeTabText]}>
               OB
             </Text>
           </Pressable>
@@ -97,9 +103,9 @@ const RequestAndDispute = () => {
             <MaterialCommunityIcons 
               name="alert-circle" 
               size={20} 
-              color={activeTab === 'disputes' ? '#112866' : '#666'} 
+              color={activeTab === 'disputes' ? '#112866' : iconColor} 
             />
-            <Text style={[styles.tabText, activeTab === 'disputes' && styles.activeTabText]}>
+            <Text style={[styles.tabText, { color: textColor }, activeTab === 'disputes' && styles.activeTabText]}>
               Disputes
             </Text>
           </Pressable>
@@ -129,7 +135,6 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    backgroundColor: "#fff",
     borderRadius: 12,
     padding: 16,
     marginBottom: 16,
@@ -138,6 +143,8 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 3,
+    borderWidth: 1,
+    borderColor: '#e0e0e0',
   },
   headerLeft: {
     flexDirection: "row",
@@ -147,9 +154,8 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 18,
     fontWeight: "600",
-    color: "#112866",
   },
-  headerRight: {
+  addButton: {
     padding: 4,
   },
   divider: {
@@ -176,7 +182,6 @@ const styles = StyleSheet.create({
   },
   tabsContainer: {
     flexDirection: "row",
-    backgroundColor: "#fff",
     borderRadius: 8,
     padding: 4,
     marginBottom: 16,
@@ -185,6 +190,8 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 2,
     elevation: 2,
+    borderWidth: 1,
+    borderColor: '#e0e0e0',
   },
   tab: {
     flex: 1,
@@ -200,7 +207,6 @@ const styles = StyleSheet.create({
   },
   tabText: {
     fontSize: 14,
-    color: "#666",
     fontWeight: "500",
   },
   activeTabText: {
@@ -208,13 +214,6 @@ const styles = StyleSheet.create({
     fontWeight: "600",
   },
   content: {
-    backgroundColor: "#fff",
-    borderRadius: 12,
-    padding: 16,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
+    flex: 1,
   },
 });

@@ -1,3 +1,4 @@
+import { useThemeColor } from "@/hooks/useThemeColor";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { ScrollView, StyleSheet, Text, View } from "react-native";
 import { Chip, DataTable } from "react-native-paper";
@@ -17,6 +18,11 @@ interface PayslipRecord {
 
 const PayslipTable = () => {
   const { session } = useAuth();
+  
+  // Get theme colors
+  const textColor = useThemeColor({}, 'text');
+  const backgroundColor = useThemeColor({}, 'background');
+  const iconColor = useThemeColor({}, 'icon');
 
   const payslipArray: PayslipRecord[] = [
     {
@@ -71,43 +77,47 @@ const PayslipTable = () => {
   const totalNetPay = payslipArray.reduce((sum, p) => sum + p.netPay, 0);
 
   return (
-    <View style={styles.container}>
-      <View style={styles.pageHeader}>
+    <View style={[styles.container, { backgroundColor }]}>
+      <View style={[styles.pageHeader, { backgroundColor }]}>
         <View style={styles.headerLeft}>
-          <MaterialCommunityIcons name="file-document-outline" size={24} color="#112866" />
-          <Text style={styles.headerTitle}>Payslip History</Text>
+          <MaterialCommunityIcons name="file-document-outline" size={24} color={iconColor} />
+          <Text style={[styles.headerTitle, { color: textColor }]}>Payslip History</Text>
         </View>
         <View style={styles.headerRight}>
-          <MaterialCommunityIcons name="download-outline" size={24} color="#112866" />
+          <MaterialCommunityIcons name="download-outline" size={24} color={iconColor} />
         </View>
       </View>
 
-      <View style={styles.tableContainer}>
+      <View style={[styles.tableContainer, { backgroundColor }]}>
         <ScrollView horizontal showsHorizontalScrollIndicator={false}>
           <DataTable style={styles.table}>
             <DataTable.Header>
-              <DataTable.Title style={styles.idColumn}>ID</DataTable.Title>
+              <DataTable.Title style={styles.idColumn}>
+                <Text style={[styles.headerText, { color: textColor }]}>ID</Text>
+              </DataTable.Title>
               <DataTable.Title style={styles.periodColumn}>
-                Period
+                <Text style={[styles.headerText, { color: textColor }]}>Period</Text>
               </DataTable.Title>
-              <DataTable.Title style={styles.dateColumn}>Date</DataTable.Title>
-              <DataTable.Title style={styles.amountColumn}>
-                Basic Pay
-              </DataTable.Title>
-              <DataTable.Title style={styles.amountColumn}>
-                Allowances
+              <DataTable.Title style={styles.dateColumn}>
+                <Text style={[styles.headerText, { color: textColor }]}>Date</Text>
               </DataTable.Title>
               <DataTable.Title style={styles.amountColumn}>
-                Deductions
+                <Text style={[styles.headerText, { color: textColor }]}>Basic Pay</Text>
               </DataTable.Title>
               <DataTable.Title style={styles.amountColumn}>
-                Net Pay
+                <Text style={[styles.headerText, { color: textColor }]}>Allowances</Text>
+              </DataTable.Title>
+              <DataTable.Title style={styles.amountColumn}>
+                <Text style={[styles.headerText, { color: textColor }]}>Deductions</Text>
+              </DataTable.Title>
+              <DataTable.Title style={styles.amountColumn}>
+                <Text style={[styles.headerText, { color: textColor }]}>Net Pay</Text>
               </DataTable.Title>
               <DataTable.Title style={styles.statusColumn}>
-                Status
+                <Text style={[styles.headerText, { color: textColor }]}>Status</Text>
               </DataTable.Title>
               <DataTable.Title style={styles.actionColumn}>
-                Action
+                <Text style={[styles.headerText, { color: textColor }]}>Action</Text>
               </DataTable.Title>
             </DataTable.Header>
 
@@ -115,25 +125,25 @@ const PayslipTable = () => {
               {payslipArray.map((payslip) => (
                 <DataTable.Row key={payslip.id}>
                   <DataTable.Cell style={styles.idColumn}>
-                    {payslip.id}
+                    <Text style={[styles.cellText, { color: textColor }]}>{payslip.id}</Text>
                   </DataTable.Cell>
                   <DataTable.Cell style={styles.periodColumn}>
-                    {payslip.period}
+                    <Text style={[styles.cellText, { color: textColor }]}>{payslip.period}</Text>
                   </DataTable.Cell>
                   <DataTable.Cell style={styles.dateColumn}>
-                    {payslip.date}
+                    <Text style={[styles.cellText, { color: textColor }]}>{payslip.date}</Text>
                   </DataTable.Cell>
                   <DataTable.Cell style={styles.amountColumn}>
-                    {currencyFormatter.format(payslip.basicPay)}
+                    <Text style={[styles.cellText, { color: textColor }]}>{currencyFormatter.format(payslip.basicPay)}</Text>
                   </DataTable.Cell>
                   <DataTable.Cell style={styles.amountColumn}>
-                    {currencyFormatter.format(payslip.allowances)}
+                    <Text style={[styles.cellText, { color: textColor }]}>{currencyFormatter.format(payslip.allowances)}</Text>
                   </DataTable.Cell>
                   <DataTable.Cell style={styles.amountColumn}>
-                    {currencyFormatter.format(payslip.deductions)}
+                    <Text style={[styles.cellText, { color: textColor }]}>{currencyFormatter.format(payslip.deductions)}</Text>
                   </DataTable.Cell>
                   <DataTable.Cell style={styles.amountColumn}>
-                    {currencyFormatter.format(payslip.netPay)}
+                    <Text style={[styles.cellText, { color: textColor }]}>{currencyFormatter.format(payslip.netPay)}</Text>
                   </DataTable.Cell>
                   <DataTable.Cell style={styles.statusColumn}>
                     <Chip
@@ -155,10 +165,16 @@ const PayslipTable = () => {
                   </DataTable.Cell>
                   <DataTable.Cell style={styles.actionColumn}>
                     <MaterialCommunityIcons
-                      name="eye"
+                      name="file-document-outline"
                       size={24}
-                      color="#112866"
-                      style={styles.actionIcon}
+                      color={iconColor}
+                      onPress={() => console.log("View details for:", payslip.id)}
+                    />
+                    <MaterialCommunityIcons
+                      name="download-outline"
+                      size={24}
+                      color={iconColor}
+                      onPress={() => console.log("Download payslip:", payslip.id)}
                     />
                   </DataTable.Cell>
                 </DataTable.Row>
@@ -174,14 +190,12 @@ const PayslipTable = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f5f5f5",
     padding: 16,
   },
   pageHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    backgroundColor: "#fff",
     borderRadius: 12,
     padding: 16,
     marginBottom: 16,
@@ -190,6 +204,8 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 3,
+    borderWidth: 1,
+    borderColor: '#e0e0e0',
   },
   headerLeft: {
     flexDirection: "row",
@@ -199,57 +215,38 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 18,
     fontWeight: "600",
-    color: "#112866",
   },
   headerRight: {
     padding: 4,
   },
   tableContainer: {
     flex: 1,
-    backgroundColor: "#fff",
     borderRadius: 12,
+    padding: 16,
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-    overflow: "hidden",
+    shadowRadius: 2,
+    elevation: 2,
+    borderWidth: 1,
+    borderColor: '#e0e0e0',
   },
   table: {
-    backgroundColor: "#fff",
+    backgroundColor: "transparent",
   },
   tableBody: {
-    maxHeight: 200,
+    maxHeight: 400,
   },
-  idColumn: {
-    width: 80,
-    paddingHorizontal: 8,
+  headerText: {
+    fontSize: 14,
+    fontWeight: "600",
   },
-  periodColumn: {
-    width: 150,
-    paddingHorizontal: 8,
-  },
-  dateColumn: {
-    width: 120,
-    paddingHorizontal: 8,
-  },
-  amountColumn: {
-    width: 120,
-    paddingHorizontal: 8,
-  },
-  statusColumn: {
-    width: 120,
-    paddingHorizontal: 8,
-  },
-  actionColumn: {
-    width: 80,
-    paddingHorizontal: 8,
+  cellText: {
+    fontSize: 14,
   },
   statusChip: {
     height: 28,
-    minWidth: 100,
-    justifyContent: "center",
-    alignItems: "center",
+    minWidth: 80,
   },
   statusChipText: {
     fontSize: 12,
@@ -257,6 +254,31 @@ const styles = StyleSheet.create({
   },
   actionIcon: {
     padding: 4,
+  },
+  // Column widths
+  idColumn: {
+    flex: 1,
+    minWidth: 60,
+  },
+  periodColumn: {
+    flex: 2,
+    minWidth: 150,
+  },
+  dateColumn: {
+    flex: 1,
+    minWidth: 100,
+  },
+  amountColumn: {
+    flex: 1,
+    minWidth: 100,
+  },
+  statusColumn: {
+    flex: 1,
+    minWidth: 100,
+  },
+  actionColumn: {
+    flex: 1,
+    minWidth: 80,
   },
 });
 

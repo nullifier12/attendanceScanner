@@ -1,3 +1,4 @@
+import { useThemeColor } from "@/hooks/useThemeColor";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import React, { useState } from "react";
 import { Modal, Pressable, StyleSheet, Text, View } from "react-native";
@@ -13,6 +14,11 @@ interface RequestModalProps {
 
 export default function RequestModal({ isVisible, setModalVisible }: RequestModalProps) {
   const [activeModal, setActiveModal] = useState<string | null>(null);
+  
+  // Get theme colors
+  const textColor = useThemeColor({}, 'text');
+  const backgroundColor = useThemeColor({}, 'background');
+  const iconColor = useThemeColor({}, 'icon');
 
   const closeMainModal = () => {
     setModalVisible(false);
@@ -32,64 +38,64 @@ export default function RequestModal({ isVisible, setModalVisible }: RequestModa
         onRequestClose={closeMainModal}
       >
         <View style={styles.overlay}>
-          <View style={styles.modalView}>
+          <View style={[styles.modalView, { backgroundColor }]}>
             <View style={styles.header}>
-              <Text style={styles.title}>Create Request</Text>
+              <Text style={[styles.title, { color: textColor }]}>Create Request</Text>
               <Pressable onPress={closeMainModal} style={styles.closeButton}>
-                <MaterialCommunityIcons name="close" size={24} color="#666" />
+                <MaterialCommunityIcons name="close" size={24} color={iconColor} />
               </Pressable>
             </View>
 
             <View style={styles.options}>
               <Pressable
-                style={styles.optionCard}
+                style={[styles.optionCard, { backgroundColor }]}
                 onPress={() => openModal('leave')}
               >
                 <View style={[styles.iconContainer, { backgroundColor: '#E3F2FD' }]}>
                   <MaterialCommunityIcons name="calendar-clock" size={24} color="#1976D2" />
                 </View>
                 <View style={styles.optionContent}>
-                  <Text style={styles.optionTitle}>Leave Request</Text>
-                  <Text style={styles.optionDescription}>Apply for sick leave, vacation leave, or other types of leave</Text>
+                  <Text style={[styles.optionTitle, { color: textColor }]}>Leave Request</Text>
+                  <Text style={[styles.optionDescription, { color: iconColor }]}>Apply for sick leave, vacation leave, or other types of leave</Text>
                 </View>
               </Pressable>
 
               <Pressable
-                style={styles.optionCard}
+                style={[styles.optionCard, { backgroundColor }]}
                 onPress={() => openModal('ot')}
               >
                 <View style={[styles.iconContainer, { backgroundColor: '#E8F5E9' }]}>
                   <MaterialCommunityIcons name="clock-time-four" size={24} color="#2E7D32" />
                 </View>
                 <View style={styles.optionContent}>
-                  <Text style={styles.optionTitle}>Overtime/Undertime</Text>
-                  <Text style={styles.optionDescription}>Request overtime work or undertime adjustments</Text>
+                  <Text style={[styles.optionTitle, { color: textColor }]}>Overtime/Undertime</Text>
+                  <Text style={[styles.optionDescription, { color: iconColor }]}>Request overtime work or undertime adjustments</Text>
                 </View>
               </Pressable>
 
               <Pressable
-                style={styles.optionCard}
+                style={[styles.optionCard, { backgroundColor }]}
                 onPress={() => openModal('ob')}
               >
                 <View style={[styles.iconContainer, { backgroundColor: '#FFF3E0' }]}>
                   <MaterialCommunityIcons name="briefcase" size={24} color="#E65100" />
                 </View>
                 <View style={styles.optionContent}>
-                  <Text style={styles.optionTitle}>Official Business</Text>
-                  <Text style={styles.optionDescription}>Request time off for official business matters</Text>
+                  <Text style={[styles.optionTitle, { color: textColor }]}>Official Business</Text>
+                  <Text style={[styles.optionDescription, { color: iconColor }]}>Request time off for official business matters</Text>
                 </View>
               </Pressable>
 
               <Pressable
-                style={styles.optionCard}
+                style={[styles.optionCard, { backgroundColor }]}
                 onPress={() => openModal('dispute')}
               >
                 <View style={[styles.iconContainer, { backgroundColor: '#FFEBEE' }]}>
                   <MaterialCommunityIcons name="alert-circle" size={24} color="#C62828" />
                 </View>
                 <View style={styles.optionContent}>
-                  <Text style={styles.optionTitle}>Time Dispute</Text>
-                  <Text style={styles.optionDescription}>Report and resolve time entry discrepancies</Text>
+                  <Text style={[styles.optionTitle, { color: textColor }]}>Time Dispute</Text>
+                  <Text style={[styles.optionDescription, { color: iconColor }]}>Report and resolve time entry discrepancies</Text>
                 </View>
               </Pressable>
             </View>
@@ -127,7 +133,6 @@ const styles = StyleSheet.create({
   modalView: {
     width: "90%",
     maxWidth: 500,
-    backgroundColor: "white",
     borderRadius: 12,
     shadowColor: "#000",
     shadowOffset: {
@@ -137,6 +142,8 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 4,
     elevation: 5,
+    borderWidth: 1,
+    borderColor: '#e0e0e0',
   },
   header: {
     flexDirection: "row",
@@ -149,7 +156,6 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 20,
     fontWeight: "600",
-    color: "#112866",
   },
   closeButton: {
     padding: 4,
@@ -162,7 +168,6 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     padding: 16,
-    backgroundColor: "#F8F9FA",
     borderRadius: 8,
     borderWidth: 1,
     borderColor: "#E0E0E0",
@@ -181,12 +186,10 @@ const styles = StyleSheet.create({
   optionTitle: {
     fontSize: 16,
     fontWeight: "600",
-    color: "#112866",
     marginBottom: 4,
   },
   optionDescription: {
     fontSize: 14,
-    color: "#666",
     lineHeight: 20,
   },
 });

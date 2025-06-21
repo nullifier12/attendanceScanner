@@ -1,4 +1,5 @@
 import CustomCalendar from '@/components/CustomCalendar';
+import { useThemeColor } from '@/hooks/useThemeColor';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import React from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
@@ -18,11 +19,16 @@ const CalendarScreen = () => {
     ],
   };
 
+  // Get theme colors
+  const textColor = useThemeColor({}, 'text');
+  const backgroundColor = useThemeColor({}, 'background');
+  const iconColor = useThemeColor({}, 'icon');
+
   return (
-    <ScrollView style={styles.container}>
-      <View style={styles.header}>
-        <MaterialCommunityIcons name="calendar" size={24} color="#112866" />
-        <Text style={styles.headerText}>Calendar</Text>
+    <ScrollView style={[styles.container, { backgroundColor }]}>
+      <View style={[styles.header, { backgroundColor }]}>
+        <MaterialCommunityIcons name="calendar" size={24} color={iconColor} />
+        <Text style={[styles.headerText, { color: textColor }]}>Calendar</Text>
       </View>
       <View style={styles.content}>
         <CustomCalendar events={sampleEvents} />
@@ -34,12 +40,10 @@ const CalendarScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f5f5f5",
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#fff',
     paddingVertical: 12,
     paddingHorizontal: 16,
     borderRadius: 10,
@@ -50,11 +54,12 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
+    borderWidth: 1,
+    borderColor: '#e0e0e0',
   },
   headerText: {
     fontSize: 18,
     fontWeight: '600',
-    color: '#112866',
     marginLeft: 10,
   },
   content: {

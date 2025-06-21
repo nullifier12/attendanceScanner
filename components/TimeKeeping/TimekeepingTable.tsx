@@ -1,4 +1,6 @@
+import { useThemeColor } from "@/hooks/useThemeColor";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
+import React from "react";
 import { ScrollView, StyleSheet, Text, View } from "react-native";
 import { Chip, DataTable } from "react-native-paper";
 
@@ -15,6 +17,11 @@ interface TimeKeepingTableProps {
 }
 
 const TimeKeepingTable = ({ attendance }: TimeKeepingTableProps) => {
+  // Get theme colors
+  const textColor = useThemeColor({}, 'text');
+  const backgroundColor = useThemeColor({}, 'background');
+  const iconColor = useThemeColor({}, 'icon');
+
   const getStatusColor = (status: string) => {
     switch (status.toLowerCase()) {
       case "present":
@@ -29,36 +36,37 @@ const TimeKeepingTable = ({ attendance }: TimeKeepingTableProps) => {
   };
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor }]}>
       <View style={styles.pageHeader}>
         <View style={styles.headerLeft}>
-          <MaterialCommunityIcons name="calendar-clock" size={24} color="#112866" />
-          <Text style={styles.headerTitle}>Attendance Records</Text>
+          <MaterialCommunityIcons name="calendar-clock" size={24} color={iconColor} />
+          <Text style={[styles.headerTitle, { color: textColor }]}>Attendance Records</Text>
         </View>
         <View style={styles.headerRight}>
-          <MaterialCommunityIcons name="calendar-check" size={24} color="#112866" />
+          <MaterialCommunityIcons name="calendar-check" size={24} color={iconColor} />
         </View>
       </View>
+
       <ScrollView horizontal showsHorizontalScrollIndicator={false}>
         <DataTable>
           <DataTable.Header>
             <DataTable.Title style={styles.dateColumn}>
-              <Text style={styles.headerText}>Date</Text>
+              <Text style={[styles.headerText, { color: textColor }]}>Date</Text>
             </DataTable.Title>
             <DataTable.Title style={styles.timeColumn}>
-              <Text style={styles.headerText}>Time In</Text>
+              <Text style={[styles.headerText, { color: textColor }]}>Time In</Text>
             </DataTable.Title>
             <DataTable.Title style={styles.timeColumn}>
-              <Text style={styles.headerText}>Time Out</Text>
+              <Text style={[styles.headerText, { color: textColor }]}>Time Out</Text>
             </DataTable.Title>
             <DataTable.Title style={styles.statusColumn}>
-              <Text style={styles.headerText}>Status</Text>
+              <Text style={[styles.headerText, { color: textColor }]}>Status</Text>
             </DataTable.Title>
             <DataTable.Title style={styles.hoursColumn}>
-              <Text style={styles.headerText}>Hours</Text>
+              <Text style={[styles.headerText, { color: textColor }]}>Hours</Text>
             </DataTable.Title>
             <DataTable.Title style={styles.actionColumn}>
-              <Text style={styles.headerText}>Action</Text>
+              <Text style={[styles.headerText, { color: textColor }]}>Action</Text>
             </DataTable.Title>
           </DataTable.Header>
           <ScrollView
@@ -69,13 +77,13 @@ const TimeKeepingTable = ({ attendance }: TimeKeepingTableProps) => {
             {attendance.map((record, index) => (
               <DataTable.Row key={index}>
                 <DataTable.Cell style={styles.dateColumn}>
-                  <Text style={styles.cellText}>{record.date}</Text>
+                  <Text style={[styles.cellText, { color: textColor }]}>{record.date}</Text>
                 </DataTable.Cell>
                 <DataTable.Cell style={styles.timeColumn}>
-                  <Text style={styles.cellText}>{record.in}</Text>
+                  <Text style={[styles.cellText, { color: textColor }]}>{record.in}</Text>
                 </DataTable.Cell>
                 <DataTable.Cell style={styles.timeColumn}>
-                  <Text style={styles.cellText}>{record.out}</Text>
+                  <Text style={[styles.cellText, { color: textColor }]}>{record.out}</Text>
                 </DataTable.Cell>
                 <DataTable.Cell style={styles.statusColumn}>
                   <Chip
@@ -87,13 +95,13 @@ const TimeKeepingTable = ({ attendance }: TimeKeepingTableProps) => {
                   </Chip>
                 </DataTable.Cell>
                 <DataTable.Cell style={styles.hoursColumn}>
-                  <Text style={styles.cellText}>{record.hours}</Text>
+                  <Text style={[styles.cellText, { color: textColor }]}>{record.hours}</Text>
                 </DataTable.Cell>
                 <DataTable.Cell style={styles.actionColumn}>
                   <MaterialCommunityIcons
                     name="eye"
                     size={20}
-                    color="#112866"
+                    color={iconColor}
                     onPress={() => console.log("View details for:", record.date)}
                   />
                 </DataTable.Cell>
@@ -110,7 +118,6 @@ export default TimeKeepingTable;
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: "#fff",
     borderRadius: 12,
     padding: 16,
     shadowColor: "#000",
@@ -118,6 +125,8 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 2,
     elevation: 2,
+    borderWidth: 1,
+    borderColor: '#e0e0e0',
   },
   pageHeader: {
     flexDirection: "row",
@@ -134,7 +143,6 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 18,
     fontWeight: "600",
-    color: "#112866",
   },
   headerRight: {
     padding: 4,
@@ -145,11 +153,9 @@ const styles = StyleSheet.create({
   headerText: {
     fontSize: 14,
     fontWeight: "600",
-    color: "#112866",
   },
   cellText: {
     fontSize: 14,
-    color: "#666",
   },
   statusChip: {
     height: 28,
@@ -182,3 +188,4 @@ const styles = StyleSheet.create({
     minWidth: 80,
   },
 });
+

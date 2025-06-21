@@ -1,11 +1,12 @@
 import { useAuth } from "@/contexts/AuthContext";
+import { useThemeColor } from "@/hooks/useThemeColor";
 import { Ionicons } from "@expo/vector-icons";
 import { useFocusEffect } from "@react-navigation/native";
 import { BlurView } from "expo-blur";
 import { CameraType, CameraView, useCameraPermissions } from "expo-camera";
 import Constants from "expo-constants";
 import { useRouter } from "expo-router";
-import React, { useCallback, useState } from "react";
+import React, { useState } from "react";
 import {
     Alert,
     Animated,
@@ -30,10 +31,17 @@ const QRScanner = () => {
   const scanLineAnim = React.useRef(new Animated.Value(0)).current;
   const { setSession } = useAuth();
 
+  // Get theme colors
+  const textColor = useThemeColor({}, 'text');
+  const backgroundColor = useThemeColor({}, 'background');
+  const iconColor = useThemeColor({}, 'icon');
+
   useFocusEffect(
-    useCallback(() => {
-      setShowCamera(false);
-      setTimeout(() => setShowCamera(true), 100);
+    React.useCallback(() => {
+      setShowCamera(true);
+      return () => {
+        setShowCamera(false);
+      };
     }, [])
   );
 
@@ -66,7 +74,7 @@ const QRScanner = () => {
     return (
       <View style={styles.container}>
         <BlurView intensity={20} style={styles.permissionContainer}>
-          <Ionicons name="camera" size={48} color="#112866" />
+          <Ionicons name="camera" size={48} color={iconColor} />
           <Text style={styles.permissionText}>
             Camera access is required for scanning QR codes
           </Text>
@@ -139,7 +147,7 @@ const QRScanner = () => {
   };
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor }]}>
       {showCamera && (
         <>
           <CameraView
@@ -151,33 +159,35 @@ const QRScanner = () => {
             onBarcodeScanned={handleScan}
           />
           <View style={styles.overlay}>
-            <BlurView intensity={20} style={styles.scanAreaContainer}>
-              <View style={styles.scanArea}>
-                <View style={styles.cornerTL} />
-                <View style={styles.cornerTR} />
-                <View style={styles.cornerBL} />
-                <View style={styles.cornerBR} />
-                <Animated.View
-                  style={[
-                    styles.scanLine,
-                    {
-                      transform: [
-                        {
-                          translateY: scanLineAnim.interpolate({
-                            inputRange: [0, 1],
-                            outputRange: [0, SCAN_AREA_SIZE],
-                          }),
-                        },
-                      ],
-                    },
-                  ]}
-                />
-              </View>
-            </BlurView>
-            <Text style={styles.scanText}>Position QR code within frame</Text>
-            <Text style={styles.scanSubText}>
-              Scanning will start automatically
-            </Text>
+            <View style={styles.header}>
+              <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+                <Ionicons name="arrow-back" size={24} color="white" />
+              </TouchableOpacity>
+              <Text style={styles.headerTitle}>Scan QR Code</Text>
+              <View style={styles.placeholder} />
+            </View>
+            
+            <View style={styles.scanArea}>
+              <View style={styles.corner} />
+              <View style={styles.corner} />
+              <View style={styles.corner} />
+              <View style={styles.corner} />
+              <Animated.View
+                style={[
+                  styles.scanLine,
+                  {
+                    transform: [
+                      {
+                        translateY: scanLineAnim.interpolate({
+                          inputRange: [0, 1],
+                          outputRange: [0, SCAN_AREA_SIZE],
+                        }),
+                      },
+                    ],
+                  },
+                ]}
+              />
+            </View>
           </View>
         </>
       )}
@@ -296,6 +306,30 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontSize: 16,
     fontWeight: "600",
+  },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 10,
+  },
+  backButton: {
+    padding: 5,
+  },
+  headerTitle: {
+    flex: 1,
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#fff',
+    textAlign: 'center',
+  },
+  placeholder: {
+    width: 24,
+    height: 24,
+  },
+  scanner: {
+    flex: 1,
+    width: '100%',
+    height: '100%',
   },
 });
 

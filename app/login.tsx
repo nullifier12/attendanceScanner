@@ -1,5 +1,6 @@
 import { DebugPanel } from "@/components/DebugPanel/DebugPanel";
 import { useAuth } from "@/contexts/AuthContext";
+import { useThemeColor } from "@/hooks/useThemeColor";
 import { debugHelper } from "@/utils/debugHelper";
 import { logger } from "@/utils/logger";
 import { Ionicons } from "@expo/vector-icons";
@@ -34,6 +35,11 @@ const Login = () => {
   const [showDebugPanel, setShowDebugPanel] = useState(false);
   const url = Constants.expoConfig?.extra?.apiUrl;
   const isInitialized = useRef(false);
+
+  // Get theme colors
+  const textColor = useThemeColor({}, 'text');
+  const backgroundColor = useThemeColor({}, 'background');
+  const iconColor = useThemeColor({}, 'icon');
 
   // Log component lifecycle only once
   useEffect(() => {
@@ -201,9 +207,9 @@ const Login = () => {
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : "height"}
-      style={styles.container}
+      style={[styles.container, { backgroundColor }]}
     >
-      <View style={styles.content}>
+      <View style={[styles.content, { backgroundColor }]}>
         {/* Debug Panel Toggle - Only show in development */}
         {__DEV__ && (
           <TouchableOpacity
@@ -222,12 +228,13 @@ const Login = () => {
           />
         </View>
 
-        <View style={styles.formContainer}>
-          <View style={styles.inputContainer}>
-            <Ionicons name="id-card-outline" size={20} color="#666" />
+        <View style={[styles.formContainer, { backgroundColor }]}>
+          <View style={[styles.inputContainer, { backgroundColor }]}>
+            <Ionicons name="id-card-outline" size={20} color={iconColor} />
             <TextInput
-              style={styles.input}
+              style={[styles.input, { color: textColor }]}
               placeholder="Employee Number"
+              placeholderTextColor={iconColor}
               value={employeeNumber}
               onChangeText={(text) => {
                 setEmployeeNumber(text);
@@ -245,11 +252,12 @@ const Login = () => {
             <Text style={styles.errorText}>{errors.employeeNumber}</Text>
           ) : null}
 
-          <View style={styles.inputContainer}>
-            <Ionicons name="lock-closed-outline" size={20} color="#666" />
+          <View style={[styles.inputContainer, { backgroundColor }]}>
+            <Ionicons name="lock-closed-outline" size={20} color={iconColor} />
             <TextInput
-              style={styles.input}
+              style={[styles.input, { color: textColor }]}
               placeholder="Password"
+              placeholderTextColor={iconColor}
               value={password}
               onChangeText={(text) => {
                 setPassword(text);
@@ -268,7 +276,7 @@ const Login = () => {
               <Ionicons
                 name={showPassword ? "eye-off-outline" : "eye-outline"}
                 size={20}
-                color="#666"
+                color={iconColor}
               />
             </Pressable>
           </View>
@@ -299,7 +307,7 @@ const Login = () => {
 
         {/* Version Number */}
         <View style={styles.versionContainer}>
-          <Text style={styles.versionText}>
+          <Text style={[styles.versionText, { color: iconColor }]}>
             Version: {Constants.expoConfig?.version || "1.0.0"}
           </Text>
         </View>
@@ -317,7 +325,6 @@ const Login = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff",
   },
   content: {
     flex: 1,
@@ -339,7 +346,6 @@ const styles = StyleSheet.create({
     color: "#112866",
   },
   formContainer: {
-    backgroundColor: "#fff",
     borderRadius: 12,
     padding: 20,
     borderWidth: 1,
@@ -348,7 +354,6 @@ const styles = StyleSheet.create({
   inputContainer: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#fff",
     borderRadius: 8,
     paddingHorizontal: 12,
     marginBottom: 8,
@@ -360,7 +365,6 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     marginLeft: 8,
     fontSize: 16,
-    color: "#333",
   },
   eyeIcon: {
     padding: 8,
@@ -410,7 +414,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   versionText: {
-    color: "#aaa",
     fontSize: 12,
   },
 });

@@ -1,3 +1,4 @@
+import { useThemeColor } from '@/hooks/useThemeColor';
 import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
 import { FlatList, Modal, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
@@ -18,6 +19,11 @@ interface EventModalProps {
 }
 
 const EventModal: React.FC<EventModalProps> = ({ visible, onClose, events, day, month, year }) => {
+  // Get theme colors
+  const textColor = useThemeColor({}, 'text');
+  const backgroundColor = useThemeColor({}, 'background');
+  const iconColor = useThemeColor({}, 'icon');
+
   return (
     <Modal
       animationType="fade"
@@ -26,11 +32,11 @@ const EventModal: React.FC<EventModalProps> = ({ visible, onClose, events, day, 
       onRequestClose={onClose}
     >
       <View style={styles.centeredView}>
-        <View style={styles.modalView}>
+        <View style={[styles.modalView, { backgroundColor }]}>
           <View style={styles.header}>
-            <Text style={styles.modalTitle}>{`${month} ${day}, ${year}`}</Text>
+            <Text style={[styles.modalTitle, { color: textColor }]}>{`${month} ${day}, ${year}`}</Text>
             <TouchableOpacity onPress={onClose} style={styles.closeButton}>
-              <Ionicons name="close-circle" size={28} color="#ccc" />
+              <Ionicons name="close-circle" size={28} color={iconColor} />
             </TouchableOpacity>
           </View>
 
@@ -43,14 +49,14 @@ const EventModal: React.FC<EventModalProps> = ({ visible, onClose, events, day, 
                   <View style={styles.eventItem}>
                     <View style={[styles.eventDot, { backgroundColor: item.color || '#112866' }]} />
                     <View style={styles.eventTextContainer}>
-                      <Text style={styles.eventText}>{item.title}</Text>
-                      {item.time && <Text style={styles.eventTime}>{item.time}</Text>}
+                      <Text style={[styles.eventText, { color: textColor }]}>{item.title}</Text>
+                      {item.time && <Text style={[styles.eventTime, { color: iconColor }]}>{item.time}</Text>}
                     </View>
                   </View>
                 )}
               />
             ) : (
-              <Text style={styles.noEventText}>No event set this day</Text>
+              <Text style={[styles.noEventText, { color: iconColor }]}>No event set this day</Text>
             )}
           </View>
         </View>
@@ -68,7 +74,6 @@ const styles = StyleSheet.create({
   },
   modalView: {
     width: '85%',
-    backgroundColor: 'white',
     borderRadius: 15,
     padding: 20,
     alignItems: 'stretch',
@@ -80,6 +85,8 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 4,
     elevation: 5,
+    borderWidth: 1,
+    borderColor: '#e0e0e0',
   },
   header: {
     flexDirection: 'row',
@@ -93,7 +100,6 @@ const styles = StyleSheet.create({
   modalTitle: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: '#112866',
   },
   closeButton: {
     padding: 5,
@@ -120,17 +126,14 @@ const styles = StyleSheet.create({
   },
   eventText: {
     fontSize: 16,
-    color: '#333',
     fontWeight: '500',
   },
   eventTime: {
     fontSize: 14,
-    color: '#888',
     marginTop: 4,
   },
   noEventText: {
     fontSize: 16,
-    color: '#888',
     textAlign: 'center',
   },
 });

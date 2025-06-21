@@ -1,3 +1,4 @@
+import { useThemeColor } from "@/hooks/useThemeColor";
 import { ReactNode } from "react";
 import { StyleSheet, View } from "react-native";
 
@@ -6,7 +7,9 @@ interface ViewWrapperProps {
 }
 
 const ViewWrapper: React.FC<ViewWrapperProps> = ({ children }) => {
-  return <View style={styles.container}>{children}</View>;
+  const backgroundColor = useThemeColor({}, 'background');
+  
+  return <View style={[styles.container, { backgroundColor }]}>{children}</View>;
 };
 
 export default ViewWrapper;

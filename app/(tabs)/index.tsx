@@ -1,3 +1,4 @@
+import { useThemeColor } from "@/hooks/useThemeColor";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import React from "react";
@@ -50,18 +51,23 @@ const navigationTiles = [
 
 export default function HomeScreen() {
   const router = useRouter();
+  
+  // Get theme colors
+  const textColor = useThemeColor({}, 'text');
+  const backgroundColor = useThemeColor({}, 'background');
+  const iconColor = useThemeColor({}, 'icon');
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor }]}>
       <View style={styles.header}>
-        <Text style={styles.title}>Menu</Text>
+        <Text style={[styles.title, { color: textColor }]}>Menu</Text>
       </View>
 
-      <View style={styles.navigationContainer}>
+      <View style={[styles.navigationContainer, { backgroundColor }]}>
         {navigationTiles.map((tile) => (
           <Pressable
             key={tile.id}
-            style={styles.navigationTile}
+            style={[styles.navigationTile, { backgroundColor }]}
             onPress={() => router.push(tile.route)}
             android_ripple={{
               color: "rgba(255,255,255,0.2)",
@@ -71,9 +77,9 @@ export default function HomeScreen() {
             <MaterialCommunityIcons
               name={tile.icon}
               size={32}
-              color="#112866"
+              color={iconColor}
             />
-            <Text style={styles.tileText}>{tile.title}</Text>
+            <Text style={[styles.tileText, { color: textColor }]}>{tile.title}</Text>
           </Pressable>
         ))}
       </View>
@@ -84,7 +90,6 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f5f5f5",
     padding: 20,
   },
   header: {
@@ -94,13 +99,11 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 24,
     fontWeight: "bold",
-    color: "#112866",
   },
   navigationContainer: {
     flexDirection: "row",
     flexWrap: "wrap",
     justifyContent: "space-between",
-    backgroundColor: "#fff",
     borderRadius: 12,
     padding: 16,
     shadowColor: "#000",
@@ -112,18 +115,18 @@ const styles = StyleSheet.create({
   navigationTile: {
     width: "48%",
     aspectRatio: 1,
-    backgroundColor: "#f5f5f5",
     borderRadius: 12,
     padding: 16,
     marginBottom: 16,
     alignItems: "center",
     justifyContent: "center",
+    borderWidth: 1,
+    borderColor: "#e0e0e0",
   },
   tileText: {
     marginTop: 8,
     fontSize: 14,
     fontWeight: "600",
-    color: "#112866",
     textAlign: "center",
   },
 });

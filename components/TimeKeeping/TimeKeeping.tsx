@@ -1,5 +1,6 @@
 import ViewWrapper from "@/components/Layout/View";
 import { useAuth } from "@/contexts/AuthContext";
+import { useThemeColor } from "@/hooks/useThemeColor";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { ScrollView, StyleSheet, Text, View } from "react-native";
@@ -8,6 +9,12 @@ import TimeKeepingTable from "./TimekeepingTable";
 
 const TimeKeeping = () => {
   const { session } = useAuth();
+  
+  // Get theme colors
+  const textColor = useThemeColor({}, 'text');
+  const backgroundColor = useThemeColor({}, 'background');
+  const iconColor = useThemeColor({}, 'icon');
+  
   const currentDate = new Date().toLocaleDateString('en-US', {
     weekday: 'long',
     year: 'numeric',
@@ -46,13 +53,13 @@ const TimeKeeping = () => {
         contentContainerStyle={styles.scrollContent}
       >
         {/* Header Section */}
-        <View style={styles.pageHeader}>
+        <View style={[styles.pageHeader, { backgroundColor }]}>
           <View style={styles.headerLeft}>
-            <MaterialCommunityIcons name="clock-time-four" size={24} color="#112866" />
-            <Text style={styles.headerTitle}>Time Keeping</Text>
+            <MaterialCommunityIcons name="clock-time-four" size={24} color={iconColor} />
+            <Text style={[styles.headerTitle, { color: textColor }]}>Time Keeping</Text>
           </View>
           <View style={styles.headerRight}>
-            <MaterialCommunityIcons name="calendar-clock" size={24} color="#112866" />
+            <MaterialCommunityIcons name="calendar-clock" size={24} color={iconColor} />
           </View>
         </View>
 
@@ -60,43 +67,43 @@ const TimeKeeping = () => {
 
         {/* Quick Stats */}
         <View style={styles.statsContainer}>
-          <View style={styles.statCard}>
-            <MaterialCommunityIcons name="calendar-check" size={24} color="#112866" />
+          <View style={[styles.statCard, { backgroundColor }]}>
+            <MaterialCommunityIcons name="calendar-check" size={24} color={iconColor} />
             <View style={styles.statContent}>
-              <Text style={styles.statValue}>{stats.present}</Text>
-              <Text style={styles.statLabel}>Present</Text>
+              <Text style={[styles.statValue, { color: textColor }]}>{stats.present}</Text>
+              <Text style={[styles.statLabel, { color: iconColor }]}>Present</Text>
             </View>
           </View>
-          <View style={styles.statCard}>
-            <MaterialCommunityIcons name="clock-alert" size={24} color="#112866" />
+          <View style={[styles.statCard, { backgroundColor }]}>
+            <MaterialCommunityIcons name="clock-alert" size={24} color={iconColor} />
             <View style={styles.statContent}>
-              <Text style={styles.statValue}>{stats.late}</Text>
-              <Text style={styles.statLabel}>Late</Text>
+              <Text style={[styles.statValue, { color: textColor }]}>{stats.late}</Text>
+              <Text style={[styles.statLabel, { color: iconColor }]}>Late</Text>
             </View>
           </View>
-          <View style={styles.statCard}>
-            <MaterialCommunityIcons name="clock-time-four" size={24} color="#112866" />
+          <View style={[styles.statCard, { backgroundColor }]}>
+            <MaterialCommunityIcons name="clock-time-four" size={24} color={iconColor} />
             <View style={styles.statContent}>
-              <Text style={styles.statValue}>{stats.totalHours}</Text>
-              <Text style={styles.statLabel}>Total Hours</Text>
+              <Text style={[styles.statValue, { color: textColor }]}>{stats.totalHours}</Text>
+              <Text style={[styles.statLabel, { color: iconColor }]}>Total Hours</Text>
             </View>
           </View>
         </View>
 
         {/* Leave Balance */}
         <View style={styles.leaveContainer}>
-          <View style={styles.leaveCard}>
-            <MaterialCommunityIcons name="beach" size={24} color="#112866" />
+          <View style={[styles.leaveCard, { backgroundColor }]}>
+            <MaterialCommunityIcons name="beach" size={24} color={iconColor} />
             <View style={styles.leaveContent}>
-              <Text style={styles.leaveValue}>7</Text>
-              <Text style={styles.leaveLabel}>Vacation Leave</Text>
+              <Text style={[styles.leaveValue, { color: textColor }]}>7</Text>
+              <Text style={[styles.leaveLabel, { color: iconColor }]}>Vacation Leave</Text>
             </View>
           </View>
-          <View style={styles.leaveCard}>
-            <MaterialIcons name="sick" size={24} color="#112866" />
+          <View style={[styles.leaveCard, { backgroundColor }]}>
+            <MaterialIcons name="sick" size={24} color={iconColor} />
             <View style={styles.leaveContent}>
-              <Text style={styles.leaveValue}>7</Text>
-              <Text style={styles.leaveLabel}>Sick Leave</Text>
+              <Text style={[styles.leaveValue, { color: textColor }]}>7</Text>
+              <Text style={[styles.leaveLabel, { color: iconColor }]}>Sick Leave</Text>
             </View>
           </View>
         </View>
@@ -118,7 +125,6 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    backgroundColor: "#fff",
     borderRadius: 12,
     padding: 16,
     marginBottom: 16,
@@ -127,6 +133,8 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 3,
+    borderWidth: 1,
+    borderColor: '#e0e0e0',
   },
   headerLeft: {
     flexDirection: "row",
@@ -136,7 +144,6 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 18,
     fontWeight: "600",
-    color: "#112866",
   },
   headerRight: {
     padding: 4,
@@ -153,7 +160,6 @@ const styles = StyleSheet.create({
   },
   statCard: {
     flex: 1,
-    backgroundColor: "#fff",
     padding: 16,
     borderRadius: 12,
     flexDirection: "row",
@@ -164,6 +170,8 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 2,
     elevation: 2,
+    borderWidth: 1,
+    borderColor: '#e0e0e0',
   },
   statContent: {
     flex: 1,
@@ -171,11 +179,9 @@ const styles = StyleSheet.create({
   statValue: {
     fontSize: 20,
     fontWeight: "bold",
-    color: "#112866",
   },
   statLabel: {
     fontSize: 12,
-    color: "#666",
   },
   leaveContainer: {
     flexDirection: "row",
@@ -184,7 +190,6 @@ const styles = StyleSheet.create({
   },
   leaveCard: {
     flex: 1,
-    backgroundColor: "#fff",
     padding: 16,
     borderRadius: 12,
     flexDirection: "row",
@@ -195,6 +200,8 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 2,
     elevation: 2,
+    borderWidth: 1,
+    borderColor: '#e0e0e0',
   },
   leaveContent: {
     flex: 1,
@@ -202,10 +209,8 @@ const styles = StyleSheet.create({
   leaveValue: {
     fontSize: 20,
     fontWeight: "bold",
-    color: "#112866",
   },
   leaveLabel: {
     fontSize: 12,
-    color: "#666",
   },
 });

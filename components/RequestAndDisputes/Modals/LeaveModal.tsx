@@ -1,3 +1,4 @@
+import { useThemeColor } from "@/hooks/useThemeColor";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { Picker } from "@react-native-picker/picker";
 import React, { useState } from "react";
@@ -15,6 +16,11 @@ const LeaveModal = ({ isVisible, setModalVisible }: Props) => {
   const [toDate, setToDate] = useState<Date | null>(null);
   const [showToPicker, setShowToPicker] = useState(false);
 
+  // Get theme colors
+  const textColor = useThemeColor({}, 'text');
+  const backgroundColor = useThemeColor({}, 'background');
+  const iconColor = useThemeColor({}, 'icon');
+
   return (
     <Modal
       animationType="slide"
@@ -23,37 +29,37 @@ const LeaveModal = ({ isVisible, setModalVisible }: Props) => {
       onRequestClose={setModalVisible}
     >
       <View style={styles.overlay}>
-        <View style={styles.modalView}>
+        <View style={[styles.modalView, { backgroundColor }]}>
           <View style={styles.header}>
-            <Text style={styles.title}>Leave Request</Text>
+            <Text style={[styles.title, { color: textColor }]}>Leave Request</Text>
             <Pressable onPress={setModalVisible}>
-              <Text style={styles.closeButton}>X</Text>
+              <Text style={[styles.closeButton, { color: textColor }]}>X</Text>
             </Pressable>
           </View>
 
           <View style={styles.actionContainer}>
             <View style={styles.inputWrapper}>
-              <Text style={styles.label}>Leave Type</Text>
-              <View style={styles.pickerBox}>
+              <Text style={[styles.label, { color: textColor }]}>Leave Type</Text>
+              <View style={[styles.pickerBox, { backgroundColor }]}>
                 <Picker
                   selectedValue={leaveType}
-                  style={styles.picker}
+                  style={[styles.picker, { color: textColor }]}
                   onValueChange={(itemValue) => setLeaveType(itemValue)}
                 >
-                  <Picker.Item label="SL" value="SL" />
-                  <Picker.Item label="VL" value="VL" />
+                  <Picker.Item label="SL" value="SL" color={textColor} />
+                  <Picker.Item label="VL" value="VL" color={textColor} />
                 </Picker>
               </View>
             </View>
 
             {/* From Date Picker */}
             <View style={styles.inputWrapper}>
-              <Text style={styles.label}>From</Text>
+              <Text style={[styles.label, { color: textColor }]}>From</Text>
               <Pressable
                 onPress={() => setShowFromPicker(true)}
-                style={styles.datePickerBox}
+                style={[styles.datePickerBox, { backgroundColor }]}
               >
-                <Text style={styles.datePickerText}>
+                <Text style={[styles.datePickerText, { color: textColor }]}>
                   {fromDate ? fromDate.toDateString() : "Select date"}
                 </Text>
               </Pressable>
@@ -72,12 +78,12 @@ const LeaveModal = ({ isVisible, setModalVisible }: Props) => {
 
             {/* To Date Picker */}
             <View style={styles.inputWrapper}>
-              <Text style={styles.label}>To</Text>
+              <Text style={[styles.label, { color: textColor }]}>To</Text>
               <Pressable
                 onPress={() => setShowToPicker(true)}
-                style={styles.datePickerBox}
+                style={[styles.datePickerBox, { backgroundColor }]}
               >
-                <Text style={styles.datePickerText}>
+                <Text style={[styles.datePickerText, { color: textColor }]}>
                   {toDate ? toDate.toDateString() : "Select date"}
                 </Text>
               </Pressable>
@@ -110,7 +116,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   modalView: {
-    backgroundColor: "white",
     padding: 20,
     borderRadius: 10,
     width: "90%",
@@ -141,14 +146,12 @@ const styles = StyleSheet.create({
   label: {
     marginBottom: 4,
     fontWeight: "600",
-    color: "#333",
   },
   pickerBox: {
     borderWidth: 1,
     borderColor: "#ccc",
     borderRadius: 5,
     paddingHorizontal: 10,
-    backgroundColor: "#f4f4f4",
   },
   picker: {
     height: 50, // Reduced height to keep text visible
@@ -159,7 +162,6 @@ const styles = StyleSheet.create({
     borderColor: "#ccc",
     borderRadius: 5,
     padding: 10,
-    backgroundColor: "#f4f4f4",
   },
   datePickerText: {
     color: "#333",

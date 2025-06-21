@@ -1,3 +1,4 @@
+import { useThemeColor } from '@/hooks/useThemeColor';
 import { generateMonthMatrix } from '@/utils/calendarHelper';
 import { Ionicons } from '@expo/vector-icons';
 import React, { useState } from 'react';
@@ -24,6 +25,11 @@ const CustomCalendar: React.FC<CustomCalendarProps> = ({ events = {} }) => {
   const [selectedDayEvents, setSelectedDayEvents] = useState<Event[]>([]);
   const [selectedDay, setSelectedDay] = useState<number | null>(null);
   const today = new Date();
+
+  // Get theme colors
+  const textColor = useThemeColor({}, 'text');
+  const backgroundColor = useThemeColor({}, 'background');
+  const iconColor = useThemeColor({}, 'icon');
 
   const year = date.getFullYear();
   const month = date.getMonth();
@@ -55,20 +61,20 @@ const CustomCalendar: React.FC<CustomCalendarProps> = ({ events = {} }) => {
   };
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor }]}>
       <View style={styles.header}>
-        <TouchableOpacity onPress={goToPreviousMonth}>
-          <Ionicons name="chevron-back" size={24} color="#112866" />
+        <TouchableOpacity onPress={goToPreviousMonth} style={styles.navButton}>
+          <Ionicons name="chevron-back" size={24} color={iconColor} />
         </TouchableOpacity>
-        <Text style={styles.monthYearText}>{`${monthName} ${year}`}</Text>
-        <TouchableOpacity onPress={goToNextMonth}>
-          <Ionicons name="chevron-forward" size={24} color="#112866" />
+        <Text style={[styles.monthYear, { color: textColor }]}>{`${monthName} ${year}`}</Text>
+        <TouchableOpacity onPress={goToNextMonth} style={styles.navButton}>
+          <Ionicons name="chevron-forward" size={24} color={iconColor} />
         </TouchableOpacity>
       </View>
 
       <View style={styles.weekDaysContainer}>
         {weekDays.map(day => (
-          <Text key={day} style={styles.weekDayText}>{day}</Text>
+          <Text key={day} style={[styles.weekDayText, { color: iconColor }]}>{day}</Text>
         ))}
       </View>
 
@@ -89,7 +95,7 @@ const CustomCalendar: React.FC<CustomCalendarProps> = ({ events = {} }) => {
                 >
                   {day && (
                     <View style={[styles.dayView, isToday && styles.todayView]}>
-                      <Text style={[styles.dayText, isToday && styles.todayText]}>{day}</Text>
+                      <Text style={[styles.dayText, { color: textColor }, isToday && styles.todayText]}>{day}</Text>
                       <View style={styles.dotsContainer}>
                         {dayEvents.slice(0, 3).map((event, i) => (
                           <View key={i} style={[styles.eventDot, { backgroundColor: event.color || '#112866' }]} />
@@ -118,7 +124,6 @@ const CustomCalendar: React.FC<CustomCalendarProps> = ({ events = {} }) => {
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: '#fff',
     padding: 15,
     borderRadius: 10,
     elevation: 4,
@@ -127,6 +132,8 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 4,
     margin: 10,
+    borderWidth: 1,
+    borderColor: '#e0e0e0',
   },
   header: {
     flexDirection: 'row',
@@ -134,10 +141,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 20,
   },
-  monthYearText: {
+  monthYear: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: '#112866',
   },
   weekDaysContainer: {
     flexDirection: 'row',
@@ -150,7 +156,6 @@ const styles = StyleSheet.create({
   weekDayText: {
     fontSize: 14,
     fontWeight: '500',
-    color: '#999',
     width: '14.28%',
     textAlign: 'center',
   },
@@ -177,7 +182,6 @@ const styles = StyleSheet.create({
   },
   dayText: {
     fontSize: 16,
-    color: '#333',
   },
   todayText: {
     color: '#fff',
@@ -193,6 +197,9 @@ const styles = StyleSheet.create({
     height: 6,
     borderRadius: 3,
     marginHorizontal: 1,
+  },
+  navButton: {
+    padding: 5,
   },
 });
 

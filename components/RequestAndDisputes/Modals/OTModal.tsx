@@ -1,3 +1,4 @@
+import { useThemeColor } from "@/hooks/useThemeColor";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import React, { useState } from "react";
@@ -15,6 +16,11 @@ const OTModal = ({ isVisible, setModalVisible }: OTModalProps) => {
   const [hours, setHours] = useState("");
   const [reason, setReason] = useState("");
 
+  // Get theme colors
+  const textColor = useThemeColor({}, 'text');
+  const backgroundColor = useThemeColor({}, 'background');
+  const iconColor = useThemeColor({}, 'icon');
+
   return (
     <Modal
       animationType="slide"
@@ -23,22 +29,22 @@ const OTModal = ({ isVisible, setModalVisible }: OTModalProps) => {
       onRequestClose={setModalVisible}
     >
       <View style={styles.overlay}>
-        <View style={styles.modalView}>
+        <View style={[styles.modalView, { backgroundColor }]}>
           <View style={styles.header}>
-            <Text style={styles.title}>Overtime/Undertime Request</Text>
+            <Text style={styles.title}>Overtime Request</Text>
             <Pressable onPress={setModalVisible}>
-              <MaterialCommunityIcons name="close" size={24} color="#666" />
+              <MaterialCommunityIcons name="close" size={24} color={iconColor} />
             </Pressable>
           </View>
 
           <View style={styles.form}>
             <View style={styles.inputWrapper}>
-              <Text style={styles.label}>Date</Text>
+              <Text style={[styles.label, { color: textColor }]}>Date</Text>
               <Pressable
                 onPress={() => setShowDatePicker(true)}
-                style={styles.datePickerBox}
+                style={[styles.datePickerBox, { backgroundColor }]}
               >
-                <Text style={styles.datePickerText}>
+                <Text style={[styles.datePickerText, { color: textColor }]}>
                   {date ? date.toDateString() : "Select date"}
                 </Text>
               </Pressable>
@@ -56,27 +62,31 @@ const OTModal = ({ isVisible, setModalVisible }: OTModalProps) => {
             </View>
 
             <View style={styles.inputWrapper}>
-              <Text style={styles.label}>Hours</Text>
+              <Text style={[styles.label, { color: textColor }]}>Hours</Text>
               <TextInput
                 mode="outlined"
                 value={hours}
                 onChangeText={setHours}
-                keyboardType="numeric"
-                style={styles.input}
+                style={[styles.input, { backgroundColor }]}
+                textColor={textColor}
+                placeholderTextColor={iconColor}
                 placeholder="Enter hours"
+                keyboardType="numeric"
               />
             </View>
 
             <View style={styles.inputWrapper}>
-              <Text style={styles.label}>Reason</Text>
+              <Text style={[styles.label, { color: textColor }]}>Reason</Text>
               <TextInput
                 mode="outlined"
                 value={reason}
                 onChangeText={setReason}
                 multiline
                 numberOfLines={4}
-                style={styles.input}
-                placeholder="Enter reason"
+                style={[styles.input, { backgroundColor }]}
+                textColor={textColor}
+                placeholderTextColor={iconColor}
+                placeholder="Enter reason for overtime"
               />
             </View>
 
@@ -100,7 +110,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   modalView: {
-    backgroundColor: "white",
     padding: 20,
     borderRadius: 12,
     width: "90%",
@@ -126,14 +135,12 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 14,
     fontWeight: "600",
-    color: "#333",
   },
   datePickerBox: {
     borderWidth: 1,
     borderColor: "#ccc",
     borderRadius: 5,
     padding: 12,
-    backgroundColor: "#f4f4f4",
   },
   datePickerText: {
     color: "#333",

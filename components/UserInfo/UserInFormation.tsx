@@ -1,16 +1,17 @@
 import { useAuth } from "@/contexts/AuthContext";
+import { useThemeColor } from "@/hooks/useThemeColor";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import Constants from "expo-constants";
 import { useRouter } from "expo-router";
 import React from "react";
 import {
-    Alert,
-    Image,
-    Pressable,
-    ScrollView,
-    StyleSheet,
-    Text,
-    View,
+  Alert,
+  Image,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
 } from "react-native";
 import { Divider } from "react-native-paper";
 import CustomQRCode from "../CustomQRCode";
@@ -21,6 +22,11 @@ const UserInformation = (props: any) => {
   const { session, clearSession } = useAuth();
   const { UserInfo } = props;
   const { pi_photo } = UserInfo;
+
+  // Get theme colors
+  const textColor = useThemeColor({}, 'text');
+  const backgroundColor = useThemeColor({}, 'background');
+  const iconColor = useThemeColor({}, 'icon');
 
   // Create QR code data from session
   const qrCodeData = session?.user ? {
@@ -70,27 +76,27 @@ const UserInformation = (props: any) => {
   ];
 
   return (
-    <View style={styles.mainContainer}>
+    <View style={[styles.mainContainer, { backgroundColor }]}>
       <ScrollView style={styles.scrollView}>
         <View style={styles.container}>
-          <View style={styles.header}>
+          <View style={[styles.header, { backgroundColor }]}>
             <Image
               source={{ uri: `${url}/uploads/1692096855800-1B1.jpg` }}
               style={styles.profileImage}
               defaultSource={require("../../assets/public/tempProfile.png")}
             />
             <View style={styles.headerInfo}>
-              <Text style={styles.name}>
+              <Text style={[styles.name, { color: textColor }]}>
                 {session?.user.name || "Not logged in"}
               </Text>
-              <Text style={styles.employeeId}>
+              <Text style={[styles.employeeId, { color: iconColor }]}>
                 Employee ID: {session?.user.id || "N/A"}
               </Text>
-              <Text style={styles.email}>{session?.user.email || "N/A"}</Text>
+              <Text style={[styles.email, { color: iconColor }]}>{session?.user.email || "N/A"}</Text>
             </View>
           </View>
 
-          <View style={styles.qrContainer}>
+          <View style={[styles.qrContainer, { backgroundColor }]}>
             <CustomQRCode
               data={qrCodeData}
               size={200}
@@ -99,65 +105,43 @@ const UserInformation = (props: any) => {
             />
           </View>
 
-          <Divider style={styles.divider} />
+          <Divider style={[styles.divider, { backgroundColor: '#e0e0e0' }]} />
 
           <View style={styles.section}>
             <View style={styles.sectionHeader}>
               <MaterialCommunityIcons
                 name="account-details"
                 size={24}
-                color="#112866"
+                color={iconColor}
               />
-              <Text style={styles.sectionTitle}>Employee Details</Text>
+              <Text style={[styles.sectionTitle, { color: textColor }]}>Employee Details</Text>
             </View>
-            <View style={styles.infoCard}>
+            <View style={[styles.infoCard, { backgroundColor }]}>
               <View style={styles.infoRow}>
-                <Ionicons name="briefcase-outline" size={20} color="#666" />
-                <Text style={styles.infoText}>
+                <Ionicons name="briefcase-outline" size={20} color={iconColor} />
+                <Text style={[styles.infoText, { color: iconColor }]}>
                   Position: Software Developer
                 </Text>
               </View>
               <View style={styles.infoRow}>
-                <Ionicons name="people-outline" size={20} color="#666" />
-                <Text style={styles.infoText}>
+                <Ionicons name="people-outline" size={20} color={iconColor} />
+                <Text style={[styles.infoText, { color: iconColor }]}>
                   Department: Information Technology
                 </Text>
               </View>
-              {/* <View style={styles.infoRow}>
-                <Ionicons name="calendar-outline" size={20} color="#666" />
-                <Text style={styles.infoText}>Join Date: January 1, 2024</Text>
-              </View> */}
             </View>
           </View>
 
-          {/* <View style={styles.section}>
-            <View style={styles.sectionHeader}>
-              <MaterialCommunityIcons name="phone" size={24} color="#112866" />
-              <Text style={styles.sectionTitle}>Contact Information</Text>
-            </View>
-            <View style={styles.infoCard}>
-              <View style={styles.infoRow}>
-                <Ionicons name="mail-outline" size={20} color="#666" />
-                <Text style={styles.infoText}>
-                  {session?.user.email || "N/A"}
-                </Text>
-              </View>
-              <View style={styles.infoRow}>
-                <Ionicons name="call-outline" size={20} color="#666" />
-                <Text style={styles.infoText}>+63 912 345 6789</Text>
-              </View>
-            </View>
-          </View> */}
           <View style={styles.section}>
             <View style={styles.sectionHeader}>
               <MaterialCommunityIcons
                 name="bullhorn"
                 size={24}
-                color="#112866"
+                color={iconColor}
               />
-              <Text style={styles.sectionTitle}>Announcements</Text>
+              <Text style={[styles.sectionTitle, { color: textColor }]}>Announcements</Text>
             </View>
-            <View style={styles.infoCard}>
+            <View style={[styles.infoCard, { backgroundColor }]}>
               <ScrollView
                 style={styles.scrollableContent}
                 nestedScrollEnabled={true}
@@ -165,10 +149,10 @@ const UserInformation = (props: any) => {
               >
                 {announcements.map((announcement) => (
                   <View key={announcement.id} style={styles.announcementItem}>
-                    <Text style={styles.announcementTitle}>
+                    <Text style={[styles.announcementTitle, { color: textColor }]}>
                       {announcement.title}
                     </Text>
-                    <Text style={styles.announcementDate}>
+                    <Text style={[styles.announcementDate, { color: iconColor }]}>
                       {announcement.date}
                     </Text>
                   </View>
@@ -176,36 +160,10 @@ const UserInformation = (props: any) => {
               </ScrollView>
             </View>
           </View>
-
-          {/* Birthdays Section */}
-          {/* <View style={styles.section}>
-            <View style={styles.sectionHeader}>
-              <MaterialCommunityIcons
-                name="cake-variant"
-                size={24}
-                color="#112866"
-              />
-              <Text style={styles.sectionTitle}>Birthdays This Month</Text>
-            </View>
-            <View style={styles.infoCard}>
-              <ScrollView
-                style={styles.scrollableContent}
-                nestedScrollEnabled={true}
-                showsVerticalScrollIndicator={false}
-              >
-                {birthdays.map((birthday) => (
-                  <View key={birthday.id} style={styles.birthdayItem}>
-                    <Text style={styles.birthdayName}>{birthday.name}</Text>
-                    <Text style={styles.birthdayDate}>{birthday.date}</Text>
-                  </View>
-                ))}
-              </ScrollView>
-            </View>
-          </View> */}
         </View>
       </ScrollView>
 
-      <View style={styles.buttonContainer}>
+      <View style={[styles.buttonContainer, { backgroundColor }]}>
         <Pressable
           style={styles.button}
           android_ripple={{
@@ -234,7 +192,6 @@ const UserInformation = (props: any) => {
 const styles = StyleSheet.create({
   mainContainer: {
     flex: 1,
-    backgroundColor: "#f5f5f5",
   },
   scrollView: {
     flex: 1,
@@ -249,7 +206,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     padding: 16,
     marginTop: 20,
-    backgroundColor: "#fff",
     borderRadius: 12,
     marginBottom: 16,
     shadowColor: "#000",
@@ -257,6 +213,8 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 3,
+    borderWidth: 1,
+    borderColor: '#e0e0e0',
   },
   profileImage: {
     width: 80,
@@ -270,21 +228,17 @@ const styles = StyleSheet.create({
   name: {
     fontSize: 20,
     fontWeight: "bold",
-    color: "#112866",
     marginBottom: 4,
   },
   employeeId: {
     fontSize: 14,
-    color: "#666",
     marginBottom: 2,
   },
   email: {
     fontSize: 14,
-    color: "#666",
   },
   divider: {
     height: 1,
-    backgroundColor: "#e0e0e0",
     marginVertical: 16,
   },
   section: {
@@ -298,11 +252,9 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 18,
     fontWeight: "600",
-    color: "#112866",
     marginLeft: 8,
   },
   infoCard: {
-    backgroundColor: "#fff",
     padding: 16,
     borderRadius: 12,
     shadowColor: "#000",
@@ -311,6 +263,8 @@ const styles = StyleSheet.create({
     shadowRadius: 2,
     elevation: 2,
     overflow: "hidden",
+    borderWidth: 1,
+    borderColor: '#e0e0e0',
   },
   infoRow: {
     flexDirection: "row",
@@ -319,13 +273,11 @@ const styles = StyleSheet.create({
   },
   infoText: {
     fontSize: 14,
-    color: "#666",
     marginLeft: 8,
   },
   qrContainer: {
     alignItems: "center",
     padding: 20,
-    backgroundColor: "#fff",
     borderRadius: 12,
     marginBottom: 16,
     shadowColor: "#000",
@@ -333,6 +285,8 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 3,
+    borderWidth: 1,
+    borderColor: '#e0e0e0',
   },
   buttonContainer: {
     position: "absolute",
@@ -340,7 +294,6 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     padding: 20,
-    backgroundColor: "#f5f5f5",
     borderTopWidth: 1,
     borderTopColor: "#e0e0e0",
     gap: 10,
@@ -372,12 +325,10 @@ const styles = StyleSheet.create({
   announcementTitle: {
     fontSize: 14,
     fontWeight: "600",
-    color: "#112866",
     marginBottom: 4,
   },
   announcementDate: {
     fontSize: 12,
-    color: "#666",
   },
   birthdayItem: {
     marginBottom: 12,
@@ -388,12 +339,10 @@ const styles = StyleSheet.create({
   birthdayName: {
     fontSize: 14,
     fontWeight: "600",
-    color: "#112866",
     marginBottom: 4,
   },
   birthdayDate: {
     fontSize: 12,
-    color: "#666",
   },
 });
 

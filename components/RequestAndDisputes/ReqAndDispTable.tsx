@@ -1,4 +1,6 @@
+import { useThemeColor } from "@/hooks/useThemeColor";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
+import React from "react";
 import { ScrollView, StyleSheet, Text, View } from "react-native";
 import { Chip, DataTable } from "react-native-paper";
 
@@ -7,6 +9,11 @@ interface RequestAndDispProps {
 }
 
 const RequestAndDisp = ({ type }: RequestAndDispProps) => {
+  // Get theme colors
+  const textColor = useThemeColor({}, 'text');
+  const backgroundColor = useThemeColor({}, 'background');
+  const iconColor = useThemeColor({}, 'icon');
+
   const leaveArray = [
     {
       type: "SL",
@@ -177,32 +184,32 @@ const RequestAndDisp = ({ type }: RequestAndDispProps) => {
           <>
             <DataTable.Header>
               <DataTable.Title style={styles.typeColumn}>
-                <Text style={styles.headerText}>Type</Text>
+                <Text style={[styles.headerText, { color: textColor }]}>Type</Text>
               </DataTable.Title>
               <DataTable.Title style={styles.dateColumn}>
-                <Text style={styles.headerText}>From</Text>
+                <Text style={[styles.headerText, { color: textColor }]}>From</Text>
               </DataTable.Title>
               <DataTable.Title style={styles.dateColumn}>
-                <Text style={styles.headerText}>To</Text>
+                <Text style={[styles.headerText, { color: textColor }]}>To</Text>
               </DataTable.Title>
               <DataTable.Title style={styles.statusColumn}>
-                <Text style={styles.headerText}>Status</Text>
+                <Text style={[styles.headerText, { color: textColor }]}>Status</Text>
               </DataTable.Title>
               <DataTable.Title style={styles.actionColumn}>
-                <Text style={styles.headerText}>Action</Text>
+                <Text style={[styles.headerText, { color: textColor }]}>Action</Text>
               </DataTable.Title>
             </DataTable.Header>
             <ScrollView style={styles.scrollView}>
               {leaveArray.map((item, index) => (
                 <DataTable.Row key={index}>
                   <DataTable.Cell style={styles.typeColumn}>
-                    <Text style={styles.cellText}>{item.type}</Text>
+                    <Text style={[styles.cellText, { color: textColor }]}>{item.type}</Text>
                   </DataTable.Cell>
                   <DataTable.Cell style={styles.dateColumn}>
-                    <Text style={styles.cellText}>{item.from}</Text>
+                    <Text style={[styles.cellText, { color: textColor }]}>{item.from}</Text>
                   </DataTable.Cell>
                   <DataTable.Cell style={styles.dateColumn}>
-                    <Text style={styles.cellText}>{item.to}</Text>
+                    <Text style={[styles.cellText, { color: textColor }]}>{item.to}</Text>
                   </DataTable.Cell>
                   <DataTable.Cell style={styles.statusColumn}>
                     <Chip
@@ -218,9 +225,9 @@ const RequestAndDisp = ({ type }: RequestAndDispProps) => {
                   </DataTable.Cell>
                   <DataTable.Cell style={styles.actionColumn}>
                     <MaterialCommunityIcons
-                      name="eye"
-                      size={20}
-                      color="#112866"
+                      name="file-document"
+                      size={24}
+                      color={iconColor}
                       onPress={() => console.log("View details", item)}
                     />
                   </DataTable.Cell>
@@ -234,26 +241,26 @@ const RequestAndDisp = ({ type }: RequestAndDispProps) => {
           <>
             <DataTable.Header>
               <DataTable.Title style={styles.dateColumn}>
-                <Text style={styles.headerText}>Date</Text>
+                <Text style={[styles.headerText, { color: textColor }]}>Date</Text>
               </DataTable.Title>
               <DataTable.Title style={styles.hoursColumn}>
-                <Text style={styles.headerText}>Hours</Text>
+                <Text style={[styles.headerText, { color: textColor }]}>Hours</Text>
               </DataTable.Title>
               <DataTable.Title style={styles.statusColumn}>
-                <Text style={styles.headerText}>Status</Text>
+                <Text style={[styles.headerText, { color: textColor }]}>Status</Text>
               </DataTable.Title>
               <DataTable.Title style={styles.actionColumn}>
-                <Text style={styles.headerText}>Action</Text>
+                <Text style={[styles.headerText, { color: textColor }]}>Action</Text>
               </DataTable.Title>
             </DataTable.Header>
             <ScrollView style={styles.scrollView}>
               {otArray.map((item, index) => (
                 <DataTable.Row key={index}>
                   <DataTable.Cell style={styles.dateColumn}>
-                    <Text style={styles.cellText}>{item.date}</Text>
+                    <Text style={[styles.cellText, { color: textColor }]}>{item.date}</Text>
                   </DataTable.Cell>
                   <DataTable.Cell style={styles.hoursColumn}>
-                    <Text style={styles.cellText}>{item.hours}</Text>
+                    <Text style={[styles.cellText, { color: textColor }]}>{item.hours}</Text>
                   </DataTable.Cell>
                   <DataTable.Cell style={styles.statusColumn}>
                     <Chip
@@ -269,9 +276,9 @@ const RequestAndDisp = ({ type }: RequestAndDispProps) => {
                   </DataTable.Cell>
                   <DataTable.Cell style={styles.actionColumn}>
                     <MaterialCommunityIcons
-                      name="eye"
-                      size={20}
-                      color="#112866"
+                      name="file-document"
+                      size={24}
+                      color={iconColor}
                       onPress={() => console.log("View details", item)}
                     />
                   </DataTable.Cell>
@@ -285,26 +292,26 @@ const RequestAndDisp = ({ type }: RequestAndDispProps) => {
           <>
             <DataTable.Header>
               <DataTable.Title style={styles.dateColumn}>
-                <Text style={styles.headerText}>Date</Text>
+                <Text style={[styles.headerText, { color: textColor }]}>Date</Text>
               </DataTable.Title>
               <DataTable.Title style={styles.locationColumn}>
-                <Text style={styles.headerText}>Location</Text>
+                <Text style={[styles.headerText, { color: textColor }]}>Location</Text>
               </DataTable.Title>
               <DataTable.Title style={styles.statusColumn}>
-                <Text style={styles.headerText}>Status</Text>
+                <Text style={[styles.headerText, { color: textColor }]}>Status</Text>
               </DataTable.Title>
               <DataTable.Title style={styles.actionColumn}>
-                <Text style={styles.headerText}>Action</Text>
+                <Text style={[styles.headerText, { color: textColor }]}>Action</Text>
               </DataTable.Title>
             </DataTable.Header>
             <ScrollView style={styles.scrollView}>
               {obArray.map((item, index) => (
                 <DataTable.Row key={index}>
                   <DataTable.Cell style={styles.dateColumn}>
-                    <Text style={styles.cellText}>{item.date}</Text>
+                    <Text style={[styles.cellText, { color: textColor }]}>{item.date}</Text>
                   </DataTable.Cell>
                   <DataTable.Cell style={styles.locationColumn}>
-                    <Text style={styles.cellText}>{item.location}</Text>
+                    <Text style={[styles.cellText, { color: textColor }]}>{item.location}</Text>
                   </DataTable.Cell>
                   <DataTable.Cell style={styles.statusColumn}>
                     <Chip
@@ -320,9 +327,9 @@ const RequestAndDisp = ({ type }: RequestAndDispProps) => {
                   </DataTable.Cell>
                   <DataTable.Cell style={styles.actionColumn}>
                     <MaterialCommunityIcons
-                      name="eye"
-                      size={20}
-                      color="#112866"
+                      name="file-document"
+                      size={24}
+                      color={iconColor}
                       onPress={() => console.log("View details", item)}
                     />
                   </DataTable.Cell>
@@ -336,26 +343,26 @@ const RequestAndDisp = ({ type }: RequestAndDispProps) => {
           <>
             <DataTable.Header>
               <DataTable.Title style={styles.dateColumn}>
-                <Text style={styles.headerText}>Date</Text>
+                <Text style={[styles.headerText, { color: textColor }]}>Date</Text>
               </DataTable.Title>
               <DataTable.Title style={styles.typeColumn}>
-                <Text style={styles.headerText}>Type</Text>
+                <Text style={[styles.headerText, { color: textColor }]}>Type</Text>
               </DataTable.Title>
               <DataTable.Title style={styles.statusColumn}>
-                <Text style={styles.headerText}>Status</Text>
+                <Text style={[styles.headerText, { color: textColor }]}>Status</Text>
               </DataTable.Title>
               <DataTable.Title style={styles.actionColumn}>
-                <Text style={styles.headerText}>Action</Text>
+                <Text style={[styles.headerText, { color: textColor }]}>Action</Text>
               </DataTable.Title>
             </DataTable.Header>
             <ScrollView style={styles.scrollView}>
               {disputesArray.map((item, index) => (
                 <DataTable.Row key={index}>
                   <DataTable.Cell style={styles.dateColumn}>
-                    <Text style={styles.cellText}>{item.date}</Text>
+                    <Text style={[styles.cellText, { color: textColor }]}>{item.date}</Text>
                   </DataTable.Cell>
                   <DataTable.Cell style={styles.typeColumn}>
-                    <Text style={styles.cellText}>{item.type}</Text>
+                    <Text style={[styles.cellText, { color: textColor }]}>{item.type}</Text>
                   </DataTable.Cell>
                   <DataTable.Cell style={styles.statusColumn}>
                     <Chip
@@ -371,9 +378,9 @@ const RequestAndDisp = ({ type }: RequestAndDispProps) => {
                   </DataTable.Cell>
                   <DataTable.Cell style={styles.actionColumn}>
                     <MaterialCommunityIcons
-                      name="eye"
-                      size={20}
-                      color="#112866"
+                      name="file-document"
+                      size={24}
+                      color={iconColor}
                       onPress={() => console.log("View details", item)}
                     />
                   </DataTable.Cell>
@@ -388,18 +395,18 @@ const RequestAndDisp = ({ type }: RequestAndDispProps) => {
   };
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor }]}>
       <View style={styles.pageHeader}>
         <View style={styles.headerLeft}>
-          <MaterialCommunityIcons name="file-document" size={24} color="#112866" />
-          <Text style={styles.headerTitle}>{type.charAt(0).toUpperCase() + type.slice(1)} Requests</Text>
+          <MaterialCommunityIcons name="file-document" size={24} color={iconColor} />
+          <Text style={[styles.headerTitle, { color: textColor }]}>{type.charAt(0).toUpperCase() + type.slice(1)} Requests</Text>
         </View>
         <View style={styles.headerRight}>
-          <MaterialCommunityIcons name="filter-variant" size={24} color="#112866" />
+          <MaterialCommunityIcons name="filter-variant" size={24} color={iconColor} />
         </View>
       </View>
       <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-        <DataTable>{renderTableContent()}</DataTable>
+        <DataTable style={styles.table}>{renderTableContent()}</DataTable>
       </ScrollView>
     </View>
   );
@@ -409,20 +416,19 @@ export default RequestAndDisp;
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: "#fff",
     borderRadius: 8,
     overflow: "hidden",
+    borderWidth: 1,
+    borderColor: '#e0e0e0',
   },
   scrollView: {
     maxHeight: 200,
   },
   headerText: {
-    color: "#112866",
     fontSize: 14,
     fontWeight: "600",
   },
   cellText: {
-    color: "#333",
     fontSize: 14,
   },
   typeColumn: {
@@ -478,9 +484,11 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 18,
     fontWeight: "600",
-    color: "#112866",
   },
   headerRight: {
     padding: 4,
+  },
+  table: {
+    backgroundColor: "transparent",
   },
 });

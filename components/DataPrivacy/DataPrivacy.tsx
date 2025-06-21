@@ -1,9 +1,15 @@
 import ViewWrapper from "@/components/Layout/View";
+import { useThemeColor } from "@/hooks/useThemeColor";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { ScrollView, StyleSheet, Text, View } from "react-native";
 import { Divider } from "react-native-paper";
 
 export default function DataPrivacy() {
+  // Get theme colors
+  const textColor = useThemeColor({}, 'text');
+  const backgroundColor = useThemeColor({}, 'background');
+  const iconColor = useThemeColor({}, 'icon');
+
   return (
     <ViewWrapper>
       <ScrollView 
@@ -11,37 +17,37 @@ export default function DataPrivacy() {
         contentContainerStyle={styles.scrollContent}
       >
         {/* Header Section */}
-        <View style={styles.pageHeader}>
+        <View style={[styles.pageHeader, { backgroundColor }]}>
           <View style={styles.headerLeft}>
-            <MaterialCommunityIcons name="shield-account" size={24} color="#112866" />
-            <Text style={styles.headerTitle}>Data Privacy</Text>
+            <MaterialCommunityIcons name="shield-account" size={24} color={iconColor} />
+            <Text style={[styles.headerTitle, { color: textColor }]}>Data Privacy</Text>
           </View>
         </View>
 
-        <Divider style={styles.divider} />
+        <Divider style={[styles.divider, { backgroundColor: '#e0e0e0' }]} />
 
         {/* Content Section */}
         <View style={styles.contentContainer}>
-          <Text style={styles.sectionTitle}>Data Protection Policy</Text>
-          <View style={styles.policyCard}>
-            <Text style={styles.policyTitle}>Personal Information</Text>
-            <Text style={styles.policyText}>
+          <Text style={[styles.sectionTitle, { color: textColor }]}>Data Protection Policy</Text>
+          <View style={[styles.policyCard, { backgroundColor }]}>
+            <Text style={[styles.policyTitle, { color: textColor }]}>Personal Information</Text>
+            <Text style={[styles.policyText, { color: iconColor }]}>
               We collect and process your personal information in accordance with data protection laws.
               Your data is used solely for employment-related purposes and is kept secure and confidential.
             </Text>
           </View>
 
-          <View style={styles.policyCard}>
-            <Text style={styles.policyTitle}>Data Security</Text>
-            <Text style={styles.policyText}>
+          <View style={[styles.policyCard, { backgroundColor }]}>
+            <Text style={[styles.policyTitle, { color: textColor }]}>Data Security</Text>
+            <Text style={[styles.policyText, { color: iconColor }]}>
               We implement appropriate security measures to protect your personal information.
               Access to your data is restricted to authorized personnel only.
             </Text>
           </View>
 
-          <View style={styles.policyCard}>
-            <Text style={styles.policyTitle}>Your Rights</Text>
-            <Text style={styles.policyText}>
+          <View style={[styles.policyCard, { backgroundColor }]}>
+            <Text style={[styles.policyTitle, { color: textColor }]}>Your Rights</Text>
+            <Text style={[styles.policyText, { color: iconColor }]}>
               You have the right to access, correct, and request deletion of your personal information.
               Contact HR for any data privacy concerns or requests.
             </Text>
@@ -60,7 +66,6 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    backgroundColor: "#fff",
     borderRadius: 12,
     padding: 16,
     marginBottom: 16,
@@ -69,6 +74,8 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 3,
+    borderWidth: 1,
+    borderColor: '#e0e0e0',
   },
   headerLeft: {
     flexDirection: "row",
@@ -78,11 +85,9 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 18,
     fontWeight: "600",
-    color: "#112866",
   },
   divider: {
     height: 1,
-    backgroundColor: "#e0e0e0",
     marginVertical: 16,
   },
   contentContainer: {
@@ -91,11 +96,9 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 16,
     fontWeight: "600",
-    color: "#112866",
     marginBottom: 8,
   },
   policyCard: {
-    backgroundColor: "#fff",
     borderRadius: 12,
     padding: 16,
     shadowColor: "#000",
@@ -103,16 +106,16 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 2,
     elevation: 2,
+    borderWidth: 1,
+    borderColor: '#e0e0e0',
   },
   policyTitle: {
     fontSize: 16,
     fontWeight: "600",
-    color: "#112866",
     marginBottom: 8,
   },
   policyText: {
     fontSize: 14,
-    color: "#666",
     lineHeight: 20,
   },
 }); 

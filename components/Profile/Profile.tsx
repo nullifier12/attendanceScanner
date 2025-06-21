@@ -1,9 +1,10 @@
 import ViewWrapper from "@/components/Layout/View";
 import { useAuth } from "@/contexts/AuthContext";
+import { useThemeColor } from "@/hooks/useThemeColor";
 import {
-  EvilIcons,
-  Ionicons,
-  MaterialCommunityIcons,
+    EvilIcons,
+    Ionicons,
+    MaterialCommunityIcons,
 } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
@@ -12,6 +13,11 @@ import { Divider } from "react-native-paper";
 export default function Profile() {
   const router = useRouter();
   const { session } = useAuth();
+  
+  // Get theme colors
+  const textColor = useThemeColor({}, 'text');
+  const backgroundColor = useThemeColor({}, 'background');
+  const iconColor = useThemeColor({}, 'icon');
 
   const announcements = [
     { id: "1", title: "Team Meeting at 3 PM", date: "2024-03-20" },
@@ -41,15 +47,15 @@ export default function Profile() {
     <ScrollView contentContainerStyle={styles.scrollContainer}>
       <ViewWrapper>
         {/* Profile Header */}
-        <View style={styles.header}>
+        <View style={[styles.header, { backgroundColor }]}>
           <View style={styles.profileInfo}>
-            <Text style={styles.welcomeText}>Welcome back</Text>
-            <Text style={styles.nameText}>{session?.user.name || "User"}</Text>
-            <Text style={styles.roleText}></Text>
+            <Text style={[styles.welcomeText, { color: iconColor }]}>Welcome back</Text>
+            <Text style={[styles.nameText, { color: textColor }]}>{session?.user.name || "User"}</Text>
+            <Text style={[styles.roleText, { color: iconColor }]}></Text>
           </View>
         </View>
 
-        <Divider style={styles.divider} />
+        <Divider style={[styles.divider, { backgroundColor: '#e0e0e0' }]} />
 
         <View style={styles.quickActions}>
           <Pressable
@@ -79,27 +85,27 @@ export default function Profile() {
 
         {/* Department Info */}
         <View style={styles.infoSection}>
-          <View style={styles.infoCard}>
+          <View style={[styles.infoCard, { backgroundColor }]}>
             <MaterialCommunityIcons
               name="office-building"
               size={24}
-              color="#112866"
+              color={iconColor}
             />
             <View style={styles.infoContent}>
-              <Text style={styles.infoLabel}>Department</Text>
-              <Text style={styles.infoValue}>Information Technology</Text>
+              <Text style={[styles.infoLabel, { color: iconColor }]}>Department</Text>
+              <Text style={[styles.infoValue, { color: textColor }]}>Information Technology</Text>
             </View>
           </View>
 
-          <View style={styles.infoCard}>
+          <View style={[styles.infoCard, { backgroundColor }]}>
             <MaterialCommunityIcons
               name="briefcase"
               size={24}
-              color="#112866"
+              color={iconColor}
             />
             <View style={styles.infoContent}>
-              <Text style={styles.infoLabel}>Designation</Text>
-              <Text style={styles.infoValue}>Software Developer</Text>
+              <Text style={[styles.infoLabel, { color: iconColor }]}>Designation</Text>
+              <Text style={[styles.infoValue, { color: textColor }]}>Software Developer</Text>
             </View>
           </View>
         </View>
@@ -107,26 +113,23 @@ export default function Profile() {
         {/* Announcements Section */}
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
-            <MaterialCommunityIcons name="bullhorn" size={24} color="#112866" />
-            <Text style={styles.sectionTitle}>Announcements</Text>
+            <MaterialCommunityIcons name="bullhorn" size={24} color={iconColor} />
+            <Text style={[styles.sectionTitle, { color: textColor }]}>Announcements</Text>
           </View>
-          <View style={styles.card}>
+          <View style={[styles.infoCard, { backgroundColor }]}>
             <ScrollView
               style={styles.scrollableContent}
               nestedScrollEnabled={true}
               showsVerticalScrollIndicator={false}
             >
-              {announcements.map((item) => (
-                <View key={item.id} style={styles.announcementItem}>
-                  <View style={styles.announcementContent}>
-                    <Text style={styles.announcementTitle}>{item.title}</Text>
-                    <Text style={styles.announcementDate}>{item.date}</Text>
-                  </View>
-                  <MaterialCommunityIcons
-                    name="chevron-right"
-                    size={24}
-                    color="#666"
-                  />
+              {announcements.map((announcement) => (
+                <View key={announcement.id} style={styles.announcementItem}>
+                  <Text style={[styles.announcementTitle, { color: textColor }]}>
+                    {announcement.title}
+                  </Text>
+                  <Text style={[styles.announcementDate, { color: iconColor }]}>
+                    {announcement.date}
+                  </Text>
                 </View>
               ))}
             </ScrollView>
@@ -139,13 +142,13 @@ export default function Profile() {
             <MaterialCommunityIcons
               name="cake-variant"
               size={24}
-              color="#112866"
+              color={iconColor}
             />
-            <Text style={styles.sectionTitle}>
+            <Text style={[styles.sectionTitle, { color: textColor }]}>
               Birthday Celebrants - {getCurrentMonth()}
             </Text>
           </View>
-          <View style={styles.card}>
+          <View style={[styles.card, { backgroundColor }]}>
             <ScrollView
               style={styles.scrollableContent}
               nestedScrollEnabled={true}
@@ -154,10 +157,10 @@ export default function Profile() {
               {birthdays.map((item) => (
                 <View key={item.id} style={styles.birthdayItem}>
                   <View style={styles.birthdayContent}>
-                    <Text style={styles.birthdayName}>{item.name}</Text>
-                    <Text style={styles.birthdayDate}>{item.date}</Text>
+                    <Text style={[styles.birthdayName, { color: textColor }]}>{item.name}</Text>
+                    <Text style={[styles.birthdayDate, { color: iconColor }]}>{item.date}</Text>
                   </View>
-                  <MaterialCommunityIcons name="gift" size={24} color="#666" />
+                  <MaterialCommunityIcons name="gift" size={24} color={iconColor} />
                 </View>
               ))}
             </ScrollView>
