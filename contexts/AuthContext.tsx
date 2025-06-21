@@ -1,6 +1,6 @@
-import { AuthSession, AuthState } from '@/types/auth';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import { AuthSession, AuthState } from "@/types/auth";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import React, { createContext, useContext, useEffect, useState } from "react";
 
 interface AuthContextType extends AuthState {
   setSession: (session: AuthSession) => Promise<void>;
@@ -22,20 +22,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const loadSession = async () => {
     try {
-      const sessionData = await AsyncStorage.getItem('auth_session');
+      const sessionData = await AsyncStorage.getItem("auth_session");
       if (sessionData) {
-        setState(prev => ({
+        setState((prev) => ({
           ...prev,
           session: JSON.parse(sessionData),
           isLoading: false,
         }));
       } else {
-        setState(prev => ({ ...prev, isLoading: false }));
+        setState((prev) => ({ ...prev, isLoading: false }));
       }
     } catch (error) {
-      setState(prev => ({
+      setState((prev) => ({
         ...prev,
-        error: 'Failed to load session',
+        error: "Failed to load session",
         isLoading: false,
       }));
     }
@@ -43,32 +43,32 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const setSession = async (session: AuthSession) => {
     try {
-      await AsyncStorage.setItem('auth_session', JSON.stringify(session));
-      setState(prev => ({
+      await AsyncStorage.setItem("auth_session", JSON.stringify(session));
+      setState((prev) => ({
         ...prev,
         session,
         error: null,
       }));
     } catch (error) {
-      setState(prev => ({
+      setState((prev) => ({
         ...prev,
-        error: 'Failed to save session',
+        error: "Failed to save session",
       }));
     }
   };
 
   const clearSession = async () => {
     try {
-      await AsyncStorage.removeItem('auth_session');
+      await AsyncStorage.removeItem("auth_session");
       setState({
         session: null,
         isLoading: false,
         error: null,
       });
     } catch (error) {
-      setState(prev => ({
+      setState((prev) => ({
         ...prev,
-        error: 'Failed to clear session',
+        error: "Failed to clear session",
       }));
     }
   };
@@ -89,7 +89,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 export function useAuth() {
   const context = useContext(AuthContext);
   if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
+    throw new Error("useAuth must be used within an AuthProvider");
   }
   return context;
-} 
+}

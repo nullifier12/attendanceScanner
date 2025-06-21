@@ -4,16 +4,16 @@ import Constants from "expo-constants";
 import { useRouter } from "expo-router";
 import React from "react";
 import {
-  Alert,
-  Image,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
+    Alert,
+    Image,
+    Pressable,
+    ScrollView,
+    StyleSheet,
+    Text,
+    View,
 } from "react-native";
 import { Divider } from "react-native-paper";
-import QRCode from "react-native-qrcode-svg";
+import CustomQRCode from "../CustomQRCode";
 
 const UserInformation = (props: any) => {
   const url = Constants.expoConfig?.extra?.apiUrl;
@@ -21,6 +21,17 @@ const UserInformation = (props: any) => {
   const { session, clearSession } = useAuth();
   const { UserInfo } = props;
   const { pi_photo } = UserInfo;
+
+  // Create QR code data from session
+  const qrCodeData = session?.user ? {
+    id: session.user.id || "",
+    name: session.user.name || "",
+    email: session.user.email || "",
+  } : {
+    id: "",
+    name: "No session data",
+    email: ""
+  };
 
   const handleLogout = () => {
     Alert.alert(
@@ -80,11 +91,11 @@ const UserInformation = (props: any) => {
           </View>
 
           <View style={styles.qrContainer}>
-            <QRCode
-              value={`${UserInfo}`}
+            <CustomQRCode
+              data={qrCodeData}
               size={200}
               backgroundColor="white"
-              color="#112866"
+              foregroundColor="#112866"
             />
           </View>
 
@@ -119,7 +130,7 @@ const UserInformation = (props: any) => {
             </View>
           </View>
 
-          <View style={styles.section}>
+          {/* <View style={styles.section}>
             <View style={styles.sectionHeader}>
               <MaterialCommunityIcons name="phone" size={24} color="#112866" />
               <Text style={styles.sectionTitle}>Contact Information</Text>
@@ -136,7 +147,7 @@ const UserInformation = (props: any) => {
                 <Text style={styles.infoText}>+63 912 345 6789</Text>
               </View>
             </View>
-          </View>
+          </View> */}
           <View style={styles.section}>
             <View style={styles.sectionHeader}>
               <MaterialCommunityIcons
@@ -167,7 +178,7 @@ const UserInformation = (props: any) => {
           </View>
 
           {/* Birthdays Section */}
-          <View style={styles.section}>
+          {/* <View style={styles.section}>
             <View style={styles.sectionHeader}>
               <MaterialCommunityIcons
                 name="cake-variant"
@@ -190,7 +201,7 @@ const UserInformation = (props: any) => {
                 ))}
               </ScrollView>
             </View>
-          </View>
+          </View> */}
         </View>
       </ScrollView>
 

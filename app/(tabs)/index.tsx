@@ -26,7 +26,25 @@ const navigationTiles = [
     id: "schedule",
     title: "Work Schedule",
     icon: "calendar-clock" as const,
-    route: "/schedule/Sched" as const,
+    route: "/(tabs)/Sched" as const,
+  },
+  {
+    id: "hrmanual",
+    title: "HR Manual",
+    icon: "book-open-variant" as const,
+    route: "/(tabs)/hrmanual" as const,
+  },
+  {
+    id: "dataprivacy",
+    title: "Data Privacy",
+    icon: "shield-account" as const,
+    route: "/(tabs)/dataprivacy" as const,
+  },
+  {
+    id: "calendar",
+    title: "Calendar",
+    icon: "calendar-month" as const,
+    route: "/(tabs)/calendar" as const,
   },
 ];
 

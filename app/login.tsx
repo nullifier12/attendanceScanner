@@ -1,18 +1,21 @@
+import { DebugPanel } from "@/components/DebugPanel/DebugPanel";
 import { useAuth } from "@/contexts/AuthContext";
+import { debugHelper } from "@/utils/debugHelper";
+import { logger } from "@/utils/logger";
 import { Ionicons } from "@expo/vector-icons";
-import { BlurView } from "expo-blur";
 import Constants from "expo-constants";
 import { useRouter, useSegments } from "expo-router";
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
-  Image,
-  KeyboardAvoidingView,
-  Platform,
-  Pressable,
-  StyleSheet,
-  Text,
-  TextInput,
-  View,
+    Image,
+    KeyboardAvoidingView,
+    Platform,
+    Pressable,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View,
 } from "react-native";
 
 const Login = () => {
@@ -28,7 +31,28 @@ const Login = () => {
     credentials?: string;
   }>({});
   const [isLoading, setIsLoading] = useState(false);
+  const [showDebugPanel, setShowDebugPanel] = useState(false);
   const url = Constants.expoConfig?.extra?.apiUrl;
+  const isInitialized = useRef(false);
+
+  // Log component lifecycle only once
+  useEffect(() => {
+    if (!isInitialized.current) {
+      debugHelper.logComponentLifecycle("Login", "mount");
+      debugHelper.logAppStart();
+
+      // Check API connectivity on mount
+      debugHelper.checkApiConnectivity().then((isConnected) => {
+        logger.info("API connectivity check result", { isConnected });
+      });
+
+      isInitialized.current = true;
+    }
+
+    return () => {
+      debugHelper.logComponentLifecycle("Login", "unmount");
+    };
+  }, []);
 
   const validateForm = () => {
     let isValid = true;
@@ -61,8 +85,21 @@ const Login = () => {
   const handleLogin = async () => {
     if (!validateForm()) return;
 
+    logger.info("Login attempt started", {
+      employeeNumber: employeeNumber.length,
+      hasPassword: !!password,
+      apiUrl: url,
+    });
+
     setIsLoading(true);
+
     try {
+      // Log API call
+      await logger.logApiRequest(`${url}/api/mobile/mobileAuth`, "POST", {
+        ID: employeeNumber,
+        password: "***",
+      });
+
       const response = await fetch(`${url}/api/mobile/mobileAuth`, {
         method: "POST",
         headers: {
@@ -71,20 +108,33 @@ const Login = () => {
         body: JSON.stringify({ ID: employeeNumber, password: password }),
       });
 
+      // Log API response
+      await logger.logApiResponse(
+        `${url}/api/mobile/mobileAuth`,
+        "POST",
+        response.status
+      );
+
       if (!response.ok) {
+        const errorMessage = `HTTP ${response.status}: ${response.statusText}`;
+        logger.error("Login failed - HTTP error", {
+          status: response.status,
+          statusText: response.statusText,
+        });
+
         setErrors((prev) => ({
           ...prev,
           credentials: "Employee number or Password is incorrect",
         }));
         setIsLoading(false);
         return;
-      } else {
-        setIsLoading(false);
       }
 
       const responseData = await response.json();
-
-      console.log("API Response Data:", responseData);
+      logger.info("Login API response received", {
+        hasData: !!responseData,
+        dataKeys: responseData ? Object.keys(responseData) : [],
+      });
 
       const session = {
         token: "mock-jwt-token-" + Date.now(),
@@ -95,20 +145,55 @@ const Login = () => {
         },
       };
 
+      logger.info("Setting session", {
+        userId: session.user.id,
+        userName: session.user.name,
+      });
+
       await setSession(session);
 
-      router.push({
-        pathname: "/userinfo/userinfo",
-        params: {
-          userData: JSON.stringify(responseData),
-        },
+      logger.info("Session set successfully, navigating to userinfo");
+
+      // Log navigation
+      debugHelper.logNavigation("login", "userinfo/userinfo", {
+        hasUserData: !!responseData,
       });
+
+      // Navigate with error handling
+      try {
+        router.push({
+          pathname: "/userinfo/userinfo",
+          params: {
+            userData: JSON.stringify(responseData),
+          },
+        });
+
+        logger.info("Navigation to userinfo completed");
+      } catch (navigationError) {
+        logger.error("Navigation failed", {
+          error: (navigationError as Error).message,
+        });
+
+        // Fallback navigation
+        router.replace("/userinfo/userinfo");
+      }
     } catch (error) {
-      console.error("Login error:", error);
+      const errorMessage = (error as Error).message;
+      logger.error("Login error", {
+        error: errorMessage,
+        stack: (error as Error).stack,
+      });
+
+      // Show debug alert in development
+      if (__DEV__) {
+        debugHelper.showErrorAlert("Login Error", errorMessage, error);
+      }
+
       setErrors((prev) => ({
         ...prev,
         credentials: "Employee number or Password is incorrect",
       }));
+    } finally {
       setIsLoading(false);
     }
   };
@@ -119,15 +204,25 @@ const Login = () => {
       style={styles.container}
     >
       <View style={styles.content}>
+        {/* Debug Panel Toggle - Only show in development */}
+        {__DEV__ && (
+          <TouchableOpacity
+            style={styles.debugButton}
+            onPress={() => setShowDebugPanel(true)}
+          >
+            <Text style={styles.debugButtonText}>🐛 Debug</Text>
+          </TouchableOpacity>
+        )}
+
         <View style={styles.logoContainer}>
           <Image
-            source={require("../assets/public/tempProfile.png")}
+            source={require("./../assets/images/KCPAPI.png")}
             style={styles.logo}
+            resizeMode="contain"
           />
-          <Text style={styles.appName}>App Name Unknown Until Now</Text>
         </View>
 
-        <BlurView intensity={20} style={styles.formContainer}>
+        <View style={styles.formContainer}>
           <View style={styles.inputContainer}>
             <Ionicons name="id-card-outline" size={20} color="#666" />
             <TextInput
@@ -200,8 +295,21 @@ const Login = () => {
               {isLoading ? "Logging in..." : "Login"}
             </Text>
           </Pressable>
-        </BlurView>
+        </View>
+
+        {/* Version Number */}
+        <View style={styles.versionContainer}>
+          <Text style={styles.versionText}>
+            Version: {Constants.expoConfig?.version || "1.0.0"}
+          </Text>
+        </View>
       </View>
+
+      {/* Debug Panel */}
+      <DebugPanel
+        visible={showDebugPanel}
+        onClose={() => setShowDebugPanel(false)}
+      />
     </KeyboardAvoidingView>
   );
 };
@@ -209,7 +317,7 @@ const Login = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f5f5f5",
+    backgroundColor: "#fff",
   },
   content: {
     flex: 1,
@@ -219,12 +327,11 @@ const styles = StyleSheet.create({
   logoContainer: {
     alignItems: "center",
     marginBottom: 40,
+    paddingHorizontal: 20,
   },
   logo: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
-    marginBottom: 16,
+    width: 250,
+    height: 200,
   },
   appName: {
     fontSize: 24,
@@ -232,14 +339,11 @@ const styles = StyleSheet.create({
     color: "#112866",
   },
   formContainer: {
-    backgroundColor: "rgba(255, 255, 255, 0.9)",
+    backgroundColor: "#fff",
     borderRadius: 12,
     padding: 20,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
+    borderWidth: 1,
+    borderColor: "#eee",
   },
   inputContainer: {
     flexDirection: "row",
@@ -256,9 +360,11 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     marginLeft: 8,
     fontSize: 16,
+    color: "#333",
   },
   eyeIcon: {
     padding: 8,
+    fontWeight: "bold",
   },
   errorText: {
     color: "#ff3b30",
@@ -280,6 +386,32 @@ const styles = StyleSheet.create({
     color: "white",
     fontSize: 16,
     fontWeight: "600",
+  },
+  debugButton: {
+    position: "absolute",
+    top: 50,
+    right: 20,
+    backgroundColor: "#ff6b6b",
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 15,
+    zIndex: 1000,
+  },
+  debugButtonText: {
+    color: "white",
+    fontSize: 12,
+    fontWeight: "bold",
+  },
+  versionContainer: {
+    position: "absolute",
+    bottom: 20,
+    left: 20,
+    right: 20,
+    alignItems: "center",
+  },
+  versionText: {
+    color: "#aaa",
+    fontSize: 12,
   },
 });
 

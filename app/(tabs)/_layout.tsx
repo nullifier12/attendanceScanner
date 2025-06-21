@@ -129,6 +129,110 @@ export default function TabLayout() {
           ),
         }}
       />
+      <Tabs.Screen
+        name="Sched"
+        options={{
+          title: "Work Schedule",
+          headerTitle: "",
+          tabBarIcon: ({ color }) => (
+            <MaterialCommunityIcons
+              name="file-document"
+              size={32}
+              color={color}
+            />
+          ),
+          tabBarStyle: {
+            backgroundColor: "#112866",
+            display: "none", // Hide tab bar for this screen
+          },
+          headerLeft: () => (
+            <TouchableOpacity
+              onPress={() => router.back()}
+              style={{ paddingLeft: 16 }}
+            >
+              <Ionicons name="arrow-back" size={28} color="white" />
+            </TouchableOpacity>
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="hrmanual"
+        options={{
+          title: "HR Manual",
+          headerTitle: "",
+          tabBarIcon: ({ color }) => (
+            <MaterialCommunityIcons
+              name="book-open-variant"
+              size={32}
+              color={color}
+            />
+          ),
+          tabBarStyle: {
+            backgroundColor: "#112866",
+            display: "none", // Hide tab bar for this screen
+          },
+          headerLeft: () => (
+            <TouchableOpacity
+              onPress={() => router.back()}
+              style={{ paddingLeft: 16 }}
+            >
+              <Ionicons name="arrow-back" size={28} color="white" />
+            </TouchableOpacity>
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="dataprivacy"
+        options={{
+          title: "Data Privacy",
+          headerTitle: "",
+          tabBarIcon: ({ color }) => (
+            <MaterialCommunityIcons
+              name="shield-account"
+              size={32}
+              color={color}
+            />
+          ),
+          tabBarStyle: {
+            backgroundColor: "#112866",
+            display: "none", // Hide tab bar for this screen
+          },
+          headerLeft: () => (
+            <TouchableOpacity
+              onPress={() => router.back()}
+              style={{ paddingLeft: 16 }}
+            >
+              <Ionicons name="arrow-back" size={28} color="white" />
+            </TouchableOpacity>
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="calendar"
+        options={{
+          title: "Calendar",
+          headerTitle: "",
+          tabBarIcon: ({ color }) => (
+            <MaterialCommunityIcons
+              name="calendar"
+              size={32}
+              color={color}
+            />
+          ),
+          tabBarStyle: {
+            backgroundColor: "#112866",
+            display: "none", // Hide tab bar for this screen
+          },
+          headerLeft: () => (
+            <TouchableOpacity
+              onPress={() => router.back()}
+              style={{ paddingLeft: 16 }}
+            >
+              <Ionicons name="arrow-back" size={28} color="white" />
+            </TouchableOpacity>
+          ),
+        }}
+      />
     </Tabs>
   );
 }
