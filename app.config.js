@@ -54,7 +54,8 @@ export default {
       eas: {
         projectId: "1c6b6f55-f0fb-4ce2-a5a1-a84408dab4bd"
       },
-      apiUrl: process.env.API_URL || "http://192.168.1.100:5000"
+      apiUrl: process.env.API_URL || "http://192.168.100.3:5000",
+      mobileKey: process.env.MOBILE_SECRET || "aSuperSecretKeyForMobileAccess!123@"
     }
   }
 }; 

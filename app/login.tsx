@@ -8,15 +8,15 @@ import Constants from "expo-constants";
 import { useRouter, useSegments } from "expo-router";
 import React, { useEffect, useRef, useState } from "react";
 import {
-    Image,
-    KeyboardAvoidingView,
-    Platform,
-    Pressable,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  Image,
+  KeyboardAvoidingView,
+  Platform,
+  Pressable,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from "react-native";
 
 const Login = () => {
@@ -34,12 +34,13 @@ const Login = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [showDebugPanel, setShowDebugPanel] = useState(false);
   const url = Constants.expoConfig?.extra?.apiUrl;
+  const mobileKey = Constants.expoConfig?.extra?.mobileKey;
   const isInitialized = useRef(false);
 
   // Get theme colors
-  const textColor = useThemeColor({}, 'text');
-  const backgroundColor = useThemeColor({}, 'background');
-  const iconColor = useThemeColor({}, 'icon');
+  const textColor = useThemeColor({}, "text");
+  const backgroundColor = useThemeColor({}, "background");
+  const iconColor = useThemeColor({}, "icon");
 
   // Log component lifecycle only once
   useEffect(() => {
@@ -100,16 +101,29 @@ const Login = () => {
     setIsLoading(true);
 
     try {
-      // Log API call
       await logger.logApiRequest(`${url}/api/mobile/mobileAuth`, "POST", {
         ID: employeeNumber,
         password: "***",
       });
+      const tokenResponse = await fetch(`${url}/api/mobile/generateToken`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-api-key": `${mobileKey}`,
+        },
+        body: JSON.stringify({ ID: employeeNumber, password: password }),
+      });
+      const tokenData = await tokenResponse.json();
+
+      if (!tokenResponse.ok) {
+        throw new Error(tokenData.message || "Failed to generate token");
+      }
 
       const response = await fetch(`${url}/api/mobile/mobileAuth`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${tokenData.token}`,
         },
         body: JSON.stringify({ ID: employeeNumber, password: password }),
       });
@@ -137,17 +151,18 @@ const Login = () => {
       }
 
       const responseData = await response.json();
+      console.log("user", responseData);
       logger.info("Login API response received", {
         hasData: !!responseData,
         dataKeys: responseData ? Object.keys(responseData) : [],
       });
 
       const session = {
-        token: "mock-jwt-token-" + Date.now(),
+        token: responseData.token,
         user: {
-          id: responseData.ID,
-          name: `${responseData.pi_fname} ${responseData.pi_lname}`,
-          email: responseData.pi_email,
+          id: responseData?.user?.emp_id,
+          name: `${responseData?.user?.pi_fname} ${responseData?.user?.pi_lname}`,
+          email: responseData?.user?.pi_email,
         },
       };
 
@@ -244,7 +259,7 @@ const Login = () => {
                   credentials: "",
                 }));
               }}
-              keyboardType="number-pad"
+              // keyboardType="number-pad"
               maxLength={8}
             />
           </View>

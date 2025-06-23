@@ -51,11 +51,11 @@ const navigationTiles = [
 
 export default function HomeScreen() {
   const router = useRouter();
-  
+
   // Get theme colors
-  const textColor = useThemeColor({}, 'text');
-  const backgroundColor = useThemeColor({}, 'background');
-  const iconColor = useThemeColor({}, 'icon');
+  const textColor = useThemeColor({}, "text");
+  const backgroundColor = useThemeColor({}, "background");
+  const iconColor = useThemeColor({}, "icon");
 
   return (
     <View style={[styles.container, { backgroundColor }]}>
@@ -79,7 +79,9 @@ export default function HomeScreen() {
               size={32}
               color={iconColor}
             />
-            <Text style={[styles.tileText, { color: textColor }]}>{tile.title}</Text>
+            <Text style={[styles.tileText, { color: textColor }]}>
+              {tile.title}
+            </Text>
           </Pressable>
         ))}
       </View>

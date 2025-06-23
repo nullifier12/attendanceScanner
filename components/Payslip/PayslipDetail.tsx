@@ -1,8 +1,12 @@
 import { useThemeColor } from "@/hooks/useThemeColor";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
+import * as FileSystem from "expo-file-system";
+import * as Print from "expo-print";
+import { Alert, Platform } from "react-native";
+
 import React from "react";
-import { ScrollView, StyleSheet, Text, View } from "react-native";
-import { Button } from "react-native-paper";
+import { StyleSheet, Text, View } from "react-native";
+import { Button, IconButton } from "react-native-paper";
 import { currencyFormatter } from "../../utils/currencyFormatter";
 
 interface PayslipDetailProps {
@@ -20,10 +24,11 @@ interface PayslipDetailProps {
 }
 
 const PayslipDetail = ({ payslip, onClose }: PayslipDetailProps) => {
-  // Get theme colors
-  const textColor = useThemeColor({}, 'text');
-  const backgroundColor = useThemeColor({}, 'background');
-  const iconColor = useThemeColor({}, 'icon');
+  const textColor = useThemeColor({}, "text");
+  const backgroundColor = useThemeColor({}, "background");
+  const iconColor = useThemeColor({}, "icon");
+  const cardColor = backgroundColor;
+  const boxColor = backgroundColor;
 
   const getStatusColor = (status: string) => {
     switch (status.toLowerCase()) {
@@ -38,6 +43,213 @@ const PayslipDetail = ({ payslip, onClose }: PayslipDetailProps) => {
     }
   };
 
+  const handleDownload = async () => {
+    try {
+      const html = `
+        <html>
+          <head>
+            <meta charset="UTF-8" />
+            <style>
+              body {
+                font-family: Arial, sans-serif;
+                margin: 0;
+                padding: 24px;
+                color: #222;
+              }
+              .header {
+                display: flex;
+                align-items: center;
+                border-bottom: 2px solid #1976D2;
+                margin-bottom: 24px;
+              }
+              .header-icon {
+                font-size: 28px;
+                color: #1976D2;
+                margin-right: 12px;
+              }
+              .header-title {
+                font-size: 24px;
+                font-weight: bold;
+              }
+              .section {
+                margin-bottom: 24px;
+              }
+              .section-title {
+                font-size: 18px;
+                font-weight: bold;
+                margin-bottom: 12px;
+                color: #1976D2;
+              }
+              .info-grid {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 24px;
+                margin-bottom: 12px;
+              }
+              .info-item {
+                min-width: 180px;
+                margin-bottom: 8px;
+              }
+              .label {
+                font-size: 13px;
+                color: #888;
+              }
+              .value {
+                font-size: 15px;
+                font-weight: 500;
+              }
+              .status-badge {
+                display: inline-block;
+                background: #4CAF50;
+                color: #fff;
+                border-radius: 4px;
+                padding: 2px 12px;
+                font-size: 13px;
+                font-weight: 600;
+                margin-top: 2px;
+              }
+              .box {
+                background: #f5f7fa;
+                border-radius: 8px;
+                padding: 16px;
+                margin-bottom: 8px;
+              }
+              .row {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 6px 0;
+                border-bottom: 1px solid #e0e0e0;
+              }
+              .row:last-child {
+                border-bottom: none;
+              }
+              .row-label {
+                font-size: 15px;
+              }
+              .row-value {
+                font-size: 15px;
+                font-weight: 500;
+              }
+              .total-row {
+                font-size: 17px;
+                font-weight: bold;
+                color: #1976D2;
+                margin-top: 8px;
+              }
+              .netpay-box {
+                background: #e3f2fd;
+                border-radius: 8px;
+                padding: 20px;
+                text-align: center;
+              }
+              .netpay-value {
+                font-size: 28px;
+                font-weight: bold;
+                color: #1976D2;
+              }
+            </style>
+          </head>
+          <body>
+            <div class="header">
+              <span class="header-icon">📄</span>
+              <span class="header-title">Payslip Details</span>
+            </div>
+            <div class="section">
+              <div class="section-title">Payslip Information</div>
+              <div class="info-grid">
+                <div class="info-item">
+                  <div class="label">Payslip ID</div>
+                  <div class="value">${payslip.id}</div>
+                </div>
+                <div class="info-item">
+                  <div class="label">Period</div>
+                  <div class="value">${payslip.period}</div>
+                </div>
+                <div class="info-item">
+                  <div class="label">Date</div>
+                  <div class="value">${payslip.date}</div>
+                </div>
+                <div class="info-item">
+                  <div class="label">Status</div>
+                  <span class="status-badge">${payslip.status}</span>
+                </div>
+              </div>
+            </div>
+            <div class="section">
+              <div class="section-title">Earnings</div>
+              <div class="box">
+                <div class="row">
+                  <span class="row-label">Basic Pay</span>
+                  <span class="row-value">${currencyFormatter.format(payslip.basicPay)}</span>
+                </div>
+                <div class="row">
+                  <span class="row-label">Allowances</span>
+                  <span class="row-value">${currencyFormatter.format(payslip.allowances)}</span>
+                </div>
+                <div class="row total-row">
+                  <span>Total Earnings</span>
+                  <span>${currencyFormatter.format(payslip.basicPay + payslip.allowances)}</span>
+                </div>
+              </div>
+            </div>
+            <div class="section">
+              <div class="section-title">Deductions</div>
+              <div class="box">
+                <div class="row">
+                  <span class="row-label">Total Deductions</span>
+                  <span class="row-value">${currencyFormatter.format(payslip.deductions)}</span>
+                </div>
+              </div>
+            </div>
+            <div class="section">
+              <div class="section-title">Net Pay</div>
+              <div class="netpay-box">
+                <span class="netpay-value">${currencyFormatter.format(payslip.netPay)}</span>
+              </div>
+            </div>
+          </body>
+        </html>
+      `;
+      const { uri } = await Print.printToFileAsync({ html });
+      const fileName = `Payslip_${payslip.id}.pdf`;
+      if (Platform.OS === "android") {
+        const permissions =
+          await FileSystem.StorageAccessFramework.requestDirectoryPermissionsAsync();
+        if (permissions.granted) {
+          const base64 = await FileSystem.readAsStringAsync(uri, {
+            encoding: FileSystem.EncodingType.Base64,
+          });
+          await FileSystem.StorageAccessFramework.createFileAsync(
+            permissions.directoryUri,
+            fileName,
+            "application/pdf"
+          ).then(async (uriSAF) => {
+            await FileSystem.writeAsStringAsync(uriSAF, base64, {
+              encoding: FileSystem.EncodingType.Base64,
+            });
+            Alert.alert("Success", "Payslip saved !");
+          });
+        } else {
+          Alert.alert(
+            "Permission denied",
+            "Cannot save to Downloads folder without permission."
+          );
+        }
+      } else {
+        const destPath = `${FileSystem.documentDirectory}${fileName}`;
+        await FileSystem.moveAsync({ from: uri, to: destPath });
+        Alert.alert(
+          "Saved",
+          `Payslip saved to app's document directory:\n${destPath}`
+        );
+      }
+    } catch (error) {
+      console.error("Error saving PDF:", error);
+      Alert.alert("Error", "Failed to save payslip.");
+    }
+  };
+
   return (
     <View style={[styles.container, { backgroundColor }]}>
       <View style={[styles.header, { backgroundColor }]}>
@@ -47,36 +259,74 @@ const PayslipDetail = ({ payslip, onClose }: PayslipDetailProps) => {
             size={24}
             color={iconColor}
           />
-          <Text style={[styles.headerTitle, { color: textColor }]}>Payslip Details</Text>
+          <Text style={[styles.headerTitle, { color: textColor }]}>
+            Payslip Details
+          </Text>
         </View>
-        <Button
-          mode="text"
-          onPress={onClose}
-          icon="close"
-          textColor={iconColor}
-        >
-          Close
-        </Button>
+        <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
+          <Button
+            mode="text"
+            onPress={onClose}
+            icon="close"
+            textColor={iconColor}
+          >
+            Close
+          </Button>
+        </View>
       </View>
 
-      <ScrollView style={styles.content}>
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Payslip Information</Text>
+      <View style={[styles.content, { backgroundColor }]}>
+        <View style={[styles.section, { backgroundColor: cardColor }]}>
+          <View
+            style={{
+              flexDirection: "row",
+              width: "100%",
+              alignItems: "center",
+            }}
+          >
+            <Text
+              style={[
+                styles.sectionTitle,
+                { textAlign: "left", flex: 1, color: textColor },
+              ]}
+            >
+              Payslip Information
+            </Text>
+            <IconButton
+              icon="download"
+              size={20}
+              onPress={handleDownload}
+              style={{ marginBottom: 4 }}
+              iconColor={iconColor}
+            />
+          </View>
           <View style={styles.infoGrid}>
             <View style={styles.infoItem}>
-              <Text style={styles.infoLabel}>Payslip ID</Text>
-              <Text style={styles.infoValue}>{payslip.id}</Text>
+              <Text style={[styles.infoLabel, { color: textColor }]}>
+                Payslip ID
+              </Text>
+              <Text style={[styles.infoValue, { color: textColor }]}>
+                {payslip.id}
+              </Text>
             </View>
             <View style={styles.infoItem}>
-              <Text style={styles.infoLabel}>Period</Text>
-              <Text style={styles.infoValue}>{payslip.period}</Text>
+              <Text style={[styles.infoLabel, { color: textColor }]}>
+                Period
+              </Text>
+              <Text style={[styles.infoValue, { color: textColor }]}>
+                {payslip.period}
+              </Text>
             </View>
             <View style={styles.infoItem}>
-              <Text style={styles.infoLabel}>Date</Text>
-              <Text style={styles.infoValue}>{payslip.date}</Text>
+              <Text style={[styles.infoLabel, { color: textColor }]}>Date</Text>
+              <Text style={[styles.infoValue, { color: textColor }]}>
+                {payslip.date}
+              </Text>
             </View>
             <View style={styles.infoItem}>
-              <Text style={styles.infoLabel}>Status</Text>
+              <Text style={[styles.infoLabel, { color: textColor }]}>
+                Status
+              </Text>
               <View
                 style={[
                   styles.statusBadge,
@@ -89,61 +339,70 @@ const PayslipDetail = ({ payslip, onClose }: PayslipDetailProps) => {
           </View>
         </View>
 
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Earnings</Text>
-          <View style={styles.earningsContainer}>
+        <View style={[styles.section, { backgroundColor: cardColor }]}>
+          <Text style={[styles.sectionTitle, { color: textColor }]}>
+            Earnings
+          </Text>
+          <View
+            style={[styles.earningsContainer, { backgroundColor: boxColor }]}
+          >
             <View style={styles.earningsRow}>
-              <Text style={styles.earningsLabel}>Basic Pay</Text>
-              <Text style={styles.earningsValue}>
+              <Text style={[styles.earningsLabel, { color: textColor }]}>
+                Basic Pay
+              </Text>
+              <Text style={[styles.earningsValue, { color: textColor }]}>
                 {currencyFormatter.format(payslip.basicPay)}
               </Text>
             </View>
             <View style={styles.earningsRow}>
-              <Text style={styles.earningsLabel}>Allowances</Text>
-              <Text style={styles.earningsValue}>
+              <Text style={[styles.earningsLabel, { color: textColor }]}>
+                Allowances
+              </Text>
+              <Text style={[styles.earningsValue, { color: textColor }]}>
                 {currencyFormatter.format(payslip.allowances)}
               </Text>
             </View>
             <View style={[styles.earningsRow, styles.totalRow]}>
-              <Text style={styles.totalLabel}>Total Earnings</Text>
-              <Text style={styles.totalValue}>
-                {currencyFormatter.format(payslip.basicPay + payslip.allowances)}
+              <Text style={[styles.totalLabel, { color: textColor }]}>
+                Total Earnings
+              </Text>
+              <Text style={[styles.totalValue, { color: textColor }]}>
+                {currencyFormatter.format(
+                  payslip.basicPay + payslip.allowances
+                )}
               </Text>
             </View>
           </View>
         </View>
 
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Deductions</Text>
-          <View style={styles.deductionsContainer}>
+        <View style={[styles.section, { backgroundColor: cardColor }]}>
+          <Text style={[styles.sectionTitle, { color: textColor }]}>
+            Deductions
+          </Text>
+          <View
+            style={[styles.deductionsContainer, { backgroundColor: boxColor }]}
+          >
             <View style={styles.deductionsRow}>
-              <Text style={styles.deductionsLabel}>Total Deductions</Text>
-              <Text style={styles.deductionsValue}>
+              <Text style={[styles.deductionsLabel, { color: textColor }]}>
+                Total Deductions
+              </Text>
+              <Text style={[styles.deductionsValue, { color: textColor }]}>
                 {currencyFormatter.format(payslip.deductions)}
               </Text>
             </View>
           </View>
         </View>
 
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Net Pay</Text>
-          <View style={styles.netPayContainer}>
-            <Text style={styles.netPayValue}>
+        <View style={[styles.section, { backgroundColor: cardColor }]}>
+          <Text style={[styles.sectionTitle, { color: textColor }]}>
+            Net Pay
+          </Text>
+          <View style={[styles.netPayContainer, { backgroundColor: boxColor }]}>
+            <Text style={[styles.netPayValue, { color: textColor }]}>
               {currencyFormatter.format(payslip.netPay)}
             </Text>
           </View>
         </View>
-      </ScrollView>
-
-      <View style={styles.footer}>
-        <Button
-          mode="contained"
-          onPress={() => console.log("Download payslip")}
-          icon="download"
-          style={styles.downloadButton}
-        >
-          Download Payslip
-        </Button>
       </View>
     </View>
   );
@@ -284,12 +543,7 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     color: "#1976D2",
   },
-  footer: {
-    padding: 16,
-    borderTopWidth: 1,
-    borderTopColor: "#E0E0E0",
-  },
   downloadButton: {
     backgroundColor: "#112866",
   },
-}); 
+});

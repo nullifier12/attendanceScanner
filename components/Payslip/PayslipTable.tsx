@@ -1,9 +1,18 @@
 import { useThemeColor } from "@/hooks/useThemeColor";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-import { ScrollView, StyleSheet, Text, View } from "react-native";
-import { Chip, DataTable } from "react-native-paper";
+import React, { useState } from "react";
+import {
+  Modal,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
+import { DataTable } from "react-native-paper";
 import { useAuth } from "../../contexts/AuthContext";
 import { currencyFormatter } from "../../utils/currencyFormatter";
+import PayslipDetail from "./PayslipDetail";
 
 interface PayslipRecord {
   id: string;
@@ -18,11 +27,11 @@ interface PayslipRecord {
 
 const PayslipTable = () => {
   const { session } = useAuth();
-  
+  console.log("session", session);
   // Get theme colors
-  const textColor = useThemeColor({}, 'text');
-  const backgroundColor = useThemeColor({}, 'background');
-  const iconColor = useThemeColor({}, 'icon');
+  const textColor = useThemeColor({}, "text");
+  const backgroundColor = useThemeColor({}, "background");
+  const iconColor = useThemeColor({}, "icon");
 
   const payslipArray: PayslipRecord[] = [
     {
@@ -71,20 +80,49 @@ const PayslipTable = () => {
   };
 
   // Calculate summary statistics
-  const totalPaid = payslipArray.filter(p => p.status === "Paid").length;
-  const totalPending = payslipArray.filter(p => p.status === "Pending").length;
-  const totalProcessing = payslipArray.filter(p => p.status === "Processing").length;
+  const totalPaid = payslipArray.filter((p) => p.status === "Paid").length;
+  const totalPending = payslipArray.filter(
+    (p) => p.status === "Pending"
+  ).length;
+  const totalProcessing = payslipArray.filter(
+    (p) => p.status === "Processing"
+  ).length;
   const totalNetPay = payslipArray.reduce((sum, p) => sum + p.netPay, 0);
+
+  const [selectedPayslip, setSelectedPayslip] = useState<PayslipRecord | null>(
+    null
+  );
+  const [modalVisible, setModalVisible] = useState(false);
+
+  const openPayslipModal = (payslip: PayslipRecord) => {
+    setSelectedPayslip(payslip);
+    setModalVisible(true);
+  };
+
+  const closePayslipModal = () => {
+    setModalVisible(false);
+    setTimeout(() => setSelectedPayslip(null), 300);
+  };
 
   return (
     <View style={[styles.container, { backgroundColor }]}>
       <View style={[styles.pageHeader, { backgroundColor }]}>
         <View style={styles.headerLeft}>
-          <MaterialCommunityIcons name="file-document-outline" size={24} color={iconColor} />
-          <Text style={[styles.headerTitle, { color: textColor }]}>Payslip History</Text>
+          <MaterialCommunityIcons
+            name="file-document-outline"
+            size={24}
+            color={iconColor}
+          />
+          <Text style={[styles.headerTitle, { color: textColor }]}>
+            Payslip History
+          </Text>
         </View>
         <View style={styles.headerRight}>
-          <MaterialCommunityIcons name="download-outline" size={24} color={iconColor} />
+          <MaterialCommunityIcons
+            name="download-outline"
+            size={24}
+            color={iconColor}
+          />
         </View>
       </View>
 
@@ -93,59 +131,97 @@ const PayslipTable = () => {
           <DataTable style={styles.table}>
             <DataTable.Header>
               <DataTable.Title style={styles.idColumn}>
-                <Text style={[styles.headerText, { color: textColor }]}>ID</Text>
+                <Text style={[styles.headerText, { color: textColor }]}>
+                  ID
+                </Text>
               </DataTable.Title>
               <DataTable.Title style={styles.periodColumn}>
-                <Text style={[styles.headerText, { color: textColor }]}>Period</Text>
+                <Text style={[styles.headerText, { color: textColor }]}>
+                  Period
+                </Text>
               </DataTable.Title>
               <DataTable.Title style={styles.dateColumn}>
-                <Text style={[styles.headerText, { color: textColor }]}>Date</Text>
+                <Text style={[styles.headerText, { color: textColor }]}>
+                  Date
+                </Text>
               </DataTable.Title>
               <DataTable.Title style={styles.amountColumn}>
-                <Text style={[styles.headerText, { color: textColor }]}>Basic Pay</Text>
+                <Text style={[styles.headerText, { color: textColor }]}>
+                  Basic Pay
+                </Text>
               </DataTable.Title>
               <DataTable.Title style={styles.amountColumn}>
-                <Text style={[styles.headerText, { color: textColor }]}>Allowances</Text>
+                <Text style={[styles.headerText, { color: textColor }]}>
+                  Allowances
+                </Text>
               </DataTable.Title>
               <DataTable.Title style={styles.amountColumn}>
-                <Text style={[styles.headerText, { color: textColor }]}>Deductions</Text>
+                <Text style={[styles.headerText, { color: textColor }]}>
+                  Deductions
+                </Text>
               </DataTable.Title>
               <DataTable.Title style={styles.amountColumn}>
-                <Text style={[styles.headerText, { color: textColor }]}>Net Pay</Text>
+                <Text style={[styles.headerText, { color: textColor }]}>
+                  Net Pay
+                </Text>
               </DataTable.Title>
-              <DataTable.Title style={styles.statusColumn}>
-                <Text style={[styles.headerText, { color: textColor }]}>Status</Text>
-              </DataTable.Title>
-              <DataTable.Title style={styles.actionColumn}>
-                <Text style={[styles.headerText, { color: textColor }]}>Action</Text>
-              </DataTable.Title>
+              {/* <DataTable.Title style={styles.statusColumn}>
+                <Text style={[styles.headerText, { color: textColor }]}>
+                  Status
+                </Text>
+              </DataTable.Title> */}
+              {/* <DataTable.Title style={styles.actionColumn}>
+                <Text style={[styles.headerText, { color: textColor }]}>
+                  Action
+                </Text>
+              </DataTable.Title> */}
             </DataTable.Header>
 
             <ScrollView style={styles.tableBody}>
               {payslipArray.map((payslip) => (
                 <DataTable.Row key={payslip.id}>
                   <DataTable.Cell style={styles.idColumn}>
-                    <Text style={[styles.cellText, { color: textColor }]}>{payslip.id}</Text>
+                    <Text
+                      style={[
+                        styles.cellText,
+                        { color: textColor, textDecorationLine: "underline" },
+                      ]}
+                      onPress={() => openPayslipModal(payslip)}
+                    >
+                      {payslip.id}
+                    </Text>
                   </DataTable.Cell>
                   <DataTable.Cell style={styles.periodColumn}>
-                    <Text style={[styles.cellText, { color: textColor }]}>{payslip.period}</Text>
+                    <Text style={[styles.cellText, { color: textColor }]}>
+                      {payslip.period}
+                    </Text>
                   </DataTable.Cell>
                   <DataTable.Cell style={styles.dateColumn}>
-                    <Text style={[styles.cellText, { color: textColor }]}>{payslip.date}</Text>
+                    <Text style={[styles.cellText, { color: textColor }]}>
+                      {payslip.date}
+                    </Text>
                   </DataTable.Cell>
                   <DataTable.Cell style={styles.amountColumn}>
-                    <Text style={[styles.cellText, { color: textColor }]}>{currencyFormatter.format(payslip.basicPay)}</Text>
+                    <Text style={[styles.cellText, { color: textColor }]}>
+                      {currencyFormatter.format(payslip.basicPay)}
+                    </Text>
                   </DataTable.Cell>
                   <DataTable.Cell style={styles.amountColumn}>
-                    <Text style={[styles.cellText, { color: textColor }]}>{currencyFormatter.format(payslip.allowances)}</Text>
+                    <Text style={[styles.cellText, { color: textColor }]}>
+                      {currencyFormatter.format(payslip.allowances)}
+                    </Text>
                   </DataTable.Cell>
                   <DataTable.Cell style={styles.amountColumn}>
-                    <Text style={[styles.cellText, { color: textColor }]}>{currencyFormatter.format(payslip.deductions)}</Text>
+                    <Text style={[styles.cellText, { color: textColor }]}>
+                      {currencyFormatter.format(payslip.deductions)}
+                    </Text>
                   </DataTable.Cell>
                   <DataTable.Cell style={styles.amountColumn}>
-                    <Text style={[styles.cellText, { color: textColor }]}>{currencyFormatter.format(payslip.netPay)}</Text>
+                    <Text style={[styles.cellText, { color: textColor }]}>
+                      {currencyFormatter.format(payslip.netPay)}
+                    </Text>
                   </DataTable.Cell>
-                  <DataTable.Cell style={styles.statusColumn}>
+                  {/* <DataTable.Cell style={styles.statusColumn}>
                     <Chip
                       mode="flat"
                       style={[
@@ -162,27 +238,62 @@ const PayslipTable = () => {
                     >
                       {payslip.status}
                     </Chip>
-                  </DataTable.Cell>
-                  <DataTable.Cell style={styles.actionColumn}>
+                  </DataTable.Cell> */}
+                  {/* <DataTable.Cell style={styles.actionColumn}>
                     <MaterialCommunityIcons
                       name="file-document-outline"
                       size={24}
                       color={iconColor}
-                      onPress={() => console.log("View details for:", payslip.id)}
+                      onPress={() => openPayslipModal(payslip)}
                     />
                     <MaterialCommunityIcons
                       name="download-outline"
                       size={24}
                       color={iconColor}
-                      onPress={() => console.log("Download payslip:", payslip.id)}
+                      onPress={() =>
+                        console.log("Download payslip:", payslip.id)
+                      }
                     />
-                  </DataTable.Cell>
+                  </DataTable.Cell> */}
                 </DataTable.Row>
               ))}
             </ScrollView>
           </DataTable>
         </ScrollView>
       </View>
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={modalVisible}
+        onRequestClose={closePayslipModal}
+      >
+        <Pressable
+          style={{
+            flex: 1,
+            backgroundColor: "rgba(0,0,0,0.3)",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+          onPress={closePayslipModal}
+        >
+          <View
+            style={{
+              width: "90%",
+              height: "95%",
+              backgroundColor: backgroundColor,
+              borderRadius: 16,
+              overflow: "hidden",
+            }}
+          >
+            {selectedPayslip && (
+              <PayslipDetail
+                payslip={selectedPayslip}
+                onClose={closePayslipModal}
+              />
+            )}
+          </View>
+        </Pressable>
+      </Modal>
     </View>
   );
 };
@@ -205,7 +316,7 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 3,
     borderWidth: 1,
-    borderColor: '#e0e0e0',
+    borderColor: "#e0e0e0",
   },
   headerLeft: {
     flexDirection: "row",
@@ -229,7 +340,7 @@ const styles = StyleSheet.create({
     shadowRadius: 2,
     elevation: 2,
     borderWidth: 1,
-    borderColor: '#e0e0e0',
+    borderColor: "#e0e0e0",
   },
   table: {
     backgroundColor: "transparent",
@@ -283,4 +394,3 @@ const styles = StyleSheet.create({
 });
 
 export default PayslipTable;
-
