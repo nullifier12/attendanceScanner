@@ -19,7 +19,9 @@ export default {
       icon: "./assets/images/KCPAPI.png",
       edgeToEdgeEnabled: true,
       permissions: ["android.permission.CAMERA"],
-      package: "com.attScnnr"
+      package: "com.attScnnr",
+      googleServicesFile: "./google-services.json"
+
     },
     web: {
       bundler: "metro",

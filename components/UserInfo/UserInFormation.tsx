@@ -5,13 +5,13 @@ import Constants from "expo-constants";
 import { useRouter } from "expo-router";
 import React from "react";
 import {
-  Alert,
-  Image,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
+    Alert,
+    Image,
+    Pressable,
+    ScrollView,
+    StyleSheet,
+    Text,
+    View,
 } from "react-native";
 import { Divider } from "react-native-paper";
 import CustomQRCode from "../CustomQRCode";

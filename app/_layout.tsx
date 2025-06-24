@@ -1,17 +1,18 @@
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
+import { NotificationProvider } from "@/contexts/NotificationContext";
+import { useColorScheme } from "@/hooks/useColorScheme";
 import {
-    DarkTheme,
-    DefaultTheme,
-    ThemeProvider,
+  DarkTheme,
+  DefaultTheme,
+  ThemeProvider,
+  useFocusEffect,
+  useRoute,
 } from "@react-navigation/native";
+
 import { useFonts } from "expo-font";
-import { Stack, usePathname } from "expo-router";
+import { Stack, usePathname, useRouter } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import "react-native-reanimated";
-
-import { useColorScheme } from "@/hooks/useColorScheme";
-import { useFocusEffect, useRoute } from "@react-navigation/native";
-import { useRouter } from "expo-router";
 
 import { debugHelper } from "@/utils/debugHelper";
 import { logger } from "@/utils/logger";
@@ -33,25 +34,32 @@ class ErrorBoundary extends React.Component<
   }
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-    logger.error('Error Boundary caught error', {
+    logger.error("Error Boundary caught error", {
       error: error.message,
       stack: error.stack,
-      componentStack: errorInfo.componentStack
+      componentStack: errorInfo.componentStack,
     });
   }
 
   render() {
     if (this.state.hasError) {
       return (
-        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', padding: 20 }}>
-          <Text style={{ fontSize: 18, fontWeight: 'bold', marginBottom: 10 }}>
+        <View
+          style={{
+            flex: 1,
+            justifyContent: "center",
+            alignItems: "center",
+            padding: 20,
+          }}
+        >
+          <Text style={{ fontSize: 18, fontWeight: "bold", marginBottom: 10 }}>
             Something went wrong
           </Text>
-          <Text style={{ fontSize: 14, textAlign: 'center', marginBottom: 20 }}>
-            {this.state.error?.message || 'An unexpected error occurred'}
+          <Text style={{ fontSize: 14, textAlign: "center", marginBottom: 20 }}>
+            {this.state.error?.message || "An unexpected error occurred"}
           </Text>
-          <Text 
-            style={{ color: 'blue', textDecorationLine: 'underline' }}
+          <Text
+            style={{ color: "blue", textDecorationLine: "underline" }}
             onPress={() => this.setState({ hasError: false })}
           >
             Try Again
@@ -84,7 +92,7 @@ function RootLayoutNav() {
   // Log navigation changes with memoization
   useEffect(() => {
     if (isInitialized.current) {
-      logger.info('Pathname changed', { pathname });
+      logger.info("Pathname changed", { pathname });
     }
   }, [pathname]);
 
@@ -120,10 +128,12 @@ function RootLayoutNav() {
           onPress: async () => {
             try {
               await clearSession();
-              logger.info('User logged out');
+              logger.info("User logged out");
               router.replace("/login");
             } catch (error) {
-              logger.error('Logout failed', { error: (error as Error).message });
+              logger.error("Logout failed", {
+                error: (error as Error).message,
+              });
             }
           },
         },
@@ -133,9 +143,9 @@ function RootLayoutNav() {
   };
 
   if (isLoading) {
-    logger.info('App is loading...');
+    logger.info("App is loading...");
     return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
         <Text>Loading...</Text>
       </View>
     );
@@ -198,8 +208,10 @@ export default function RootLayout() {
   }
 
   return (
-    <AuthProvider>
-      <RootLayoutNav />
-    </AuthProvider>
+    <NotificationProvider>
+      <AuthProvider>
+        <RootLayoutNav />
+      </AuthProvider>
+    </NotificationProvider>
   );
 }

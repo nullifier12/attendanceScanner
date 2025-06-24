@@ -2,7 +2,7 @@ import { useThemeColor } from "@/hooks/useThemeColor";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import React from "react";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 
 const navigationTiles = [
   {
@@ -58,11 +58,12 @@ export default function HomeScreen() {
   const iconColor = useThemeColor({}, "icon");
 
   return (
-    <View style={[styles.container, { backgroundColor }]}>
-      <View style={styles.header}>
+    <ScrollView style={[styles.container, { backgroundColor }]}>
+      <View style={[styles.header, { backgroundColor }]}>
         <Text style={[styles.title, { color: textColor }]}>Menu</Text>
       </View>
-
+      {/* Push Token Display */}
+      {/* <PushTokenDisplay /> */}
       <View style={[styles.navigationContainer, { backgroundColor }]}>
         {navigationTiles.map((tile) => (
           <Pressable
@@ -85,7 +86,7 @@ export default function HomeScreen() {
           </Pressable>
         ))}
       </View>
-    </View>
+    </ScrollView>
   );
 }
 

@@ -20,7 +20,8 @@
       "icon": "./assets/Logo.png",
       "package": "com.attScnnr",
       "permissions": ["android.permission.CAMERA"],
-      "edgeToEdgeEnabled": true
+      "edgeToEdgeEnabled": true,
+      "googleServicesFile": "./google-services.json"
     },
     "web": {
       "bundler": "metro",

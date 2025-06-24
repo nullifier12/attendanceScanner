@@ -5,6 +5,7 @@ import { debugHelper } from "@/utils/debugHelper";
 import { logger } from "@/utils/logger";
 import { Ionicons } from "@expo/vector-icons";
 import Constants from "expo-constants";
+import * as Device from "expo-device";
 import { useRouter, useSegments } from "expo-router";
 import React, { useEffect, useRef, useState } from "react";
 import {
@@ -18,7 +19,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-
+import { useNotification } from "../contexts/NotificationContext";
 const Login = () => {
   const router = useRouter();
   const segments = useSegments();
@@ -41,7 +42,7 @@ const Login = () => {
   const textColor = useThemeColor({}, "text");
   const backgroundColor = useThemeColor({}, "background");
   const iconColor = useThemeColor({}, "icon");
-
+  const { expoPushToken } = useNotification();
   // Log component lifecycle only once
   useEffect(() => {
     if (!isInitialized.current) {
@@ -105,14 +106,54 @@ const Login = () => {
         ID: employeeNumber,
         password: "***",
       });
+      const registerToken = await fetch(`${url}/api/mobile/registerPushToken`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          ID: employeeNumber,
+          push_token: expoPushToken,
+          device_id: Device.osInternalBuildId,
+        }),
+      });
+      const deviceToken = await registerToken.json();
+      console.log("tokenDevice", deviceToken);
+
+      if (deviceToken.ok === false || deviceToken.success === false) {
+        throw new Error(
+          deviceToken.message ||
+            deviceToken.error ||
+            "Failed to register push token"
+        );
+      }
+
+      if (
+        deviceToken.ok === undefined &&
+        deviceToken.success === undefined &&
+        deviceToken.message
+      ) {
+        if (__DEV__) {
+          debugHelper.showErrorAlert(
+            "Push Token Registration",
+            deviceToken.message,
+            deviceToken
+          );
+        }
+      }
       const tokenResponse = await fetch(`${url}/api/mobile/generateToken`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           "x-api-key": `${mobileKey}`,
         },
-        body: JSON.stringify({ ID: employeeNumber, password: password }),
+        body: JSON.stringify({
+          ID: employeeNumber,
+          password: password,
+          device_id: Device.osInternalBuildId,
+        }),
       });
+
       const tokenData = await tokenResponse.json();
 
       if (!tokenResponse.ok) {
