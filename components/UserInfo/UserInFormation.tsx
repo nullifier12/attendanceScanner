@@ -5,13 +5,13 @@ import Constants from "expo-constants";
 import { useRouter } from "expo-router";
 import React from "react";
 import {
-    Alert,
-    Image,
-    Pressable,
-    ScrollView,
-    StyleSheet,
-    Text,
-    View,
+  Alert,
+  Image,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
 } from "react-native";
 import { Divider } from "react-native-paper";
 import CustomQRCode from "../CustomQRCode";
@@ -24,20 +24,22 @@ const UserInformation = (props: any) => {
   const { pi_photo } = UserInfo;
 
   // Get theme colors
-  const textColor = useThemeColor({}, 'text');
-  const backgroundColor = useThemeColor({}, 'background');
-  const iconColor = useThemeColor({}, 'icon');
+  const textColor = useThemeColor({}, "text");
+  const backgroundColor = useThemeColor({}, "background");
+  const iconColor = useThemeColor({}, "icon");
 
   // Create QR code data from session
-  const qrCodeData = session?.user ? {
-    id: session.user.id || "",
-    name: session.user.name || "",
-    email: session.user.email || "",
-  } : {
-    id: "",
-    name: "No session data",
-    email: ""
-  };
+  const qrCodeData = session?.user
+    ? {
+        id: session.user.id || "",
+        name: session.user.name || "",
+        email: session.user.email || "",
+      }
+    : {
+        id: "",
+        name: "No session data",
+        email: "",
+      };
 
   const handleLogout = () => {
     Alert.alert(
@@ -74,14 +76,14 @@ const UserInformation = (props: any) => {
     { id: "3", name: "Mike Johnson", date: "March 30" },
     { id: "4", name: "Mike Johnson", date: "March 30" },
   ];
-
+  console.log(`${url}${UserInfo.user.pi_photo}`);
   return (
     <View style={[styles.mainContainer, { backgroundColor }]}>
       <ScrollView style={styles.scrollView}>
         <View style={styles.container}>
           <View style={[styles.header, { backgroundColor }]}>
             <Image
-              source={{ uri: `${url}/uploads/1692096855800-1B1.jpg` }}
+              source={{ uri: `${url}${UserInfo.user.pi_photo}` }}
               style={styles.profileImage}
               defaultSource={require("../../assets/public/tempProfile.png")}
             />
@@ -92,7 +94,9 @@ const UserInformation = (props: any) => {
               <Text style={[styles.employeeId, { color: iconColor }]}>
                 Employee ID: {session?.user.id || "N/A"}
               </Text>
-              <Text style={[styles.email, { color: iconColor }]}>{session?.user.email || "N/A"}</Text>
+              <Text style={[styles.email, { color: iconColor }]}>
+                {session?.user.email || "N/A"}
+              </Text>
             </View>
           </View>
 
@@ -105,7 +109,7 @@ const UserInformation = (props: any) => {
             />
           </View>
 
-          <Divider style={[styles.divider, { backgroundColor: '#e0e0e0' }]} />
+          <Divider style={[styles.divider, { backgroundColor: "#e0e0e0" }]} />
 
           <View style={styles.section}>
             <View style={styles.sectionHeader}>
@@ -114,11 +118,17 @@ const UserInformation = (props: any) => {
                 size={24}
                 color={iconColor}
               />
-              <Text style={[styles.sectionTitle, { color: textColor }]}>Employee Details</Text>
+              <Text style={[styles.sectionTitle, { color: textColor }]}>
+                Employee Details
+              </Text>
             </View>
             <View style={[styles.infoCard, { backgroundColor }]}>
               <View style={styles.infoRow}>
-                <Ionicons name="briefcase-outline" size={20} color={iconColor} />
+                <Ionicons
+                  name="briefcase-outline"
+                  size={20}
+                  color={iconColor}
+                />
                 <Text style={[styles.infoText, { color: iconColor }]}>
                   Position: Software Developer
                 </Text>
@@ -139,7 +149,9 @@ const UserInformation = (props: any) => {
                 size={24}
                 color={iconColor}
               />
-              <Text style={[styles.sectionTitle, { color: textColor }]}>Announcements</Text>
+              <Text style={[styles.sectionTitle, { color: textColor }]}>
+                Announcements
+              </Text>
             </View>
             <View style={[styles.infoCard, { backgroundColor }]}>
               <ScrollView
@@ -149,10 +161,14 @@ const UserInformation = (props: any) => {
               >
                 {announcements.map((announcement) => (
                   <View key={announcement.id} style={styles.announcementItem}>
-                    <Text style={[styles.announcementTitle, { color: textColor }]}>
+                    <Text
+                      style={[styles.announcementTitle, { color: textColor }]}
+                    >
                       {announcement.title}
                     </Text>
-                    <Text style={[styles.announcementDate, { color: iconColor }]}>
+                    <Text
+                      style={[styles.announcementDate, { color: iconColor }]}
+                    >
                       {announcement.date}
                     </Text>
                   </View>
@@ -214,7 +230,7 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 3,
     borderWidth: 1,
-    borderColor: '#e0e0e0',
+    borderColor: "#e0e0e0",
   },
   profileImage: {
     width: 80,
@@ -264,7 +280,7 @@ const styles = StyleSheet.create({
     elevation: 2,
     overflow: "hidden",
     borderWidth: 1,
-    borderColor: '#e0e0e0',
+    borderColor: "#e0e0e0",
   },
   infoRow: {
     flexDirection: "row",
@@ -286,7 +302,7 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 3,
     borderWidth: 1,
-    borderColor: '#e0e0e0',
+    borderColor: "#e0e0e0",
   },
   buttonContainer: {
     position: "absolute",

@@ -61,6 +61,7 @@ export default function HomeScreen() {
     <ScrollView style={[styles.container, { backgroundColor }]}>
       <View style={[styles.header, { backgroundColor }]}>
         <Text style={[styles.title, { color: textColor }]}>Menu</Text>
+        {/* <BellNotification /> */}
       </View>
       {/* Push Token Display */}
       {/* <PushTokenDisplay /> */}
@@ -98,6 +99,9 @@ const styles = StyleSheet.create({
   header: {
     marginTop: 20,
     marginBottom: 20,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
   },
   title: {
     fontSize: 24,

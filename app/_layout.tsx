@@ -86,12 +86,7 @@ function RootLayoutNav() {
     if (!isInitialized.current) {
       debugHelper.logAppStart();
       isInitialized.current = true;
-    }
-  }, []);
-
-  // Log navigation changes with memoization
-  useEffect(() => {
-    if (isInitialized.current) {
+    } else {
       logger.info("Pathname changed", { pathname });
     }
   }, [pathname]);

@@ -1,4 +1,5 @@
 import { HapticTab } from "@/components/HapticTab";
+import { BellNotification } from "@/components/Notifications/BellNotification";
 import TabBarBackground from "@/components/ui/TabBarBackground";
 import { useColorScheme } from "@/hooks/useColorScheme";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
@@ -53,6 +54,7 @@ export default function TabLayout() {
               <Ionicons name="arrow-back" size={28} color="white" />
             </TouchableOpacity>
           ),
+          headerRight: () => <BellNotification />,
         }}
       />
       <Tabs.Screen
@@ -75,6 +77,7 @@ export default function TabLayout() {
               <Ionicons name="arrow-back" size={28} color="white" />
             </TouchableOpacity>
           ),
+          headerRight: () => <BellNotification />,
         }}
       />
       <Tabs.Screen
@@ -101,6 +104,7 @@ export default function TabLayout() {
               <Ionicons name="arrow-back" size={28} color="white" />
             </TouchableOpacity>
           ),
+          headerRight: () => <BellNotification />,
         }}
       />
       <Tabs.Screen
@@ -127,6 +131,7 @@ export default function TabLayout() {
               <Ionicons name="arrow-back" size={28} color="white" />
             </TouchableOpacity>
           ),
+          headerRight: () => <BellNotification />,
         }}
       />
       <Tabs.Screen
@@ -153,6 +158,7 @@ export default function TabLayout() {
               <Ionicons name="arrow-back" size={28} color="white" />
             </TouchableOpacity>
           ),
+          headerRight: () => <BellNotification />,
         }}
       />
       <Tabs.Screen
@@ -179,6 +185,7 @@ export default function TabLayout() {
               <Ionicons name="arrow-back" size={28} color="white" />
             </TouchableOpacity>
           ),
+          headerRight: () => <BellNotification />,
         }}
       />
       <Tabs.Screen
@@ -205,6 +212,7 @@ export default function TabLayout() {
               <Ionicons name="arrow-back" size={28} color="white" />
             </TouchableOpacity>
           ),
+          headerRight: () => <BellNotification />,
         }}
       />
       <Tabs.Screen
@@ -213,11 +221,7 @@ export default function TabLayout() {
           title: "Calendar",
           headerTitle: "",
           tabBarIcon: ({ color }) => (
-            <MaterialCommunityIcons
-              name="calendar"
-              size={32}
-              color={color}
-            />
+            <MaterialCommunityIcons name="calendar" size={32} color={color} />
           ),
           tabBarStyle: {
             backgroundColor: "#112866",
@@ -231,6 +235,7 @@ export default function TabLayout() {
               <Ionicons name="arrow-back" size={28} color="white" />
             </TouchableOpacity>
           ),
+          headerRight: () => <BellNotification />,
         }}
       />
     </Tabs>
