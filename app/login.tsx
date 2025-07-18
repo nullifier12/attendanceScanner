@@ -6,9 +6,11 @@ import { logger } from "@/utils/logger";
 import { Ionicons } from "@expo/vector-icons";
 import Constants from "expo-constants";
 import * as Device from "expo-device";
+import * as LocalAuthentication from "expo-local-authentication";
 import { useRouter, useSegments } from "expo-router";
 import React, { useEffect, useRef, useState } from "react";
 import {
+  Alert,
   Image,
   KeyboardAvoidingView,
   Platform,
@@ -34,6 +36,8 @@ const Login = () => {
   }>({});
   const [isLoading, setIsLoading] = useState(false);
   const [showDebugPanel, setShowDebugPanel] = useState(false);
+  const [isBiometricSupported, setIsBiometricSupported] = useState(false);
+  const [isBiometricEnrolled, setIsBiometricEnrolled] = useState(false);
   const url = Constants.expoConfig?.extra?.apiUrl;
   const mobileKey = Constants.expoConfig?.extra?.mobileKey;
   const isInitialized = useRef(false);
@@ -43,7 +47,8 @@ const Login = () => {
   const backgroundColor = useThemeColor({}, "background");
   const iconColor = useThemeColor({}, "icon");
   const { expoPushToken } = useNotification();
-  // Log component lifecycle only once
+
+  // Combined initialization and biometric check
   useEffect(() => {
     if (!isInitialized.current) {
       debugHelper.logComponentLifecycle("Login", "mount");
@@ -54,6 +59,27 @@ const Login = () => {
         logger.info("API connectivity check result", { isConnected });
       });
 
+      // Check biometric availability
+      const checkBiometricSupport = async () => {
+        try {
+          const hasHardware = await LocalAuthentication.hasHardwareAsync();
+          const isEnrolled = await LocalAuthentication.isEnrolledAsync();
+
+          setIsBiometricSupported(hasHardware);
+          setIsBiometricEnrolled(isEnrolled);
+
+          logger.info("Biometric support check", {
+            hasHardware,
+            isEnrolled,
+          });
+        } catch (error) {
+          logger.error("Biometric support check failed", {
+            error: (error as Error).message,
+          });
+        }
+      };
+
+      checkBiometricSupport();
       isInitialized.current = true;
     }
 
@@ -88,6 +114,50 @@ const Login = () => {
 
     setErrors(newErrors);
     return isValid;
+  };
+
+  const handleBiometricAuth = async () => {
+    try {
+      logger.info("Biometric authentication started");
+
+      const result = await LocalAuthentication.authenticateAsync({
+        promptMessage: "Authenticate with biometric",
+        fallbackLabel: "Use passcode",
+        cancelLabel: "Cancel",
+        disableDeviceFallback: false,
+      });
+
+      logger.info("Biometric authentication result", Device.osInternalBuildId);
+
+      if (result.success) {
+        // For demo purposes, use a default employee number
+        // In a real app, you would retrieve stored credentials
+        setEmployeeNumber("12345678");
+        setPassword("password123");
+
+        Alert.alert(
+          "Biometric Success",
+          "Authentication successful! Please tap Login to continue.",
+          [{ text: "OK" }]
+        );
+      } else {
+        Alert.alert(
+          "Biometric Failed",
+          "Authentication failed. Please try again or use manual login.",
+          [{ text: "OK" }]
+        );
+      }
+    } catch (error) {
+      logger.error("Biometric authentication error", {
+        error: (error as Error).message,
+      });
+
+      Alert.alert(
+        "Biometric Error",
+        "Biometric authentication is not available. Please use manual login.",
+        [{ text: "OK" }]
+      );
+    }
   };
 
   const handleLogin = async () => {
@@ -150,7 +220,6 @@ const Login = () => {
         body: JSON.stringify({
           ID: employeeNumber,
           password: password,
-          device_id: Device.osInternalBuildId,
         }),
       });
 
@@ -166,7 +235,11 @@ const Login = () => {
           "Content-Type": "application/json",
           Authorization: `Bearer ${tokenData.token}`,
         },
-        body: JSON.stringify({ ID: employeeNumber, password: password }),
+        body: JSON.stringify({
+          ID: employeeNumber,
+          password: password,
+          device_id: Device.osInternalBuildId,
+        }),
       });
 
       // Log API response
@@ -192,7 +265,7 @@ const Login = () => {
       }
 
       const responseData = await response.json();
-      console.log("user", responseData);
+
       logger.info("Login API response received", {
         hasData: !!responseData,
         dataKeys: responseData ? Object.keys(responseData) : [],
@@ -201,8 +274,8 @@ const Login = () => {
       const session = {
         token: responseData.token,
         user: {
-          id: responseData?.user?.emp_id,
-          name: `${responseData?.user?.pi_fname} ${responseData?.user?.pi_lname}`,
+          id: responseData?.user?.empID,
+          name: `${responseData?.user?.pi_lname},${responseData?.user?.pi_fname}`,
           email: responseData?.user?.pi_email,
         },
       };
@@ -359,6 +432,43 @@ const Login = () => {
               {isLoading ? "Logging in..." : "Login"}
             </Text>
           </Pressable>
+
+          {/* Biometric Authentication */}
+          {/* {isBiometricSupported && isBiometricEnrolled ? (
+            <>
+              <View style={styles.dividerContainer}>
+                <View style={styles.divider} />
+                <Text style={[styles.dividerText, { color: iconColor }]}>
+                  OR
+                </Text>
+                <View style={styles.divider} />
+              </View>
+
+              <TouchableOpacity
+                style={styles.biometricButton}
+                onPress={handleBiometricAuth}
+                disabled={isLoading}
+              >
+                <Ionicons name="finger-print" size={24} color="#112866" />
+                <Text style={styles.biometricButtonText}>
+                  Login with Fingerprint
+                </Text>
+              </TouchableOpacity>
+            </>
+          ) : (
+            <View style={styles.biometricInfoContainer}>
+              <Ionicons
+                name="information-circle-outline"
+                size={20}
+                color={iconColor}
+              />
+              <Text style={[styles.biometricInfoText, { color: iconColor }]}>
+                {!isBiometricSupported
+                  ? "Biometric authentication not available on this device"
+                  : "Please set up biometric authentication in your device settings"}
+              </Text>
+            </View>
+          )} */}
         </View>
 
         {/* Version Number */}
@@ -446,6 +556,56 @@ const styles = StyleSheet.create({
     color: "white",
     fontSize: 16,
     fontWeight: "600",
+  },
+  dividerContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginVertical: 20,
+  },
+  divider: {
+    flex: 1,
+    height: 1,
+    backgroundColor: "#e0e0e0",
+  },
+  dividerText: {
+    marginHorizontal: 16,
+    fontSize: 14,
+    fontWeight: "500",
+  },
+  biometricButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "white",
+    paddingVertical: 16,
+    borderRadius: 12,
+    borderWidth: 2,
+    borderColor: "#112866",
+    marginTop: 8,
+  },
+  biometricButtonText: {
+    color: "#112866",
+    fontSize: 16,
+    fontWeight: "600",
+    marginLeft: 8,
+  },
+  biometricInfoContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "rgba(17, 40, 102, 0.05)",
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderRadius: 8,
+    marginTop: 16,
+    borderWidth: 1,
+    borderColor: "rgba(17, 40, 102, 0.1)",
+  },
+  biometricInfoText: {
+    fontSize: 12,
+    marginLeft: 8,
+    textAlign: "center",
+    flex: 1,
   },
   debugButton: {
     position: "absolute",

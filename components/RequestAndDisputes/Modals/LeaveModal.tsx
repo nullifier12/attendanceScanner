@@ -1,8 +1,17 @@
+import { useAuth } from "@/contexts/AuthContext";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { Picker } from "@react-native-picker/picker";
 import React, { useState } from "react";
-import { Modal, Pressable, StyleSheet, Text, View } from "react-native";
+import {
+    Modal,
+    Pressable,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View,
+} from "react-native";
 
 interface Props {
   isVisible: boolean;
@@ -15,11 +24,14 @@ const LeaveModal = ({ isVisible, setModalVisible }: Props) => {
   const [showFromPicker, setShowFromPicker] = useState(false);
   const [toDate, setToDate] = useState<Date | null>(null);
   const [showToPicker, setShowToPicker] = useState(false);
+  const [reason, setReason] = useState("");
+  const { session } = useAuth();
 
   // Get theme colors
-  const textColor = useThemeColor({}, 'text');
-  const backgroundColor = useThemeColor({}, 'background');
-  const iconColor = useThemeColor({}, 'icon');
+  const textColor = useThemeColor({}, "text");
+  const backgroundColor = useThemeColor({}, "background");
+  const iconColor = useThemeColor({}, "icon");
+  const now = new Date();
 
   return (
     <Modal
@@ -30,74 +42,158 @@ const LeaveModal = ({ isVisible, setModalVisible }: Props) => {
     >
       <View style={styles.overlay}>
         <View style={[styles.modalView, { backgroundColor }]}>
-          <View style={styles.header}>
-            <Text style={[styles.title, { color: textColor }]}>Leave Request</Text>
-            <Pressable onPress={setModalVisible}>
-              <Text style={[styles.closeButton, { color: textColor }]}>X</Text>
-            </Pressable>
+          {/* Modal Title */}
+          <Text style={[styles.modalTitle, { color: '#112866', fontWeight: 'bold', fontSize: 18, marginBottom: 8 }]}>Leave Request</Text>
+          {/* Employee Info Section */}
+          <View style={styles.employeeInfoRow}>
+            <View style={{ flex: 1 }}>
+              <Text style={[styles.empLabel, { color: textColor }]}>
+                Last, First MI
+              </Text>
+              <Text
+                style={[
+                  styles.empValue,
+                  { color: textColor, fontWeight: "bold" },
+                ]}
+              >
+                {session?.user?.name || "-"}
+              </Text>
+              <Text style={[styles.empLabel, { color: textColor }]}>
+                Subsidiary
+              </Text>
+              <Text style={[styles.empValue, { color: textColor }]}>
+                ABACUS
+              </Text>
+            </View>
+            <View style={{ flex: 1 }}>
+              <Text style={[styles.empLabel, { color: textColor }]}>
+                Designation
+              </Text>
+              <Text style={[styles.empValue, { fontWeight: "bold" }]}>
+                Developer
+              </Text>
+              <Text style={[styles.empLabel, { color: textColor }]}>
+                Department
+              </Text>
+              <Text
+                style={[
+                  styles.empValue,
+                  { color: textColor, fontWeight: "bold" },
+                ]}
+              >
+                Information Technology
+              </Text>
+            </View>
           </View>
-
+          {/* Leave Request Form */}
           <View style={styles.actionContainer}>
-            <View style={styles.inputWrapper}>
-              <Text style={[styles.label, { color: textColor }]}>Leave Type</Text>
-              <View style={[styles.pickerBox, { backgroundColor }]}>
-                <Picker
-                  selectedValue={leaveType}
-                  style={[styles.picker, { color: textColor }]}
-                  onValueChange={(itemValue) => setLeaveType(itemValue)}
-                >
-                  <Picker.Item label="SL" value="SL" color={textColor} />
-                  <Picker.Item label="VL" value="VL" color={textColor} />
-                </Picker>
+            <View style={styles.inputRow}>
+              <View style={[styles.inputWrapper, { flex: 1 }]}>
+                <Text style={[styles.label, { color: textColor }]}>
+                  Leave Type
+                </Text>
+                <View style={[styles.pickerBox, { backgroundColor }]}>
+                  <Picker
+                    selectedValue={leaveType}
+                    style={[styles.picker, { color: textColor }]}
+                    onValueChange={(itemValue) => setLeaveType(itemValue)}
+                  >
+                    <Picker.Item label="SL" value="SL" color={textColor} />
+                    <Picker.Item label="VL" value="VL" color={textColor} />
+                  </Picker>
+                </View>
+              </View>
+              <View style={[styles.inputWrapper, { flex: 1, marginLeft: 8 }]}>
+                <Text style={[styles.label, { color: textColor }]}>
+                  Date Requested
+                </Text>
+                <View style={[styles.dateRequestedBox, { backgroundColor }]}>
+                  <Text
+                    style={[styles.dateRequestedText, { color: textColor }]}
+                  >
+                    {now.toLocaleString()}
+                  </Text>
+                </View>
               </View>
             </View>
-
             {/* From Date Picker */}
-            <View style={styles.inputWrapper}>
-              <Text style={[styles.label, { color: textColor }]}>From</Text>
-              <Pressable
-                onPress={() => setShowFromPicker(true)}
-                style={[styles.datePickerBox, { backgroundColor }]}
-              >
-                <Text style={[styles.datePickerText, { color: textColor }]}>
-                  {fromDate ? fromDate.toDateString() : "Select date"}
+            <View style={styles.inputRow}>
+              <View style={[styles.inputWrapper, { flex: 1 }]}>
+                <Text style={[styles.label, { color: textColor }]}>
+                  Date From
                 </Text>
-              </Pressable>
-              {showFromPicker && (
-                <DateTimePicker
-                  value={fromDate || new Date()}
-                  mode="date"
-                  display="default"
-                  onChange={(event, selectedDate) => {
-                    setShowFromPicker(false);
-                    if (selectedDate) setFromDate(selectedDate);
-                  }}
-                />
-              )}
+                <Pressable
+                  onPress={() => setShowFromPicker(true)}
+                  style={[styles.datePickerBox, { backgroundColor }]}
+                >
+                  <Text style={[styles.datePickerText, { color: textColor }]}>
+                    {fromDate ? fromDate.toDateString() : "Select date"}
+                  </Text>
+                </Pressable>
+                {showFromPicker && (
+                  <DateTimePicker
+                    value={fromDate || new Date()}
+                    mode="date"
+                    display="default"
+                    onChange={(event, selectedDate) => {
+                      setShowFromPicker(false);
+                      if (selectedDate) setFromDate(selectedDate);
+                    }}
+                  />
+                )}
+              </View>
+              <View style={[styles.inputWrapper, { flex: 1, marginLeft: 8 }]}>
+                <Text style={[styles.label, { color: textColor }]}>
+                  Date To
+                </Text>
+                <Pressable
+                  onPress={() => setShowToPicker(true)}
+                  style={[styles.datePickerBox, { backgroundColor }]}
+                >
+                  <Text style={[styles.datePickerText, { color: textColor }]}>
+                    {toDate ? toDate.toDateString() : "Select date"}
+                  </Text>
+                </Pressable>
+                {showToPicker && (
+                  <DateTimePicker
+                    value={toDate || new Date()}
+                    mode="date"
+                    display="default"
+                    onChange={(event, selectedDate) => {
+                      setShowToPicker(false);
+                      if (selectedDate) setToDate(selectedDate);
+                    }}
+                  />
+                )}
+              </View>
             </View>
-
-            {/* To Date Picker */}
+            {/* Reason Textarea */}
             <View style={styles.inputWrapper}>
-              <Text style={[styles.label, { color: textColor }]}>To</Text>
-              <Pressable
-                onPress={() => setShowToPicker(true)}
-                style={[styles.datePickerBox, { backgroundColor }]}
+              <Text style={[styles.label, { color: textColor }]}>Reason</Text>
+              <TextInput
+                style={[
+                  styles.reasonInput,
+                  { color: textColor, backgroundColor },
+                ]}
+                value={reason}
+                onChangeText={setReason}
+                placeholder="Enter reason for leave"
+                placeholderTextColor="#aaa"
+                multiline
+                numberOfLines={3}
+              />
+            </View>
+            {/* Buttons */}
+            <View style={styles.buttonRow}>
+              <TouchableOpacity
+                style={styles.cancelBtn}
+                onPress={setModalVisible}
               >
-                <Text style={[styles.datePickerText, { color: textColor }]}>
-                  {toDate ? toDate.toDateString() : "Select date"}
-                </Text>
-              </Pressable>
-              {showToPicker && (
-                <DateTimePicker
-                  value={toDate || new Date()}
-                  mode="date"
-                  display="default"
-                  onChange={(event, selectedDate) => {
-                    setShowToPicker(false);
-                    if (selectedDate) setToDate(selectedDate);
-                  }}
-                />
-              )}
+                <Text style={styles.cancelBtnText}>CANCEL</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.submitBtn}>
+                <Text style={styles.submitBtnText}>SUBMIT</Text>
+              </TouchableOpacity>
             </View>
           </View>
         </View>
@@ -165,5 +261,78 @@ const styles = StyleSheet.create({
   },
   datePickerText: {
     color: "#333",
+  },
+  employeeInfoRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginBottom: 16,
+    gap: 16,
+  },
+  empLabel: {
+    fontSize: 12,
+    color: "#888",
+  },
+  empValue: {
+    fontSize: 14,
+    marginBottom: 4,
+  },
+  inputRow: {
+    flexDirection: "row",
+    gap: 8,
+    marginBottom: 8,
+  },
+  dateRequestedBox: {
+    borderWidth: 1,
+    borderColor: "#ccc",
+    borderRadius: 5,
+    padding: 10,
+    minHeight: 40,
+    justifyContent: "center",
+  },
+  dateRequestedText: {
+    fontSize: 14,
+  },
+  reasonInput: {
+    borderWidth: 1,
+    borderColor: "#ccc",
+    borderRadius: 5,
+    padding: 10,
+    minHeight: 60,
+    textAlignVertical: "top",
+  },
+  buttonRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginTop: 16,
+    gap: 16,
+  },
+  cancelBtn: {
+    flex: 1,
+    backgroundColor: "#b71c1c",
+    padding: 12,
+    borderRadius: 5,
+    alignItems: "center",
+  },
+  cancelBtnText: {
+    color: "#fff",
+    fontWeight: "bold",
+  },
+  submitBtn: {
+    flex: 1,
+    backgroundColor: "#112866",
+    padding: 12,
+    borderRadius: 5,
+    alignItems: "center",
+  },
+  submitBtnText: {
+    color: "#fff",
+    fontWeight: "bold",
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#112866',
+    marginBottom: 8,
+    textAlign: 'left',
   },
 });

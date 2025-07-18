@@ -12,13 +12,16 @@ interface RequestModalProps {
   setModalVisible: (visible: boolean) => void;
 }
 
-export default function RequestModal({ isVisible, setModalVisible }: RequestModalProps) {
+export default function RequestModal({
+  isVisible,
+  setModalVisible,
+}: RequestModalProps) {
   const [activeModal, setActiveModal] = useState<string | null>(null);
-  
+
   // Get theme colors
-  const textColor = useThemeColor({}, 'text');
-  const backgroundColor = useThemeColor({}, 'background');
-  const iconColor = useThemeColor({}, 'icon');
+  const textColor = useThemeColor({}, "text");
+  const backgroundColor = useThemeColor({}, "background");
+  const iconColor = useThemeColor({}, "icon");
 
   const closeMainModal = () => {
     setModalVisible(false);
@@ -40,62 +43,117 @@ export default function RequestModal({ isVisible, setModalVisible }: RequestModa
         <View style={styles.overlay}>
           <View style={[styles.modalView, { backgroundColor }]}>
             <View style={styles.header}>
-              <Text style={[styles.title, { color: textColor }]}>Create Request</Text>
+              <Text style={[styles.title, { color: textColor }]}>
+                Create Request
+              </Text>
               <Pressable onPress={closeMainModal} style={styles.closeButton}>
-                <MaterialCommunityIcons name="close" size={24} color={iconColor} />
+                <MaterialCommunityIcons
+                  name="close"
+                  size={24}
+                  color={iconColor}
+                />
               </Pressable>
             </View>
 
             <View style={styles.options}>
               <Pressable
                 style={[styles.optionCard, { backgroundColor }]}
-                onPress={() => openModal('leave')}
+                onPress={() => openModal("leave")}
               >
-                <View style={[styles.iconContainer, { backgroundColor: '#E3F2FD' }]}>
-                  <MaterialCommunityIcons name="calendar-clock" size={24} color="#1976D2" />
+                <View
+                  style={[styles.iconContainer, { backgroundColor: "#E3F2FD" }]}
+                >
+                  <MaterialCommunityIcons
+                    name="calendar-clock"
+                    size={24}
+                    color="#1976D2"
+                  />
                 </View>
                 <View style={styles.optionContent}>
-                  <Text style={[styles.optionTitle, { color: textColor }]}>Leave Request</Text>
-                  <Text style={[styles.optionDescription, { color: iconColor }]}>Apply for sick leave, vacation leave, or other types of leave</Text>
+                  <Text style={[styles.optionTitle, { color: textColor }]}>
+                    Leave Request
+                  </Text>
+                  <Text
+                    style={[styles.optionDescription, { color: iconColor }]}
+                  >
+                    Apply for sick leave, vacation leave, or other types of
+                    leave
+                  </Text>
                 </View>
               </Pressable>
 
               <Pressable
                 style={[styles.optionCard, { backgroundColor }]}
-                onPress={() => openModal('ot')}
+                onPress={() => openModal("ot")}
               >
-                <View style={[styles.iconContainer, { backgroundColor: '#E8F5E9' }]}>
-                  <MaterialCommunityIcons name="clock-time-four" size={24} color="#2E7D32" />
+                <View
+                  style={[styles.iconContainer, { backgroundColor: "#E8F5E9" }]}
+                >
+                  <MaterialCommunityIcons
+                    name="clock-time-four"
+                    size={24}
+                    color="#2E7D32"
+                  />
                 </View>
                 <View style={styles.optionContent}>
-                  <Text style={[styles.optionTitle, { color: textColor }]}>Overtime/Undertime</Text>
-                  <Text style={[styles.optionDescription, { color: iconColor }]}>Request overtime work or undertime adjustments</Text>
+                  <Text style={[styles.optionTitle, { color: textColor }]}>
+                    Overtime/Undertime
+                  </Text>
+                  <Text
+                    style={[styles.optionDescription, { color: iconColor }]}
+                  >
+                    Request overtime work or undertime adjustments
+                  </Text>
                 </View>
               </Pressable>
 
               <Pressable
                 style={[styles.optionCard, { backgroundColor }]}
-                onPress={() => openModal('ob')}
+                onPress={() => openModal("ob")}
               >
-                <View style={[styles.iconContainer, { backgroundColor: '#FFF3E0' }]}>
-                  <MaterialCommunityIcons name="briefcase" size={24} color="#E65100" />
+                <View
+                  style={[styles.iconContainer, { backgroundColor: "#FFF3E0" }]}
+                >
+                  <MaterialCommunityIcons
+                    name="briefcase"
+                    size={24}
+                    color="#E65100"
+                  />
                 </View>
                 <View style={styles.optionContent}>
-                  <Text style={[styles.optionTitle, { color: textColor }]}>Official Business</Text>
-                  <Text style={[styles.optionDescription, { color: iconColor }]}>Request time off for official business matters</Text>
+                  <Text style={[styles.optionTitle, { color: textColor }]}>
+                    Official Business
+                  </Text>
+                  <Text
+                    style={[styles.optionDescription, { color: iconColor }]}
+                  >
+                    Request time off for official business matters
+                  </Text>
                 </View>
               </Pressable>
 
               <Pressable
                 style={[styles.optionCard, { backgroundColor }]}
-                onPress={() => openModal('dispute')}
+                onPress={() => openModal("dispute")}
               >
-                <View style={[styles.iconContainer, { backgroundColor: '#FFEBEE' }]}>
-                  <MaterialCommunityIcons name="alert-circle" size={24} color="#C62828" />
+                <View
+                  style={[styles.iconContainer, { backgroundColor: "#FFEBEE" }]}
+                >
+                  <MaterialCommunityIcons
+                    name="alert-circle"
+                    size={24}
+                    color="#C62828"
+                  />
                 </View>
                 <View style={styles.optionContent}>
-                  <Text style={[styles.optionTitle, { color: textColor }]}>Time Dispute</Text>
-                  <Text style={[styles.optionDescription, { color: iconColor }]}>Report and resolve time entry discrepancies</Text>
+                  <Text style={[styles.optionTitle, { color: textColor }]}>
+                    Request and Disputes
+                  </Text>
+                  <Text
+                    style={[styles.optionDescription, { color: iconColor }]}
+                  >
+                    Report and resolve time entry discrepancies
+                  </Text>
                 </View>
               </Pressable>
             </View>
@@ -103,21 +161,21 @@ export default function RequestModal({ isVisible, setModalVisible }: RequestModa
         </View>
       </Modal>
 
-      <LeaveModal 
-        isVisible={activeModal === 'leave'} 
-        setModalVisible={() => setActiveModal(null)} 
+      <LeaveModal
+        isVisible={activeModal === "leave"}
+        setModalVisible={() => setActiveModal(null)}
       />
-      <OTModal 
-        isVisible={activeModal === 'ot'} 
-        setModalVisible={() => setActiveModal(null)} 
+      <OTModal
+        isVisible={activeModal === "ot"}
+        setModalVisible={() => setActiveModal(null)}
       />
-      <OBModal 
-        isVisible={activeModal === 'ob'} 
-        setModalVisible={() => setActiveModal(null)} 
+      <OBModal
+        isVisible={activeModal === "ob"}
+        setModalVisible={() => setActiveModal(null)}
       />
-      <DisputeModal 
-        isVisible={activeModal === 'dispute'} 
-        setModalVisible={() => setActiveModal(null)} 
+      <DisputeModal
+        isVisible={activeModal === "dispute"}
+        setModalVisible={() => setActiveModal(null)}
       />
     </>
   );
@@ -143,7 +201,7 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 5,
     borderWidth: 1,
-    borderColor: '#e0e0e0',
+    borderColor: "#e0e0e0",
   },
   header: {
     flexDirection: "row",
