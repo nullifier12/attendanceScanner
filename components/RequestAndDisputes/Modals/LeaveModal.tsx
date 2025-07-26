@@ -1,21 +1,24 @@
 import { useAuth } from "@/contexts/AuthContext";
 import { useThemeColor } from "@/hooks/useThemeColor";
+import { LeaveRequestForm } from "@/types/leave";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { Picker } from "@react-native-picker/picker";
+import Constants from "expo-constants";
 import React, { useState } from "react";
 import {
-    Modal,
-    Pressable,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  Alert,
+  Modal,
+  Pressable,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from "react-native";
-
 interface Props {
   isVisible: boolean;
   setModalVisible: () => void;
+  onRequestSubmitted?: () => void;
 }
 
 const LeaveModal = ({ isVisible, setModalVisible }: Props) => {
@@ -26,12 +29,84 @@ const LeaveModal = ({ isVisible, setModalVisible }: Props) => {
   const [showToPicker, setShowToPicker] = useState(false);
   const [reason, setReason] = useState("");
   const { session } = useAuth();
-
+  const url = Constants.expoConfig?.extra?.apiUrl;
   // Get theme colors
   const textColor = useThemeColor({}, "text");
   const backgroundColor = useThemeColor({}, "background");
   const iconColor = useThemeColor({}, "icon");
   const now = new Date();
+
+  const handleSubmit = async () => {
+    // Validate form
+    if (!fromDate || !toDate) {
+      Alert.alert("Validation Error", "Please select both from and to dates.");
+      return;
+    }
+
+    if (!reason.trim()) {
+      Alert.alert(
+        "Validation Error",
+        "Please enter a reason for your leave request."
+      );
+      return;
+    }
+
+    if (fromDate > toDate) {
+      Alert.alert("Validation Error", "From date cannot be after to date.");
+      return;
+    }
+
+    // Create leave request object
+    const leaveRequest: LeaveRequestForm = {
+      requestType: leaveType as "SL" | "VL",
+      startDate: fromDate.toISOString().split("T")[0],
+      endDate: toDate.toISOString().split("T")[0],
+      token: session?.token,
+      employeeId: session?.user.id,
+      reason: reason.trim(),
+      type: "Leave",
+    };
+
+    const response = await fetch(`${url}/api/mobile/saveRequest`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${session?.token}`,
+      },
+      body: JSON.stringify(leaveRequest),
+    });
+
+    const responseData = await response.json();
+
+    if (response.ok) {
+      Alert.alert(
+        "Success",
+        `Your leave request has been submitted successfully!\nReference ID: ${responseData.referenceId}`,
+        [
+          {
+            text: "OK",
+            onPress: () => {
+              setLeaveType("SL");
+              setFromDate(null);
+              setToDate(null);
+              setReason("");
+
+              setModalVisible();
+            },
+          },
+        ]
+      );
+    } else {
+      // Error case
+      Alert.alert(
+        "Error",
+        responseData.message ||
+          "Failed to submit leave request. Please try again.",
+        [{ text: "OK" }]
+      );
+      return;
+    }
+  };
 
   return (
     <Modal
@@ -43,7 +118,19 @@ const LeaveModal = ({ isVisible, setModalVisible }: Props) => {
       <View style={styles.overlay}>
         <View style={[styles.modalView, { backgroundColor }]}>
           {/* Modal Title */}
-          <Text style={[styles.modalTitle, { color: '#112866', fontWeight: 'bold', fontSize: 18, marginBottom: 8 }]}>Leave Request</Text>
+          <Text
+            style={[
+              styles.modalTitle,
+              {
+                color: "#112866",
+                fontWeight: "bold",
+                fontSize: 18,
+                marginBottom: 8,
+              },
+            ]}
+          >
+            Leave Request
+          </Text>
           {/* Employee Info Section */}
           <View style={styles.employeeInfoRow}>
             <View style={{ flex: 1 }}>
@@ -191,7 +278,7 @@ const LeaveModal = ({ isVisible, setModalVisible }: Props) => {
               >
                 <Text style={styles.cancelBtnText}>CANCEL</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={styles.submitBtn}>
+              <TouchableOpacity style={styles.submitBtn} onPress={handleSubmit}>
                 <Text style={styles.submitBtnText}>SUBMIT</Text>
               </TouchableOpacity>
             </View>
@@ -330,9 +417,9 @@ const styles = StyleSheet.create({
   },
   modalTitle: {
     fontSize: 18,
-    fontWeight: 'bold',
-    color: '#112866',
+    fontWeight: "bold",
+    color: "#112866",
     marginBottom: 8,
-    textAlign: 'left',
+    textAlign: "left",
   },
 });

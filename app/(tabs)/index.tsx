@@ -6,10 +6,10 @@ import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 
 const navigationTiles = [
   {
-    id: "timekeeping",
-    title: "Time Keeping",
-    icon: "clock-time-four" as const,
-    route: "/(tabs)/timekeeping" as const,
+    id: "requests",
+    title: "Requests",
+    icon: "file-document-edit" as const,
+    route: "/(tabs)/reqAndDis" as const,
   },
   {
     id: "payslip",
@@ -18,10 +18,10 @@ const navigationTiles = [
     route: "/(tabs)/payslip" as const,
   },
   {
-    id: "requests",
-    title: "Requests",
-    icon: "file-document-edit" as const,
-    route: "/(tabs)/reqAndDis" as const,
+    id: "timekeeping",
+    title: "Time Keeping",
+    icon: "clock-time-four" as const,
+    route: "/(tabs)/timekeeping" as const,
   },
   {
     id: "schedule",
@@ -46,6 +46,12 @@ const navigationTiles = [
     title: "Calendar",
     icon: "calendar-month" as const,
     route: "/(tabs)/calendar" as const,
+  },
+  {
+    id: "changepass",
+    title: "Change Password",
+    icon: "key-variant" as const,
+    route: "/(tabs)/changepassword" as const,
   },
 ];
 

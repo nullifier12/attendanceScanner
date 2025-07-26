@@ -238,6 +238,33 @@ export default function TabLayout() {
           headerRight: () => <BellNotification />,
         }}
       />
+      <Tabs.Screen
+        name="changepassword"
+        options={{
+          title: "changepassword",
+          headerTitle: "",
+          tabBarIcon: ({ color }) => (
+            <MaterialCommunityIcons
+              name="key-variant"
+              size={24}
+              color={color}
+            />
+          ),
+          tabBarStyle: {
+            backgroundColor: "#112866",
+            display: "none", // Hide tab bar for this screen
+          },
+          headerLeft: () => (
+            <TouchableOpacity
+              onPress={() => router.back()}
+              style={{ paddingLeft: 16 }}
+            >
+              <Ionicons name="arrow-back" size={28} color="white" />
+            </TouchableOpacity>
+          ),
+          headerRight: () => <BellNotification />,
+        }}
+      />
     </Tabs>
   );
 }

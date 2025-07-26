@@ -2,7 +2,9 @@ import ViewWrapper from "@/components/Layout/View";
 import { useAuth } from "@/contexts/AuthContext";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-import React, { useState } from "react";
+import { useFocusEffect } from "@react-navigation/native";
+import Constants from "expo-constants";
+import React, { useCallback, useState } from "react";
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { Divider } from "react-native-paper";
 import RequestModal from "./Modal";
@@ -11,34 +13,78 @@ import RequestAndDisp from "./ReqAndDispTable";
 const RequestAndDispute = () => {
   const [modalVisible, setModalVisible] = useState(false);
   const [activeTab, setActiveTab] = useState("leave");
-  const { session } = useAuth();
-  
-  // Get theme colors
-  const textColor = useThemeColor({}, 'text');
-  const backgroundColor = useThemeColor({}, 'background');
-  const iconColor = useThemeColor({}, 'icon');
-
-  const currentDate = new Date().toLocaleDateString('en-US', {
-    weekday: 'long',
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric'
+  const [leaveData, setLeaveData] = useState({
+    requests: {
+      leave: [],
+      ot: [],
+      ob: [],
+      disputes: [],
+    },
   });
+  const { session } = useAuth();
+
+  // Get theme colors
+  const textColor = useThemeColor({}, "text");
+  const backgroundColor = useThemeColor({}, "background");
+  const iconColor = useThemeColor({}, "icon");
+  const url = Constants.expoConfig?.extra?.apiUrl;
+  const currentDate = new Date().toLocaleDateString("en-US", {
+    weekday: "long",
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
+  const getUserRequest = useCallback(async () => {
+    const response = await fetch(
+      `${url}/api/mobile/getUserRequest?id=${session?.user.id}`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${session?.token}`,
+        },
+      }
+    );
+
+    const responseData = await response.json();
+    setLeaveData(responseData);
+  }, [url, session?.token, session?.user.id]);
+
+  useFocusEffect(
+    React.useCallback(() => {
+      if (session?.token && session?.user?.id) {
+        getUserRequest();
+      }
+    }, [getUserRequest, session?.token, session?.user?.id])
+  );
 
   return (
     <ViewWrapper>
-      <ScrollView 
+      <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}
       >
         {/* Header Section */}
         <View style={[styles.pageHeader, { backgroundColor }]}>
           <View style={styles.headerLeft}>
-            <MaterialCommunityIcons name="file-document-edit" size={24} color={iconColor} />
-            <Text style={[styles.headerTitle, { color: textColor }]}>Requests & Disputes</Text>
+            <MaterialCommunityIcons
+              name="file-document-edit"
+              size={24}
+              color={iconColor}
+            />
+            <Text style={[styles.headerTitle, { color: textColor }]}>
+              Requests
+            </Text>
           </View>
-          <Pressable onPress={() => setModalVisible(true)} style={styles.addButton}>
-            <MaterialCommunityIcons name="plus-circle" size={24} color={iconColor} />
+          <Pressable
+            onPress={() => setModalVisible(true)}
+            style={styles.addButton}
+          >
+            <MaterialCommunityIcons
+              name="plus-circle"
+              size={24}
+              color={iconColor}
+            />
           </Pressable>
         </View>
 
@@ -50,7 +96,11 @@ const RequestAndDispute = () => {
             style={styles.actionButton}
             onPress={() => setModalVisible(true)}
           >
-            <MaterialCommunityIcons name="plus-circle" size={24} color="white" />
+            <MaterialCommunityIcons
+              name="plus-circle"
+              size={24}
+              color="white"
+            />
             <Text style={styles.actionButtonText}>New Request</Text>
           </Pressable>
         </View>
@@ -58,54 +108,78 @@ const RequestAndDispute = () => {
         {/* Tabs */}
         <View style={[styles.tabsContainer, { backgroundColor }]}>
           <Pressable
-            style={[styles.tab, activeTab === 'leave' && styles.activeTab]}
-            onPress={() => setActiveTab('leave')}
+            style={[styles.tab, activeTab === "leave" && styles.activeTab]}
+            onPress={() => setActiveTab("leave")}
           >
-            <MaterialCommunityIcons 
-              name="calendar-clock" 
-              size={20} 
-              color={activeTab === 'leave' ? '#112866' : iconColor} 
+            <MaterialCommunityIcons
+              name="calendar-clock"
+              size={20}
+              color={activeTab === "leave" ? "#112866" : iconColor}
             />
-            <Text style={[styles.tabText, { color: textColor }, activeTab === 'leave' && styles.activeTabText]}>
+            <Text
+              style={[
+                styles.tabText,
+                { color: textColor },
+                activeTab === "leave" && styles.activeTabText,
+              ]}
+            >
               Leave
             </Text>
           </Pressable>
           <Pressable
-            style={[styles.tab, activeTab === 'ot' && styles.activeTab]}
-            onPress={() => setActiveTab('ot')}
+            style={[styles.tab, activeTab === "ot" && styles.activeTab]}
+            onPress={() => setActiveTab("ot")}
           >
-            <MaterialCommunityIcons 
-              name="clock-time-four" 
-              size={20} 
-              color={activeTab === 'ot' ? '#112866' : iconColor} 
+            <MaterialCommunityIcons
+              name="clock-time-four"
+              size={20}
+              color={activeTab === "ot" ? "#112866" : iconColor}
             />
-            <Text style={[styles.tabText, { color: textColor }, activeTab === 'ot' && styles.activeTabText]}>
+            <Text
+              style={[
+                styles.tabText,
+                { color: textColor },
+                activeTab === "ot" && styles.activeTabText,
+              ]}
+            >
               OT/UT
             </Text>
           </Pressable>
           <Pressable
-            style={[styles.tab, activeTab === 'ob' && styles.activeTab]}
-            onPress={() => setActiveTab('ob')}
+            style={[styles.tab, activeTab === "ob" && styles.activeTab]}
+            onPress={() => setActiveTab("ob")}
           >
-            <MaterialCommunityIcons 
-              name="briefcase" 
-              size={20} 
-              color={activeTab === 'ob' ? '#112866' : iconColor} 
+            <MaterialCommunityIcons
+              name="briefcase"
+              size={20}
+              color={activeTab === "ob" ? "#112866" : iconColor}
             />
-            <Text style={[styles.tabText, { color: textColor }, activeTab === 'ob' && styles.activeTabText]}>
+            <Text
+              style={[
+                styles.tabText,
+                { color: textColor },
+                activeTab === "ob" && styles.activeTabText,
+              ]}
+            >
               OB
             </Text>
           </Pressable>
           <Pressable
-            style={[styles.tab, activeTab === 'disputes' && styles.activeTab]}
-            onPress={() => setActiveTab('disputes')}
+            style={[styles.tab, activeTab === "disputes" && styles.activeTab]}
+            onPress={() => setActiveTab("disputes")}
           >
-            <MaterialCommunityIcons 
-              name="alert-circle" 
-              size={20} 
-              color={activeTab === 'disputes' ? '#112866' : iconColor} 
+            <MaterialCommunityIcons
+              name="alert-circle"
+              size={20}
+              color={activeTab === "disputes" ? "#112866" : iconColor}
             />
-            <Text style={[styles.tabText, { color: textColor }, activeTab === 'disputes' && styles.activeTabText]}>
+            <Text
+              style={[
+                styles.tabText,
+                { color: textColor },
+                activeTab === "disputes" && styles.activeTabText,
+              ]}
+            >
               Disputes
             </Text>
           </Pressable>
@@ -113,7 +187,7 @@ const RequestAndDispute = () => {
 
         {/* Content */}
         <View style={styles.content}>
-          <RequestAndDisp type={activeTab} />
+          <RequestAndDisp type={activeTab} data={leaveData} />
         </View>
 
         <RequestModal
@@ -144,7 +218,7 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 3,
     borderWidth: 1,
-    borderColor: '#e0e0e0',
+    borderColor: "#e0e0e0",
   },
   headerLeft: {
     flexDirection: "row",
@@ -191,7 +265,7 @@ const styles = StyleSheet.create({
     shadowRadius: 2,
     elevation: 2,
     borderWidth: 1,
-    borderColor: '#e0e0e0',
+    borderColor: "#e0e0e0",
   },
   tab: {
     flex: 1,
