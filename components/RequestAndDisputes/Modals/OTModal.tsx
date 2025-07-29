@@ -1,18 +1,50 @@
 import { useAuth } from "@/contexts/AuthContext";
+import { useRequest } from "@/contexts/RequestContext";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { Picker } from "@react-native-picker/picker";
+import Constants from "expo-constants";
 import React, { useState } from "react";
-import { Modal, Pressable, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
+import {
+  Alert,
+  Modal,
+  Pressable,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from "react-native";
 
 interface OTModalProps {
   isVisible: boolean;
   setModalVisible: () => void;
 }
 
+interface OTUtRequest {
+  employeeId: string;
+  requestType: "OT" | "UT";
+  startDate: string;
+  timeFrom: string;
+  endDate: string;
+  timeTo: string;
+  reason: string;
+  requestorID: string;
+  subsidiary: string;
+  department: string;
+  designation: string;
+  type: "Ot";
+}
+
+interface OTUtResponse {
+  referenceId: string;
+  success: boolean;
+  message?: string;
+}
+
 const OTModal = ({ isVisible, setModalVisible }: OTModalProps) => {
-  const [requestType, setRequestType] = useState<string>("OT");
+  const [requestType, setRequestType] = useState<"OT" | "UT">("OT");
   const [fromDate, setFromDate] = useState<Date | null>(null);
   const [showFromDatePicker, setShowFromDatePicker] = useState(false);
   const [fromTime, setFromTime] = useState<Date | null>(null);
@@ -22,13 +54,102 @@ const OTModal = ({ isVisible, setModalVisible }: OTModalProps) => {
   const [toTime, setToTime] = useState<Date | null>(null);
   const [showToTimePicker, setShowToTimePicker] = useState(false);
   const [reason, setReason] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const { session } = useAuth();
+  const { refreshData } = useRequest();
 
   // Get theme colors
-  const textColor = useThemeColor({}, 'text');
-  const backgroundColor = useThemeColor({}, 'background');
-  const iconColor = useThemeColor({}, 'icon');
-  const now = new Date();
+  const textColor = useThemeColor({}, "text");
+  const backgroundColor = useThemeColor({}, "background");
+  const iconColor = useThemeColor({}, "icon");
+  const url = Constants.expoConfig?.extra?.apiUrl;
+
+  const submitOtUt = async () => {
+    // Validation
+    if (!fromDate || !fromTime || !toDate || !toTime || !reason.trim()) {
+      Alert.alert("Error", "Please fill in all required fields");
+      return;
+    }
+
+    if (!session?.token || !session?.user?.id) {
+      Alert.alert("Error", "Session not found. Please login again.");
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      const otUtRequest: OTUtRequest = {
+        employeeId: session.user.id,
+        requestType: requestType,
+        startDate: fromDate.toISOString().split("T")[0],
+        timeFrom: fromTime.toLocaleTimeString([], {
+          hour: "2-digit",
+          minute: "2-digit",
+          hour12: false,
+        }),
+        endDate: toDate.toISOString().split("T")[0],
+        timeTo: toTime.toLocaleTimeString([], {
+          hour: "2-digit",
+          minute: "2-digit",
+          hour12: false,
+        }),
+        reason: reason.trim(),
+        requestorID: session?.user.requestorId,
+        subsidiary: session?.user?.company,
+        department: session?.user.department,
+        designation: session?.user.designation,
+        type: "Ot",
+      };
+      console.log(",", otUtRequest);
+      const response = await fetch(`${url}/api/mobile/saveRequest`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${session.token}`,
+        },
+        body: JSON.stringify(otUtRequest),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const responseData: OTUtResponse = await response.json();
+
+      Alert.alert(
+        "Success",
+        `Your ${requestType} request has been submitted successfully!\nReference ID: ${responseData.referenceId}`,
+        [
+          {
+            text: "OK",
+            onPress: () => {
+              // Reset form
+              setRequestType("OT");
+              setFromDate(null);
+              setFromTime(null);
+              setToDate(null);
+              setToTime(null);
+              setReason("");
+
+              // Close modal
+              setModalVisible();
+
+              // Refresh data
+              refreshData();
+            },
+          },
+        ]
+      );
+    } catch (error) {
+      console.error("Submit OT/UT error:", error);
+      Alert.alert("Error", "Failed to submit request. Please try again.", [
+        { text: "OK" },
+      ]);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   return (
     <Modal
@@ -40,53 +161,99 @@ const OTModal = ({ isVisible, setModalVisible }: OTModalProps) => {
       <View style={styles.overlay}>
         <View style={[styles.modalView, { backgroundColor }]}>
           {/* Modal Title */}
-          <Text style={[styles.modalTitle, { color: '#112866', fontWeight: 'bold', fontSize: 18, marginBottom: 8 }]}>Overtime/Undertime Request</Text>
+          <Text
+            style={[
+              styles.modalTitle,
+              {
+                color: "#112866",
+                fontWeight: "bold",
+                fontSize: 18,
+                marginBottom: 8,
+              },
+            ]}
+          >
+            Overtime/Undertime Request
+          </Text>
           {/* Employee Info Section */}
           <View style={styles.employeeInfoRow}>
             <View style={{ flex: 1 }}>
-              <Text style={[styles.empLabel, { color: textColor }]}>Last, First MI</Text>
-              <Text style={[styles.empValue, { color: textColor, fontWeight: "bold" }]}>{session?.user?.name || "-"}</Text>
-              <Text style={[styles.empLabel, { color: textColor }]}>Subsidiary</Text>
-              <Text style={[styles.empValue, { color: textColor }]}>ABACUS</Text>
+              <Text style={[styles.empLabel, { color: textColor }]}>
+                Last, First MI
+              </Text>
+              <Text
+                style={[
+                  styles.empValue,
+                  { color: textColor, fontWeight: "bold" },
+                ]}
+              >
+                {session?.user?.name || "-"}
+              </Text>
+              <Text style={[styles.empLabel, { color: textColor }]}>
+                Subsidiary
+              </Text>
+              <Text style={[styles.empValue, { color: textColor }]}>
+                ABACUS
+              </Text>
             </View>
             <View style={{ flex: 1 }}>
-              <Text style={[styles.empLabel, { color: textColor }]}>Designation</Text>
-              <Text style={[styles.empValue, { fontWeight: "bold" }]}>Developer</Text>
-              <Text style={[styles.empLabel, { color: textColor }]}>Department</Text>
-              <Text style={[styles.empValue, { color: textColor, fontWeight: "bold" }]}>Information Technology</Text>
+              <Text style={[styles.empLabel, { color: textColor }]}>
+                Designation
+              </Text>
+              <Text style={[styles.empValue, { fontWeight: "bold" }]}>
+                Developer
+              </Text>
+              <Text style={[styles.empLabel, { color: textColor }]}>
+                Department
+              </Text>
+              <Text
+                style={[
+                  styles.empValue,
+                  { color: textColor, fontWeight: "bold" },
+                ]}
+              >
+                Information Technology
+              </Text>
             </View>
           </View>
           {/* Overtime/Undertime Request Form */}
           <View style={styles.actionContainer}>
             <View style={styles.inputRow}>
-              <View style={[styles.inputWrapper, { flex: 1 }]}>  
-                <Text style={[styles.label, { color: textColor }]}>Request Type</Text>
-                <View style={[styles.pickerBox, { backgroundColor }]}>  
+              <View style={[styles.inputWrapper, { flex: 1 }]}>
+                <Text style={[styles.label, { color: textColor }]}>
+                  Request Type
+                </Text>
+                <View style={[styles.pickerBox, { backgroundColor }]}>
                   <Picker
                     selectedValue={requestType}
                     style={[styles.picker, { color: textColor }]}
-                    onValueChange={(itemValue) => setRequestType(itemValue)}
+                    onValueChange={(itemValue: "OT" | "UT") =>
+                      setRequestType(itemValue)
+                    }
                   >
-                    <Picker.Item label="Overtime" value="OT" color={textColor} />
-                    <Picker.Item label="Undertime" value="UT" color={textColor} />
+                    <Picker.Item
+                      label="Overtime"
+                      value="OT"
+                      color={textColor}
+                    />
+                    <Picker.Item
+                      label="Undertime"
+                      value="UT"
+                      color={textColor}
+                    />
                   </Picker>
-                </View>
-              </View>
-              <View style={[styles.inputWrapper, { flex: 1, marginLeft: 8 }]}>  
-                <Text style={[styles.label, { color: textColor }]}>Date Requested</Text>
-                <View style={[styles.dateRequestedBox, { backgroundColor }]}>  
-                  <Text style={[styles.dateRequestedText, { color: textColor }]}>{now.toLocaleString()}</Text>
                 </View>
               </View>
             </View>
             <View style={styles.inputRow}>
-              <View style={[styles.inputWrapper, { flex: 1 }]}>  
-                <Text style={[styles.label, { color: textColor }]}>Date From</Text>
+              <View style={[styles.inputWrapper, { flex: 1 }]}>
+                <Text style={[styles.label, { color: textColor }]}>
+                  Date From
+                </Text>
                 <Pressable
                   onPress={() => setShowFromDatePicker(true)}
                   style={[styles.datePickerBox, { backgroundColor }]}
                 >
-                  <Text style={[styles.datePickerText, { color: textColor }]}>  
+                  <Text style={[styles.datePickerText, { color: textColor }]}>
                     {fromDate ? fromDate.toDateString() : "Select date"}
                   </Text>
                 </Pressable>
@@ -102,16 +269,35 @@ const OTModal = ({ isVisible, setModalVisible }: OTModalProps) => {
                   />
                 )}
               </View>
-              <View style={[styles.inputWrapper, { flex: 1, marginLeft: 8 }]}>  
-                <Text style={[styles.label, { color: textColor }]}>Time From</Text>
+              <View style={[styles.inputWrapper, { flex: 1, marginLeft: 8 }]}>
+                <Text style={[styles.label, { color: textColor }]}>
+                  Time From
+                </Text>
                 <Pressable
                   onPress={() => setShowFromTimePicker(true)}
-                  style={[styles.datePickerBox, { backgroundColor, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }]}
+                  style={[
+                    styles.datePickerBox,
+                    {
+                      backgroundColor,
+                      flexDirection: "row",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                    },
+                  ]}
                 >
-                  <Text style={[styles.datePickerText, { color: textColor }]}>  
-                    {fromTime ? fromTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : "Select time"}
+                  <Text style={[styles.datePickerText, { color: textColor }]}>
+                    {fromTime
+                      ? fromTime.toLocaleTimeString([], {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })
+                      : "Select time"}
                   </Text>
-                  <MaterialCommunityIcons name="clock-outline" size={20} color={iconColor} />
+                  <MaterialCommunityIcons
+                    name="clock-outline"
+                    size={20}
+                    color={iconColor}
+                  />
                 </Pressable>
                 {showFromTimePicker && (
                   <DateTimePicker
@@ -127,13 +313,15 @@ const OTModal = ({ isVisible, setModalVisible }: OTModalProps) => {
               </View>
             </View>
             <View style={styles.inputRow}>
-              <View style={[styles.inputWrapper, { flex: 1 }]}>  
-                <Text style={[styles.label, { color: textColor }]}>Date To</Text>
+              <View style={[styles.inputWrapper, { flex: 1 }]}>
+                <Text style={[styles.label, { color: textColor }]}>
+                  Date To
+                </Text>
                 <Pressable
                   onPress={() => setShowToDatePicker(true)}
                   style={[styles.datePickerBox, { backgroundColor }]}
                 >
-                  <Text style={[styles.datePickerText, { color: textColor }]}>  
+                  <Text style={[styles.datePickerText, { color: textColor }]}>
                     {toDate ? toDate.toDateString() : "Select date"}
                   </Text>
                 </Pressable>
@@ -149,16 +337,35 @@ const OTModal = ({ isVisible, setModalVisible }: OTModalProps) => {
                   />
                 )}
               </View>
-              <View style={[styles.inputWrapper, { flex: 1, marginLeft: 8 }]}>  
-                <Text style={[styles.label, { color: textColor }]}>Time To</Text>
+              <View style={[styles.inputWrapper, { flex: 1, marginLeft: 8 }]}>
+                <Text style={[styles.label, { color: textColor }]}>
+                  Time To
+                </Text>
                 <Pressable
                   onPress={() => setShowToTimePicker(true)}
-                  style={[styles.datePickerBox, { backgroundColor, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }]}
+                  style={[
+                    styles.datePickerBox,
+                    {
+                      backgroundColor,
+                      flexDirection: "row",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                    },
+                  ]}
                 >
-                  <Text style={[styles.datePickerText, { color: textColor }]}>  
-                    {toTime ? toTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : "Select time"}
+                  <Text style={[styles.datePickerText, { color: textColor }]}>
+                    {toTime
+                      ? toTime.toLocaleTimeString([], {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })
+                      : "Select time"}
                   </Text>
-                  <MaterialCommunityIcons name="clock-outline" size={20} color={iconColor} />
+                  <MaterialCommunityIcons
+                    name="clock-outline"
+                    size={20}
+                    color={iconColor}
+                  />
                 </Pressable>
                 {showToTimePicker && (
                   <DateTimePicker
@@ -177,7 +384,10 @@ const OTModal = ({ isVisible, setModalVisible }: OTModalProps) => {
             <View style={styles.inputWrapper}>
               <Text style={[styles.label, { color: textColor }]}>Reason</Text>
               <TextInput
-                style={[styles.reasonInput, { color: textColor, backgroundColor }]}
+                style={[
+                  styles.reasonInput,
+                  { color: textColor, backgroundColor },
+                ]}
                 value={reason}
                 onChangeText={setReason}
                 placeholder="Enter reason for OT/UT"
@@ -188,11 +398,21 @@ const OTModal = ({ isVisible, setModalVisible }: OTModalProps) => {
             </View>
             {/* Buttons */}
             <View style={styles.buttonRow}>
-              <TouchableOpacity style={styles.cancelBtn} onPress={setModalVisible}>
+              <TouchableOpacity
+                style={[styles.cancelBtn, { opacity: isSubmitting ? 0.5 : 1 }]}
+                onPress={setModalVisible}
+                disabled={isSubmitting}
+              >
                 <Text style={styles.cancelBtnText}>CANCEL</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={styles.submitBtn}>
-                <Text style={styles.submitBtnText}>SUBMIT</Text>
+              <TouchableOpacity
+                style={[styles.submitBtn, { opacity: isSubmitting ? 0.5 : 1 }]}
+                onPress={submitOtUt}
+                disabled={isSubmitting}
+              >
+                <Text style={styles.submitBtnText}>
+                  {isSubmitting ? "SUBMITTING..." : "SUBMIT"}
+                </Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -314,9 +534,9 @@ const styles = StyleSheet.create({
   },
   modalTitle: {
     fontSize: 18,
-    fontWeight: 'bold',
-    color: '#112866',
+    fontWeight: "bold",
+    color: "#112866",
     marginBottom: 8,
-    textAlign: 'left',
+    textAlign: "left",
   },
-}); 
+});

@@ -31,6 +31,7 @@ const LeaveModal = ({ isVisible, setModalVisible }: Props) => {
   const { session } = useAuth();
   const url = Constants.expoConfig?.extra?.apiUrl;
   // Get theme colors
+  console.log("session", session?.user);
   const textColor = useThemeColor({}, "text");
   const backgroundColor = useThemeColor({}, "background");
   const iconColor = useThemeColor({}, "icon");
@@ -64,6 +65,10 @@ const LeaveModal = ({ isVisible, setModalVisible }: Props) => {
       token: session?.token,
       employeeId: session?.user.id,
       reason: reason.trim(),
+      requestorID: session?.user.requestorId,
+      subsidiary: session?.user?.company,
+      department: session?.user.department,
+      designation: session?.user.designation,
       type: "Leave",
     };
 

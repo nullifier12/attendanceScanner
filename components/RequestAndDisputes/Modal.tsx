@@ -1,3 +1,4 @@
+import { useRequest } from "@/contexts/RequestContext";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import React, { useState } from "react";
@@ -6,7 +7,6 @@ import DisputeModal from "./Modals/DisputeModal";
 import LeaveModal from "./Modals/LeaveModal";
 import OBModal from "./Modals/OBModal";
 import OTModal from "./Modals/OTModal";
-
 interface RequestModalProps {
   isVisible: boolean;
   setModalVisible: (visible: boolean) => void;
@@ -17,7 +17,7 @@ export default function RequestModal({
   setModalVisible,
 }: RequestModalProps) {
   const [activeModal, setActiveModal] = useState<string | null>(null);
-
+  const { refreshData } = useRequest();
   // Get theme colors
   const textColor = useThemeColor({}, "text");
   const backgroundColor = useThemeColor({}, "background");
@@ -30,6 +30,11 @@ export default function RequestModal({
   const openModal = (type: string) => {
     setActiveModal(type);
     setModalVisible(false);
+  };
+
+  const handleModalClose = () => {
+    setActiveModal(null);
+    refreshData();
   };
 
   return (
@@ -163,19 +168,19 @@ export default function RequestModal({
 
       <LeaveModal
         isVisible={activeModal === "leave"}
-        setModalVisible={() => setActiveModal(null)}
+        setModalVisible={handleModalClose}
       />
       <OTModal
         isVisible={activeModal === "ot"}
-        setModalVisible={() => setActiveModal(null)}
+        setModalVisible={handleModalClose}
       />
       <OBModal
         isVisible={activeModal === "ob"}
-        setModalVisible={() => setActiveModal(null)}
+        setModalVisible={handleModalClose}
       />
       <DisputeModal
         isVisible={activeModal === "dispute"}
-        setModalVisible={() => setActiveModal(null)}
+        setModalVisible={handleModalClose}
       />
     </>
   );

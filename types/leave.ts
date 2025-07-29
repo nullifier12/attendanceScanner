@@ -22,4 +22,8 @@ export interface LeaveRequestForm {
   token?: string;
   employeeId?: string;
   type: string;
+  subsidiary: string | undefined;
+  requestorID: string | undefined;
+  department: string | undefined;
+  designation: string | undefined;
 }

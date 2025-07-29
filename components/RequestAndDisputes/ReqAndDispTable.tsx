@@ -1,13 +1,15 @@
+import { useRequest } from "@/contexts/RequestContext";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-import React, { useState } from "react";
+import React, { useCallback, useState } from "react";
 import {
-  Modal,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
+    Modal,
+    Pressable,
+    RefreshControl,
+    ScrollView,
+    StyleSheet,
+    Text,
+    View,
 } from "react-native";
 import { Chip, DataTable } from "react-native-paper";
 
@@ -26,74 +28,38 @@ interface RequestAndDispProps {
 const RequestAndDisp = ({ type, data }: RequestAndDispProps) => {
   const [selectedItem, setSelectedItem] = useState<any>(null);
   const [modalVisible, setModalVisible] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
+  const { refreshData } = useRequest();
 
   const leave = data.requests?.leave || [];
+  const ot = data.requests?.ot || [];
+  const ob = data.requests?.ob || [];
+  const disputes = data.requests?.disputes || [];
   const textColor = useThemeColor({}, "text");
   const backgroundColor = useThemeColor({}, "background");
   const iconColor = useThemeColor({}, "icon");
 
-  const otArray = [
-    {
-      date: "2025-06-01",
-      hours: "2",
-      status: "Approved",
-      reason: "Project Deadline",
-    },
-    {
-      date: "2025-06-02",
-      hours: "3",
-      status: "Pending",
-      reason: "System Update",
-    },
-    {
-      date: "2025-06-03",
-      hours: "4",
-      status: "Rejected",
-      reason: "Client Meeting",
-    },
-  ];
+  const formatTimeWithAMPM = (timeString: string) => {
+    if (!timeString) return "-";
+    try {
+      const [hours, minutes] = timeString.split(":").map(Number);
+      if (isNaN(hours) || isNaN(minutes)) return timeString;
+      const period = hours >= 12 ? "PM" : "AM";
+      const displayHours = hours === 0 ? 12 : hours > 12 ? hours - 12 : hours;
+      return `${displayHours}:${minutes.toString().padStart(2, "0")} ${period}`;
+    } catch (error) {
+      return timeString;
+    }
+  };
 
-  const obArray = [
-    {
-      date: "2025-06-01",
-      location: "Client Office",
-      status: "Approved",
-      reason: "Project Meeting",
-    },
-    {
-      date: "2025-06-02",
-      location: "Training Center",
-      status: "Pending",
-      reason: "Training Session",
-    },
-    {
-      date: "2025-06-03",
-      location: "Conference Hall",
-      status: "Rejected",
-      reason: "Team Building",
-    },
-  ];
-
-  const disputesArray = [
-    {
-      date: "2025-06-01",
-      type: "Time In",
-      status: "Pending",
-      reason: "System Error",
-    },
-    {
-      date: "2025-06-02",
-      type: "Time Out",
-      status: "Approved",
-      reason: "Network Issue",
-    },
-    {
-      date: "2025-06-03",
-      type: "Break Time",
-      status: "Rejected",
-      reason: "Manual Entry",
-    },
-  ];
+  const onTableRefresh = useCallback(async () => {
+    setRefreshing(true);
+    try {
+      await refreshData();
+    } finally {
+      setRefreshing(false);
+    }
+  }, [refreshData]);
 
   const getStatusColor = (status: string) => {
     switch (String(status)) {
@@ -140,7 +106,18 @@ const RequestAndDisp = ({ type, data }: RequestAndDispProps) => {
                 </Text>
               </DataTable.Title>
             </DataTable.Header>
-            <ScrollView style={styles.scrollView}>
+            <ScrollView
+              style={styles.scrollView}
+              contentContainerStyle={{ flexGrow: 1 }}
+              refreshControl={
+                <RefreshControl
+                  refreshing={refreshing}
+                  onRefresh={onTableRefresh}
+                  colors={["#112866"]}
+                  tintColor="#112866"
+                />
+              }
+            >
               {leave.map((item, index) => (
                 <DataTable.Row key={index}>
                   <DataTable.Cell style={styles.typeColumn}>
@@ -211,12 +188,27 @@ const RequestAndDisp = ({ type, data }: RequestAndDispProps) => {
             <DataTable.Header>
               <DataTable.Title style={styles.dateColumn}>
                 <Text style={[styles.headerText, { color: textColor }]}>
-                  Date
+                  Type
                 </Text>
               </DataTable.Title>
               <DataTable.Title style={styles.hoursColumn}>
                 <Text style={[styles.headerText, { color: textColor }]}>
-                  Hours
+                  From
+                </Text>
+              </DataTable.Title>
+              <DataTable.Title style={styles.statusColumn}>
+                <Text style={[styles.headerText, { color: textColor }]}>
+                  To
+                </Text>
+              </DataTable.Title>
+              <DataTable.Title style={styles.statusColumn}>
+                <Text style={[styles.headerText, { color: textColor }]}>
+                  Time From
+                </Text>
+              </DataTable.Title>
+              <DataTable.Title style={styles.statusColumn}>
+                <Text style={[styles.headerText, { color: textColor }]}>
+                  Time To
                 </Text>
               </DataTable.Title>
               <DataTable.Title style={styles.statusColumn}>
@@ -230,38 +222,87 @@ const RequestAndDisp = ({ type, data }: RequestAndDispProps) => {
                 </Text>
               </DataTable.Title>
             </DataTable.Header>
-            <ScrollView style={styles.scrollView}>
-              {otArray.map((item, index) => (
+            <ScrollView
+              style={styles.scrollView}
+              contentContainerStyle={{ flexGrow: 1 }}
+              refreshControl={
+                <RefreshControl
+                  refreshing={refreshing}
+                  onRefresh={onTableRefresh}
+                  colors={["#112866"]}
+                  tintColor="#112866"
+                />
+              }
+            >
+              {ot.map((item, index) => (
                 <DataTable.Row key={index}>
                   <DataTable.Cell style={styles.dateColumn}>
                     <Text style={[styles.cellText, { color: textColor }]}>
-                      {item.date}
+                      {item.request_name}
                     </Text>
                   </DataTable.Cell>
                   <DataTable.Cell style={styles.hoursColumn}>
                     <Text style={[styles.cellText, { color: textColor }]}>
-                      {item.hours}
+                      {item.date_from
+                        ? new Date(item.date_from)
+                            .toISOString()
+                            .slice(0, 10)
+                            .replace(/-/g, "/")
+                        : "-"}
+                    </Text>
+                  </DataTable.Cell>
+                  <DataTable.Cell style={styles.statusColumn}>
+                    <Text style={[styles.cellText, { color: textColor }]}>
+                      {item.date_to
+                        ? new Date(item.date_to)
+                            .toISOString()
+                            .slice(0, 10)
+                            .replace(/-/g, "/")
+                        : "-"}
+                    </Text>
+                  </DataTable.Cell>
+                  <DataTable.Cell style={styles.statusColumn}>
+                    <Text style={[styles.cellText, { color: textColor }]}>
+                      {item.time_from
+                        ? formatTimeWithAMPM(item.time_from)
+                        : "-"}
+                    </Text>
+                  </DataTable.Cell>
+                  <DataTable.Cell style={styles.statusColumn}>
+                    <Text style={[styles.cellText, { color: textColor }]}>
+                      {item.time_to ? formatTimeWithAMPM(item.time_to) : "-"}
                     </Text>
                   </DataTable.Cell>
                   <DataTable.Cell style={styles.statusColumn}>
                     <Chip
-                      mode="flat"
                       style={[
                         styles.statusChip,
                         { backgroundColor: getStatusColor(item.status) },
                       ]}
                       textStyle={styles.statusChipText}
                     >
-                      {item.status}
+                      {item.status === 1
+                        ? "Pending"
+                        : item.status === 2
+                        ? "Approved"
+                        : item.status === 0
+                        ? "Rejected"
+                        : "Unknown"}
                     </Chip>
                   </DataTable.Cell>
                   <DataTable.Cell style={styles.actionColumn}>
-                    <MaterialCommunityIcons
-                      name="file-document"
-                      size={24}
-                      color={iconColor}
-                      onPress={() => console.log("View details", item)}
-                    />
+                    <Pressable
+                      onPress={() => {
+                        setSelectedItem(item);
+                        setModalVisible(true);
+                      }}
+                    >
+                      <MaterialCommunityIcons
+                        name="eye"
+                        size={24}
+                        color={iconColor}
+                      />
+                    </Pressable>
                   </DataTable.Cell>
                 </DataTable.Row>
               ))}
@@ -274,7 +315,27 @@ const RequestAndDisp = ({ type, data }: RequestAndDispProps) => {
             <DataTable.Header>
               <DataTable.Title style={styles.dateColumn}>
                 <Text style={[styles.headerText, { color: textColor }]}>
-                  Date
+                  Type
+                </Text>
+              </DataTable.Title>
+              <DataTable.Title style={styles.hoursColumn}>
+                <Text style={[styles.headerText, { color: textColor }]}>
+                  From
+                </Text>
+              </DataTable.Title>
+              <DataTable.Title style={styles.statusColumn}>
+                <Text style={[styles.headerText, { color: textColor }]}>
+                  To
+                </Text>
+              </DataTable.Title>
+              <DataTable.Title style={styles.statusColumn}>
+                <Text style={[styles.headerText, { color: textColor }]}>
+                  Time From
+                </Text>
+              </DataTable.Title>
+              <DataTable.Title style={styles.statusColumn}>
+                <Text style={[styles.headerText, { color: textColor }]}>
+                  Time To
                 </Text>
               </DataTable.Title>
               <DataTable.Title style={styles.locationColumn}>
@@ -293,38 +354,92 @@ const RequestAndDisp = ({ type, data }: RequestAndDispProps) => {
                 </Text>
               </DataTable.Title>
             </DataTable.Header>
-            <ScrollView style={styles.scrollView}>
-              {obArray.map((item, index) => (
+            <ScrollView
+              style={styles.scrollView}
+              contentContainerStyle={{ flexGrow: 1 }}
+              refreshControl={
+                <RefreshControl
+                  refreshing={refreshing}
+                  onRefresh={onTableRefresh}
+                  colors={["#112866"]}
+                  tintColor="#112866"
+                />
+              }
+            >
+              {ob.map((item, index) => (
                 <DataTable.Row key={index}>
                   <DataTable.Cell style={styles.dateColumn}>
                     <Text style={[styles.cellText, { color: textColor }]}>
-                      {item.date}
+                      {item.request_name}
+                    </Text>
+                  </DataTable.Cell>
+                  <DataTable.Cell style={styles.hoursColumn}>
+                    <Text style={[styles.cellText, { color: textColor }]}>
+                      {item.date_from
+                        ? new Date(item.date_from)
+                            .toISOString()
+                            .slice(0, 10)
+                            .replace(/-/g, "/")
+                        : "-"}
+                    </Text>
+                  </DataTable.Cell>
+                  <DataTable.Cell style={styles.statusColumn}>
+                    <Text style={[styles.cellText, { color: textColor }]}>
+                      {item.date_to
+                        ? new Date(item.date_to)
+                            .toISOString()
+                            .slice(0, 10)
+                            .replace(/-/g, "/")
+                        : "-"}
+                    </Text>
+                  </DataTable.Cell>
+                  <DataTable.Cell style={styles.statusColumn}>
+                    <Text style={[styles.cellText, { color: textColor }]}>
+                      {item.time_from
+                        ? formatTimeWithAMPM(item.time_from)
+                        : "-"}
+                    </Text>
+                  </DataTable.Cell>
+                  <DataTable.Cell style={styles.statusColumn}>
+                    <Text style={[styles.cellText, { color: textColor }]}>
+                      {item.time_to ? formatTimeWithAMPM(item.time_to) : "-"}
                     </Text>
                   </DataTable.Cell>
                   <DataTable.Cell style={styles.locationColumn}>
                     <Text style={[styles.cellText, { color: textColor }]}>
-                      {item.location}
+                      {item.location || "-"}
                     </Text>
                   </DataTable.Cell>
                   <DataTable.Cell style={styles.statusColumn}>
                     <Chip
-                      mode="flat"
                       style={[
                         styles.statusChip,
                         { backgroundColor: getStatusColor(item.status) },
                       ]}
                       textStyle={styles.statusChipText}
                     >
-                      {item.status}
+                      {item.status === 1
+                        ? "Pending"
+                        : item.status === 2
+                        ? "Approved"
+                        : item.status === 0
+                        ? "Rejected"
+                        : "Unknown"}
                     </Chip>
                   </DataTable.Cell>
                   <DataTable.Cell style={styles.actionColumn}>
-                    <MaterialCommunityIcons
-                      name="file-document"
-                      size={24}
-                      color={iconColor}
-                      onPress={() => console.log("View details", item)}
-                    />
+                    <Pressable
+                      onPress={() => {
+                        setSelectedItem(item);
+                        setModalVisible(true);
+                      }}
+                    >
+                      <MaterialCommunityIcons
+                        name="eye"
+                        size={24}
+                        color={iconColor}
+                      />
+                    </Pressable>
                   </DataTable.Cell>
                 </DataTable.Row>
               ))}
@@ -336,58 +451,98 @@ const RequestAndDisp = ({ type, data }: RequestAndDispProps) => {
           <>
             <DataTable.Header>
               <DataTable.Title style={styles.dateColumn}>
-                <Text style={[styles.headerText, { color: textColor }]}>
-                  Date
-                </Text>
+                <Text style={[styles.headerText, { color: textColor }]}>Type</Text>
               </DataTable.Title>
-              <DataTable.Title style={styles.typeColumn}>
-                <Text style={[styles.headerText, { color: textColor }]}>
-                  Type
-                </Text>
+              <DataTable.Title style={styles.hoursColumn}>
+                <Text style={[styles.headerText, { color: textColor }]}>From</Text>
               </DataTable.Title>
               <DataTable.Title style={styles.statusColumn}>
-                <Text style={[styles.headerText, { color: textColor }]}>
-                  Status
-                </Text>
+                <Text style={[styles.headerText, { color: textColor }]}>To</Text>
+              </DataTable.Title>
+              <DataTable.Title style={styles.statusColumn}>
+                <Text style={[styles.headerText, { color: textColor }]}>Reason</Text>
+              </DataTable.Title>
+              <DataTable.Title style={styles.statusColumn}>
+                <Text style={[styles.headerText, { color: textColor }]}>Status</Text>
               </DataTable.Title>
               <DataTable.Title style={styles.actionColumn}>
-                <Text style={[styles.headerText, { color: textColor }]}>
-                  Action
-                </Text>
+                <Text style={[styles.headerText, { color: textColor }]}>Action</Text>
               </DataTable.Title>
             </DataTable.Header>
-            <ScrollView style={styles.scrollView}>
-              {disputesArray.map((item, index) => (
+            <ScrollView
+              style={styles.scrollView}
+              contentContainerStyle={{ flexGrow: 1 }}
+              refreshControl={
+                <RefreshControl
+                  refreshing={refreshing}
+                  onRefresh={onTableRefresh}
+                  colors={["#112866"]}
+                  tintColor="#112866"
+                />
+              }
+            >
+              {disputes.map((item, index) => (
                 <DataTable.Row key={index}>
                   <DataTable.Cell style={styles.dateColumn}>
                     <Text style={[styles.cellText, { color: textColor }]}>
-                      {item.date}
+                      {item.request_name || item.requestType || "-"}
                     </Text>
                   </DataTable.Cell>
-                  <DataTable.Cell style={styles.typeColumn}>
+                  <DataTable.Cell style={styles.hoursColumn}>
                     <Text style={[styles.cellText, { color: textColor }]}>
-                      {item.type}
+                      {item.date_from
+                        ? new Date(item.date_from)
+                            .toISOString()
+                            .slice(0, 10)
+                            .replace(/-/g, "/")
+                        : "-"}
+                    </Text>
+                  </DataTable.Cell>
+                  <DataTable.Cell style={styles.statusColumn}>
+                    <Text style={[styles.cellText, { color: textColor }]}>
+                      {item.date_to
+                        ? new Date(item.date_to)
+                            .toISOString()
+                            .slice(0, 10)
+                            .replace(/-/g, "/")
+                        : "-"}
+                    </Text>
+                  </DataTable.Cell>
+                  <DataTable.Cell style={styles.statusColumn}>
+                    <Text style={[styles.cellText, { color: textColor }]}>
+                      {item.reason || item.details || "-"}
                     </Text>
                   </DataTable.Cell>
                   <DataTable.Cell style={styles.statusColumn}>
                     <Chip
-                      mode="flat"
                       style={[
                         styles.statusChip,
                         { backgroundColor: getStatusColor(item.status) },
                       ]}
                       textStyle={styles.statusChipText}
                     >
-                      {item.status}
+                      {item.status === 1
+                        ? "Pending"
+                        : item.status === 2
+                        ? "Approved"
+                        : item.status === 0
+                        ? "Rejected"
+                        : "Unknown"}
                     </Chip>
                   </DataTable.Cell>
                   <DataTable.Cell style={styles.actionColumn}>
-                    <MaterialCommunityIcons
-                      name="file-document"
-                      size={24}
-                      color={iconColor}
-                      onPress={() => console.log("View details", item)}
-                    />
+                    <Pressable
+                      onPress={() => {
+                        setSelectedItem(item);
+                        setModalVisible(true);
+                      }}
+                    >
+                      <MaterialCommunityIcons
+                        name="eye"
+                        size={24}
+                        color={iconColor}
+                      />
+                    </Pressable>
                   </DataTable.Cell>
                 </DataTable.Row>
               ))}
@@ -513,7 +668,7 @@ const RequestAndDisp = ({ type, data }: RequestAndDispProps) => {
                         <Text
                           style={[styles.detailValue, { color: textColor }]}
                         >
-                          {selectedItem.emp_id}
+                          {selectedItem.emp_no}
                         </Text>
                       </View>
                     </View>
@@ -661,7 +816,8 @@ const styles = StyleSheet.create({
     borderColor: "#e0e0e0",
   },
   scrollView: {
-    maxHeight: 200,
+    flex: 1,
+    minHeight: 200,
   },
   headerText: {
     fontSize: 14,

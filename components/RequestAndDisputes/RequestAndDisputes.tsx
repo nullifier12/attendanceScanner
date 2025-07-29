@@ -1,11 +1,17 @@
 import ViewWrapper from "@/components/Layout/View";
 import { useAuth } from "@/contexts/AuthContext";
+import { useRequest } from "@/contexts/RequestContext";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-import { useFocusEffect } from "@react-navigation/native";
-import Constants from "expo-constants";
-import React, { useCallback, useState } from "react";
-import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import React, { useEffect, useRef, useState } from "react";
+import {
+  ActivityIndicator,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
 import { Divider } from "react-native-paper";
 import RequestModal from "./Modal";
 import RequestAndDisp from "./ReqAndDispTable";
@@ -13,50 +19,36 @@ import RequestAndDisp from "./ReqAndDispTable";
 const RequestAndDispute = () => {
   const [modalVisible, setModalVisible] = useState(false);
   const [activeTab, setActiveTab] = useState("leave");
-  const [leaveData, setLeaveData] = useState({
-    requests: {
-      leave: [],
-      ot: [],
-      ob: [],
-      disputes: [],
-    },
-  });
+  const [isTabLoading, setIsTabLoading] = useState(false);
   const { session } = useAuth();
+  const { requestData, loadInitialData, isLoading } = useRequest();
+  const hasLoadedData = useRef(false);
 
   // Get theme colors
   const textColor = useThemeColor({}, "text");
   const backgroundColor = useThemeColor({}, "background");
   const iconColor = useThemeColor({}, "icon");
-  const url = Constants.expoConfig?.extra?.apiUrl;
   const currentDate = new Date().toLocaleDateString("en-US", {
     weekday: "long",
     year: "numeric",
     month: "long",
     day: "numeric",
   });
-  const getUserRequest = useCallback(async () => {
-    const response = await fetch(
-      `${url}/api/mobile/getUserRequest?id=${session?.user.id}`,
-      {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${session?.token}`,
-        },
-      }
-    );
 
-    const responseData = await response.json();
-    setLeaveData(responseData);
-  }, [url, session?.token, session?.user.id]);
+  useEffect(() => {
+    if (session?.token && session?.user?.id && !hasLoadedData.current) {
+      hasLoadedData.current = true;
+      loadInitialData();
+    }
+  }, [session?.token, session?.user?.id]);
 
-  useFocusEffect(
-    React.useCallback(() => {
-      if (session?.token && session?.user?.id) {
-        getUserRequest();
-      }
-    }, [getUserRequest, session?.token, session?.user?.id])
-  );
+  const handleTabSwitch = async (newTab: string) => {
+    setIsTabLoading(true);
+    await new Promise((resolve) => setTimeout(resolve, 200));
+
+    setActiveTab(newTab);
+    setIsTabLoading(false);
+  };
 
   return (
     <ViewWrapper>
@@ -108,8 +100,16 @@ const RequestAndDispute = () => {
         {/* Tabs */}
         <View style={[styles.tabsContainer, { backgroundColor }]}>
           <Pressable
-            style={[styles.tab, activeTab === "leave" && styles.activeTab]}
-            onPress={() => setActiveTab("leave")}
+            style={[
+              styles.tab,
+              activeTab === "leave" && styles.activeTab,
+              {
+                backgroundColor:
+                  activeTab === "leave" ? "#f0f4ff" : "transparent",
+              },
+            ]}
+            onPress={() => handleTabSwitch("leave")}
+            disabled={isTabLoading}
           >
             <MaterialCommunityIcons
               name="calendar-clock"
@@ -119,7 +119,7 @@ const RequestAndDispute = () => {
             <Text
               style={[
                 styles.tabText,
-                { color: textColor },
+                { color: activeTab === "leave" ? "#112866" : textColor },
                 activeTab === "leave" && styles.activeTabText,
               ]}
             >
@@ -127,8 +127,15 @@ const RequestAndDispute = () => {
             </Text>
           </Pressable>
           <Pressable
-            style={[styles.tab, activeTab === "ot" && styles.activeTab]}
-            onPress={() => setActiveTab("ot")}
+            style={[
+              styles.tab,
+              activeTab === "ot" && styles.activeTab,
+              {
+                backgroundColor: activeTab === "ot" ? "#f0f4ff" : "transparent",
+              },
+            ]}
+            onPress={() => handleTabSwitch("ot")}
+            disabled={isTabLoading}
           >
             <MaterialCommunityIcons
               name="clock-time-four"
@@ -138,7 +145,7 @@ const RequestAndDispute = () => {
             <Text
               style={[
                 styles.tabText,
-                { color: textColor },
+                { color: activeTab === "ot" ? "#112866" : textColor },
                 activeTab === "ot" && styles.activeTabText,
               ]}
             >
@@ -146,8 +153,15 @@ const RequestAndDispute = () => {
             </Text>
           </Pressable>
           <Pressable
-            style={[styles.tab, activeTab === "ob" && styles.activeTab]}
-            onPress={() => setActiveTab("ob")}
+            style={[
+              styles.tab,
+              activeTab === "ob" && styles.activeTab,
+              {
+                backgroundColor: activeTab === "ob" ? "#f0f4ff" : "transparent",
+              },
+            ]}
+            onPress={() => handleTabSwitch("ob")}
+            disabled={isTabLoading}
           >
             <MaterialCommunityIcons
               name="briefcase"
@@ -157,7 +171,7 @@ const RequestAndDispute = () => {
             <Text
               style={[
                 styles.tabText,
-                { color: textColor },
+                { color: activeTab === "ob" ? "#112866" : textColor },
                 activeTab === "ob" && styles.activeTabText,
               ]}
             >
@@ -165,8 +179,16 @@ const RequestAndDispute = () => {
             </Text>
           </Pressable>
           <Pressable
-            style={[styles.tab, activeTab === "disputes" && styles.activeTab]}
-            onPress={() => setActiveTab("disputes")}
+            style={[
+              styles.tab,
+              activeTab === "disputes" && styles.activeTab,
+              {
+                backgroundColor:
+                  activeTab === "disputes" ? "#f0f4ff" : "transparent",
+              },
+            ]}
+            onPress={() => handleTabSwitch("disputes")}
+            disabled={isTabLoading}
           >
             <MaterialCommunityIcons
               name="alert-circle"
@@ -176,7 +198,7 @@ const RequestAndDispute = () => {
             <Text
               style={[
                 styles.tabText,
-                { color: textColor },
+                { color: activeTab === "disputes" ? "#112866" : textColor },
                 activeTab === "disputes" && styles.activeTabText,
               ]}
             >
@@ -187,7 +209,16 @@ const RequestAndDispute = () => {
 
         {/* Content */}
         <View style={styles.content}>
-          <RequestAndDisp type={activeTab} data={leaveData} />
+          {isTabLoading ? (
+            <View style={styles.loadingContainer}>
+              <ActivityIndicator size="large" color="#112866" />
+              <Text style={[styles.loadingText, { color: textColor }]}>
+                Loading...
+              </Text>
+            </View>
+          ) : (
+            <RequestAndDisp type={activeTab} data={requestData} />
+          )}
         </View>
 
         <RequestModal
@@ -289,5 +320,16 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 20,
+  },
+  loadingText: {
+    marginTop: 10,
+    fontSize: 16,
+    fontWeight: "500",
   },
 });

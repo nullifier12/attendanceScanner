@@ -1,12 +1,13 @@
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { NotificationProvider } from "@/contexts/NotificationContext";
+import { RequestProvider } from "@/contexts/RequestContext";
 import { useColorScheme } from "@/hooks/useColorScheme";
 import {
-  DarkTheme,
-  DefaultTheme,
-  ThemeProvider,
-  useFocusEffect,
-  useRoute,
+    DarkTheme,
+    DefaultTheme,
+    ThemeProvider,
+    useFocusEffect,
+    useRoute,
 } from "@react-navigation/native";
 
 import { useFonts } from "expo-font";
@@ -205,7 +206,9 @@ export default function RootLayout() {
   return (
     <NotificationProvider>
       <AuthProvider>
-        <RootLayoutNav />
+        <RequestProvider>
+          <RootLayoutNav />
+        </RequestProvider>
       </AuthProvider>
     </NotificationProvider>
   );

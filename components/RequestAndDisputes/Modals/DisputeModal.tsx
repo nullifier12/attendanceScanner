@@ -1,13 +1,44 @@
 import { useAuth } from "@/contexts/AuthContext";
+import { useRequest } from "@/contexts/RequestContext";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { Picker } from "@react-native-picker/picker";
+import Constants from "expo-constants";
 import React, { useState } from "react";
-import { Modal, Pressable, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
+import {
+  Alert,
+  Modal,
+  Pressable,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from "react-native";
 
 interface DisputeModalProps {
   isVisible: boolean;
   setModalVisible: () => void;
+}
+
+interface DisputeRequest {
+  employeeId: string;
+  requestType: string;
+  startDate: string;
+  endDate: string;
+
+  reason: string;
+  requestorID: string;
+  subsidiary: string;
+  department: string;
+  designation: string;
+  type: "RAD";
+}
+
+interface DisputeResponse {
+  referenceId: string;
+  success: boolean;
+  message?: string;
 }
 
 const DisputeModal = ({ isVisible, setModalVisible }: DisputeModalProps) => {
@@ -17,13 +48,104 @@ const DisputeModal = ({ isVisible, setModalVisible }: DisputeModalProps) => {
   const [toDate, setToDate] = useState<Date | null>(null);
   const [showToDatePicker, setShowToDatePicker] = useState(false);
   const [description, setDescription] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const { session } = useAuth();
+  const { refreshData } = useRequest();
 
   // Get theme colors
-  const textColor = useThemeColor({}, 'text');
-  const backgroundColor = useThemeColor({}, 'background');
-  const iconColor = useThemeColor({}, 'icon');
-  const now = new Date();
+  const textColor = useThemeColor({}, "text");
+  const backgroundColor = useThemeColor({}, "background");
+  const iconColor = useThemeColor({}, "icon");
+  const url = Constants.expoConfig?.extra?.apiUrl;
+
+  const submitDispute = async () => {
+    // Validation
+    if (!concern || !fromDate || !toDate || !description.trim()) {
+      Alert.alert("Error", "Please fill in all required fields");
+      return;
+    }
+
+    if (!session?.token || !session?.user?.id) {
+      Alert.alert("Error", "Session not found. Please login again.");
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      const disputeRequest: DisputeRequest = {
+        employeeId: session.user.id,
+        requestType: concern,
+        startDate: fromDate.toISOString().split("T")[0],
+        endDate: toDate.toISOString().split("T")[0],
+
+        reason: description.trim(),
+        requestorID: session?.user.requestorId,
+        subsidiary: session?.user?.company,
+        department: session?.user.department,
+        designation: session?.user.designation,
+        type: "RAD",
+      };
+
+      console.log("Dispute Request:", disputeRequest);
+
+      const response = await fetch(`${url}/api/mobile/saveRequest`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${session.token}`,
+        },
+        body: JSON.stringify(disputeRequest),
+      });
+
+      console.log("Response status:", response.status);
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error("API Error Response:", errorText);
+        throw new Error(
+          `HTTP error! status: ${response.status}, message: ${errorText}`
+        );
+      }
+
+      const responseData: DisputeResponse = await response.json();
+      console.log("Success Response:", responseData);
+
+      Alert.alert(
+        "Success",
+        `Your dispute request has been submitted successfully!\nReference ID: ${
+          responseData.referenceId || "N/A"
+        }`,
+        [
+          {
+            text: "OK",
+            onPress: () => {
+              // Reset form
+              setConcern("");
+              setFromDate(null);
+              setToDate(null);
+              setDescription("");
+
+              // Close modal
+              setModalVisible();
+
+              // Refresh data
+              refreshData();
+            },
+          },
+        ]
+      );
+    } catch (error) {
+      console.error("Submit Dispute error:", error);
+      const errorMessage =
+        error instanceof Error ? error.message : "Unknown error occurred";
+      Alert.alert("Error", `Failed to submit request: ${errorMessage}`, [
+        { text: "OK" },
+      ]);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   return (
     <Modal
@@ -34,25 +156,63 @@ const DisputeModal = ({ isVisible, setModalVisible }: DisputeModalProps) => {
     >
       <View style={styles.overlay}>
         <View style={[styles.modalView, { backgroundColor }]}>
-          <Text style={[styles.modalTitle, { color: '#112866', fontWeight: 'bold', fontSize: 18, marginBottom: 8 }]}>Disputes</Text>
+          <Text
+            style={[
+              styles.modalTitle,
+              {
+                color: "#112866",
+                fontWeight: "bold",
+                fontSize: 18,
+                marginBottom: 8,
+              },
+            ]}
+          >
+            Disputes
+          </Text>
           <View style={styles.employeeInfoRow}>
             <View style={{ flex: 1 }}>
-              <Text style={[styles.empLabel, { color: textColor }]}>Last, First MI</Text>
-              <Text style={[styles.empValue, { color: textColor, fontWeight: "bold" }]}>{session?.user?.name || "-"}</Text>
-              <Text style={[styles.empLabel, { color: textColor }]}>Subsidiary</Text>
-              <Text style={[styles.empValue, { color: textColor }]}>ABACUS</Text>
+              <Text style={[styles.empLabel, { color: textColor }]}>
+                Last, First MI
+              </Text>
+              <Text
+                style={[
+                  styles.empValue,
+                  { color: textColor, fontWeight: "bold" },
+                ]}
+              >
+                {session?.user?.name || "-"}
+              </Text>
+              <Text style={[styles.empLabel, { color: textColor }]}>
+                Subsidiary
+              </Text>
+              <Text style={[styles.empValue, { color: textColor }]}>
+                ABACUS
+              </Text>
             </View>
             <View style={{ flex: 1 }}>
-              <Text style={[styles.empLabel, { color: textColor }]}>Designation</Text>
-              <Text style={[styles.empValue, { fontWeight: "bold" }]}>Developer</Text>
-              <Text style={[styles.empLabel, { color: textColor }]}>Department</Text>
-              <Text style={[styles.empValue, { color: textColor, fontWeight: "bold" }]}>Information Technology</Text>
+              <Text style={[styles.empLabel, { color: textColor }]}>
+                Designation
+              </Text>
+              <Text style={[styles.empValue, { fontWeight: "bold" }]}>
+                Developer
+              </Text>
+              <Text style={[styles.empLabel, { color: textColor }]}>
+                Department
+              </Text>
+              <Text
+                style={[
+                  styles.empValue,
+                  { color: textColor, fontWeight: "bold" },
+                ]}
+              >
+                Information Technology
+              </Text>
             </View>
           </View>
           <View style={styles.actionContainer}>
             <View style={styles.inputRow}>
               <View style={[styles.inputWrapper, { flex: 1 }]}>
-                <Text style={[styles.label, { color: textColor }]}>What is the Concern about?</Text>
+                <Text style={[styles.label, { color: textColor }]}>Type</Text>
                 <View style={[styles.pickerBox, { backgroundColor }]}>
                   <Picker
                     selectedValue={concern}
@@ -60,23 +220,35 @@ const DisputeModal = ({ isVisible, setModalVisible }: DisputeModalProps) => {
                     onValueChange={(itemValue) => setConcern(itemValue)}
                   >
                     <Picker.Item label="Select concern" value="" color="#aaa" />
-                    <Picker.Item label="Time In" value="Time In" color={textColor} />
-                    <Picker.Item label="Time Out" value="Time Out" color={textColor} />
-                    <Picker.Item label="Break Time" value="Break Time" color={textColor} />
-                    <Picker.Item label="Others" value="Others" color={textColor} />
+                    <Picker.Item
+                      label="Attendance"
+                      value="AT"
+                      color={textColor}
+                    />
+                    <Picker.Item label="Payroll" value="PR" color={textColor} />
+                    <Picker.Item label="Leave" value="L" color={textColor} />
+                    <Picker.Item label="Other" value="O" color={textColor} />
                   </Picker>
                 </View>
               </View>
               <View style={[styles.inputWrapper, { flex: 1, marginLeft: 8 }]}>
-                <Text style={[styles.label, { color: textColor }]}>Date Requested</Text>
+                <Text style={[styles.label, { color: textColor }]}>
+                  Date Requested
+                </Text>
                 <View style={[styles.dateRequestedBox, { backgroundColor }]}>
-                  <Text style={[styles.dateRequestedText, { color: textColor }]}>{now.toLocaleString()}</Text>
+                  <Text
+                    style={[styles.dateRequestedText, { color: textColor }]}
+                  >
+                    {new Date().toLocaleDateString()}
+                  </Text>
                 </View>
               </View>
             </View>
             <View style={styles.inputRow}>
               <View style={[styles.inputWrapper, { flex: 1 }]}>
-                <Text style={[styles.label, { color: textColor }]}>Date From</Text>
+                <Text style={[styles.label, { color: textColor }]}>
+                  Date From
+                </Text>
                 <Pressable
                   onPress={() => setShowFromDatePicker(true)}
                   style={[styles.datePickerBox, { backgroundColor }]}
@@ -98,7 +270,9 @@ const DisputeModal = ({ isVisible, setModalVisible }: DisputeModalProps) => {
                 )}
               </View>
               <View style={[styles.inputWrapper, { flex: 1, marginLeft: 8 }]}>
-                <Text style={[styles.label, { color: textColor }]}>Date To</Text>
+                <Text style={[styles.label, { color: textColor }]}>
+                  Date To
+                </Text>
                 <Pressable
                   onPress={() => setShowToDatePicker(true)}
                   style={[styles.datePickerBox, { backgroundColor }]}
@@ -121,9 +295,14 @@ const DisputeModal = ({ isVisible, setModalVisible }: DisputeModalProps) => {
               </View>
             </View>
             <View style={styles.inputWrapper}>
-              <Text style={[styles.label, { color: textColor }]}>Please provide a brief description of your concern</Text>
+              <Text style={[styles.label, { color: textColor }]}>
+                Please provide a brief description of your concern
+              </Text>
               <TextInput
-                style={[styles.reasonInput, { color: textColor, backgroundColor }]}
+                style={[
+                  styles.reasonInput,
+                  { color: textColor, backgroundColor },
+                ]}
                 value={description}
                 onChangeText={setDescription}
                 placeholder="Enter details of your concern"
@@ -133,11 +312,21 @@ const DisputeModal = ({ isVisible, setModalVisible }: DisputeModalProps) => {
               />
             </View>
             <View style={styles.buttonRow}>
-              <TouchableOpacity style={styles.cancelBtn} onPress={setModalVisible}>
+              <TouchableOpacity
+                style={styles.cancelBtn}
+                onPress={setModalVisible}
+                disabled={isSubmitting}
+              >
                 <Text style={styles.cancelBtnText}>CANCEL</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={styles.submitBtn}>
-                <Text style={styles.submitBtnText}>SUBMIT</Text>
+              <TouchableOpacity
+                style={styles.submitBtn}
+                onPress={submitDispute}
+                disabled={isSubmitting}
+              >
+                <Text style={styles.submitBtnText}>
+                  {isSubmitting ? "SUBMITTING..." : "SUBMIT"}
+                </Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -164,10 +353,10 @@ const styles = StyleSheet.create({
   },
   modalTitle: {
     fontSize: 18,
-    fontWeight: 'bold',
-    color: '#112866',
+    fontWeight: "bold",
+    color: "#112866",
     marginBottom: 8,
-    textAlign: 'left',
+    textAlign: "left",
   },
   employeeInfoRow: {
     flexDirection: "row",
@@ -264,4 +453,4 @@ const styles = StyleSheet.create({
   actionContainer: {
     rowGap: 12,
   },
-}); 
+});

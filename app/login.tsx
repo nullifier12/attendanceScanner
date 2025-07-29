@@ -277,6 +277,11 @@ const Login = () => {
           id: responseData?.user?.empID,
           name: `${responseData?.user?.pi_lname},${responseData?.user?.pi_fname}`,
           email: responseData?.user?.pi_email,
+          department: responseData?.user?.comp_assign_department,
+          designation: responseData?.user?.comp_assign_designation,
+          location: responseData?.user?.comp_assign_location,
+          company: responseData?.user?.comp_assign_subsidiary,
+          requestorId: responseData?.user?.ID,
         },
       };
 
