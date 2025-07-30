@@ -21,8 +21,7 @@ const UserInformation = (props: any) => {
   const router = useRouter();
   const { session, clearSession } = useAuth();
   const { UserInfo } = props;
-  const { pi_photo } = UserInfo;
-
+  console.log(UserInfo.user);
   // Get theme colors
   const textColor = useThemeColor({}, "text");
   const backgroundColor = useThemeColor({}, "background");
@@ -70,12 +69,6 @@ const UserInformation = (props: any) => {
     { id: "4", title: "System Maintenance Tonight", date: "2024-03-18" },
   ];
 
-  const birthdays = [
-    { id: "1", name: "John Doe", date: "March 25" },
-    { id: "2", name: "Jane Smith", date: "March 28" },
-    { id: "3", name: "Mike Johnson", date: "March 30" },
-    { id: "4", name: "Mike Johnson", date: "March 30" },
-  ];
   console.log(`${url}${UserInfo.user.pi_photo}`);
   return (
     <View style={[styles.mainContainer, { backgroundColor }]}>
@@ -130,13 +123,13 @@ const UserInformation = (props: any) => {
                   color={iconColor}
                 />
                 <Text style={[styles.infoText, { color: iconColor }]}>
-                  Position: Software Developer
+                  Position: {UserInfo.user.comp_assign_designation}
                 </Text>
               </View>
               <View style={styles.infoRow}>
                 <Ionicons name="people-outline" size={20} color={iconColor} />
                 <Text style={[styles.infoText, { color: iconColor }]}>
-                  Department: Information Technology
+                  Department: {UserInfo.user.comp_assign_department}
                 </Text>
               </View>
             </View>

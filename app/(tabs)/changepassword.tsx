@@ -1,6 +1,6 @@
-import { Text } from "react-native-paper";
-
-const ChangePassword = () => {
-  return <Text>hi</Text>;
+import ChangePassword from "@/components/ChangePassword/ChangePassword";
+const changePassword = () => {
+  return <ChangePassword />;
 };
-export default ChangePassword;
+
+export default changePassword;
