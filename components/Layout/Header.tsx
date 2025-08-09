@@ -1,20 +1,28 @@
+import { useResponsive } from "@/hooks/useResponsive";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { StyleSheet, TouchableOpacity, View } from "react-native";
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const Header = () => {
   const router = useRouter();
+  const { isTablet } = useResponsive();
 
   return (
-    <View style={styles.headerContainer}>
-      <TouchableOpacity onPress={() => router.back()} style={styles.button}>
-        <Ionicons name="arrow-back" size={28} color="white" />
-      </TouchableOpacity>
-    </View>
+    <SafeAreaView edges={['top']} style={styles.safeArea}>
+      <View style={[styles.headerContainer, isTablet && styles.headerContainerTablet]}>
+        <TouchableOpacity onPress={() => router.back()} style={styles.button}>
+          <Ionicons name="arrow-back" size={isTablet ? 32 : 28} color="white" />
+        </TouchableOpacity>
+      </View>
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
+  safeArea: {
+    backgroundColor: "#112866",
+  },
   headerContainer: {
     width: "100%",
     height: 90,
@@ -28,6 +36,11 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     flexDirection: "row",
     alignItems: "center",
+  },
+  headerContainerTablet: {
+    height: 100,
+    paddingHorizontal: 24,
+    paddingTop: 16,
   },
   button: {
     padding: 8,

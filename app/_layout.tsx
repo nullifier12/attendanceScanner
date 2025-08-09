@@ -1,4 +1,5 @@
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
+import { CalendarProvider } from "@/contexts/CalendarContext";
 import { NotificationProvider } from "@/contexts/NotificationContext";
 import { RequestProvider } from "@/contexts/RequestContext";
 import { useColorScheme } from "@/hooks/useColorScheme";
@@ -9,6 +10,7 @@ import {
     useFocusEffect,
     useRoute,
 } from "@react-navigation/native";
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { useFonts } from "expo-font";
 import { Stack, usePathname, useRouter } from "expo-router";
@@ -204,12 +206,16 @@ export default function RootLayout() {
   }
 
   return (
-    <NotificationProvider>
-      <AuthProvider>
-        <RequestProvider>
-          <RootLayoutNav />
-        </RequestProvider>
-      </AuthProvider>
-    </NotificationProvider>
+    <SafeAreaProvider>
+      <NotificationProvider>
+        <AuthProvider>
+          <RequestProvider>
+            <CalendarProvider>
+              <RootLayoutNav />
+            </CalendarProvider>
+          </RequestProvider>
+        </AuthProvider>
+      </NotificationProvider>
+    </SafeAreaProvider>
   );
 }

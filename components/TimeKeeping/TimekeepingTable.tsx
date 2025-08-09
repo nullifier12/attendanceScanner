@@ -1,3 +1,4 @@
+import { useResponsive } from "@/hooks/useResponsive";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import React from "react";
@@ -21,6 +22,7 @@ const TimeKeepingTable = ({ attendance }: TimeKeepingTableProps) => {
   const textColor = useThemeColor({}, 'text');
   const backgroundColor = useThemeColor({}, 'background');
   const iconColor = useThemeColor({}, 'icon');
+  const { isTablet } = useResponsive();
 
   const getStatusColor = (status: string) => {
     switch (status.toLowerCase()) {
@@ -36,71 +38,71 @@ const TimeKeepingTable = ({ attendance }: TimeKeepingTableProps) => {
   };
 
   return (
-    <View style={[styles.container, { backgroundColor }]}>
+    <View style={[styles.container, { backgroundColor }, isTablet && styles.containerTablet]}>
       <View style={styles.pageHeader}>
         <View style={styles.headerLeft}>
-          <MaterialCommunityIcons name="calendar-clock" size={24} color={iconColor} />
-          <Text style={[styles.headerTitle, { color: textColor }]}>Attendance Records</Text>
+          <MaterialCommunityIcons name="calendar-clock" size={isTablet ? 28 : 24} color={iconColor} />
+          <Text style={[styles.headerTitle, { color: textColor }, isTablet && styles.headerTitleTablet]}>Attendance Records</Text>
         </View>
         <View style={styles.headerRight}>
-          <MaterialCommunityIcons name="calendar-check" size={24} color={iconColor} />
+          <MaterialCommunityIcons name="calendar-check" size={isTablet ? 28 : 24} color={iconColor} />
         </View>
       </View>
 
       <ScrollView horizontal showsHorizontalScrollIndicator={false}>
         <DataTable>
           <DataTable.Header>
-            <DataTable.Title style={styles.dateColumn}>
-              <Text style={[styles.headerText, { color: textColor }]}>Date</Text>
+            <DataTable.Title style={[styles.dateColumn, isTablet && styles.dateColumnTablet]}>
+              <Text style={[styles.headerText, { color: textColor }, isTablet && styles.headerTextTablet]}>Date</Text>
             </DataTable.Title>
-            <DataTable.Title style={styles.timeColumn}>
-              <Text style={[styles.headerText, { color: textColor }]}>Time In</Text>
+            <DataTable.Title style={[styles.timeColumn, isTablet && styles.timeColumnTablet]}>
+              <Text style={[styles.headerText, { color: textColor }, isTablet && styles.headerTextTablet]}>Time In</Text>
             </DataTable.Title>
-            <DataTable.Title style={styles.timeColumn}>
-              <Text style={[styles.headerText, { color: textColor }]}>Time Out</Text>
+            <DataTable.Title style={[styles.timeColumn, isTablet && styles.timeColumnTablet]}>
+              <Text style={[styles.headerText, { color: textColor }, isTablet && styles.headerTextTablet]}>Time Out</Text>
             </DataTable.Title>
-            <DataTable.Title style={styles.statusColumn}>
-              <Text style={[styles.headerText, { color: textColor }]}>Status</Text>
+            <DataTable.Title style={[styles.statusColumn, isTablet && styles.statusColumnTablet]}>
+              <Text style={[styles.headerText, { color: textColor }, isTablet && styles.headerTextTablet]}>Status</Text>
             </DataTable.Title>
-            <DataTable.Title style={styles.hoursColumn}>
-              <Text style={[styles.headerText, { color: textColor }]}>Hours</Text>
+            <DataTable.Title style={[styles.hoursColumn, isTablet && styles.hoursColumnTablet]}>
+              <Text style={[styles.headerText, { color: textColor }, isTablet && styles.headerTextTablet]}>Hours</Text>
             </DataTable.Title>
-            <DataTable.Title style={styles.actionColumn}>
-              <Text style={[styles.headerText, { color: textColor }]}>Action</Text>
+            <DataTable.Title style={[styles.actionColumn, isTablet && styles.actionColumnTablet]}>
+              <Text style={[styles.headerText, { color: textColor }, isTablet && styles.headerTextTablet]}>Action</Text>
             </DataTable.Title>
           </DataTable.Header>
           <ScrollView
-            style={styles.scrollView}
+            style={[styles.scrollView, isTablet && styles.scrollViewTablet]}
             nestedScrollEnabled={true}
             showsVerticalScrollIndicator={false}
           >
             {attendance.map((record, index) => (
               <DataTable.Row key={index}>
-                <DataTable.Cell style={styles.dateColumn}>
-                  <Text style={[styles.cellText, { color: textColor }]}>{record.date}</Text>
+                <DataTable.Cell style={[styles.dateColumn, isTablet && styles.dateColumnTablet]}>
+                  <Text style={[styles.cellText, { color: textColor }, isTablet && styles.cellTextTablet]}>{record.date}</Text>
                 </DataTable.Cell>
-                <DataTable.Cell style={styles.timeColumn}>
-                  <Text style={[styles.cellText, { color: textColor }]}>{record.in}</Text>
+                <DataTable.Cell style={[styles.timeColumn, isTablet && styles.timeColumnTablet]}>
+                  <Text style={[styles.cellText, { color: textColor }, isTablet && styles.cellTextTablet]}>{record.in}</Text>
                 </DataTable.Cell>
-                <DataTable.Cell style={styles.timeColumn}>
-                  <Text style={[styles.cellText, { color: textColor }]}>{record.out}</Text>
+                <DataTable.Cell style={[styles.timeColumn, isTablet && styles.timeColumnTablet]}>
+                  <Text style={[styles.cellText, { color: textColor }, isTablet && styles.cellTextTablet]}>{record.out}</Text>
                 </DataTable.Cell>
-                <DataTable.Cell style={styles.statusColumn}>
+                <DataTable.Cell style={[styles.statusColumn, isTablet && styles.statusColumnTablet]}>
                   <Chip
                     mode="flat"
-                    style={[styles.statusChip, { backgroundColor: getStatusColor(record.status) }]}
-                    textStyle={styles.statusText}
+                    style={[styles.statusChip, { backgroundColor: getStatusColor(record.status) }, isTablet && styles.statusChipTablet]}
+                    textStyle={[styles.statusText, isTablet && styles.statusTextTablet]}
                   >
                     {record.status}
                   </Chip>
                 </DataTable.Cell>
-                <DataTable.Cell style={styles.hoursColumn}>
-                  <Text style={[styles.cellText, { color: textColor }]}>{record.hours}</Text>
+                <DataTable.Cell style={[styles.hoursColumn, isTablet && styles.hoursColumnTablet]}>
+                  <Text style={[styles.cellText, { color: textColor }, isTablet && styles.cellTextTablet]}>{record.hours}</Text>
                 </DataTable.Cell>
-                <DataTable.Cell style={styles.actionColumn}>
+                <DataTable.Cell style={[styles.actionColumn, isTablet && styles.actionColumnTablet]}>
                   <MaterialCommunityIcons
                     name="eye"
-                    size={20}
+                    size={isTablet ? 24 : 20}
                     color={iconColor}
                     onPress={() => console.log("View details for:", record.date)}
                   />
@@ -128,6 +130,10 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#e0e0e0',
   },
+  containerTablet: {
+    borderRadius: 16,
+    padding: 24,
+  },
   pageHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -144,48 +150,82 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: "600",
   },
+  headerTitleTablet: {
+    fontSize: 20,
+  },
   headerRight: {
     padding: 4,
   },
   scrollView: {
     maxHeight: 300,
   },
+  scrollViewTablet: {
+    maxHeight: 400,
+  },
   headerText: {
     fontSize: 14,
     fontWeight: "600",
   },
+  headerTextTablet: {
+    fontSize: 16,
+  },
   cellText: {
     fontSize: 14,
+  },
+  cellTextTablet: {
+    fontSize: 16,
   },
   statusChip: {
     height: 28,
     minWidth: 80,
+  },
+  statusChipTablet: {
+    height: 32,
+    minWidth: 90,
   },
   statusText: {
     fontSize: 12,
     color: "#fff",
     fontWeight: "600",
   },
+  statusTextTablet: {
+    fontSize: 14,
+  },
   // Column widths
   dateColumn: {
     flex: 2,
     minWidth: 120,
   },
+  dateColumnTablet: {
+    minWidth: 140,
+  },
   timeColumn: {
     flex: 1,
     minWidth: 100,
+  },
+  timeColumnTablet: {
+    minWidth: 120,
   },
   statusColumn: {
     flex: 1,
     minWidth: 100,
   },
+  statusColumnTablet: {
+    minWidth: 120,
+  },
   hoursColumn: {
     flex: 1,
     minWidth: 80,
   },
+  hoursColumnTablet: {
+    minWidth: 100,
+  },
   actionColumn: {
     flex: 1,
     minWidth: 80,
+  },
+  actionColumnTablet: {
+    minWidth: 100,
   },
 });
 

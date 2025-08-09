@@ -1,19 +1,21 @@
 import { useAuth } from "@/contexts/AuthContext";
+import { useResponsive } from "@/hooks/useResponsive";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import Constants from "expo-constants";
 import { useRouter } from "expo-router";
 import React from "react";
 import {
-  Alert,
-  Image,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
+    Alert,
+    Image,
+    Pressable,
+    ScrollView,
+    StyleSheet,
+    Text,
+    View,
 } from "react-native";
 import { Divider } from "react-native-paper";
+import { SafeAreaView } from 'react-native-safe-area-context';
 import CustomQRCode from "../CustomQRCode";
 
 const UserInformation = (props: any) => {
@@ -26,6 +28,7 @@ const UserInformation = (props: any) => {
   const textColor = useThemeColor({}, "text");
   const backgroundColor = useThemeColor({}, "background");
   const iconColor = useThemeColor({}, "icon");
+  const { isTablet } = useResponsive();
 
   // Create QR code data from session
   const qrCodeData = session?.user
@@ -71,32 +74,32 @@ const UserInformation = (props: any) => {
 
   console.log(`${url}${UserInfo.user.pi_photo}`);
   return (
-    <View style={[styles.mainContainer, { backgroundColor }]}>
-      <ScrollView style={styles.scrollView}>
-        <View style={styles.container}>
-          <View style={[styles.header, { backgroundColor }]}>
+    <SafeAreaView style={[styles.mainContainer, { backgroundColor }]} edges={['top', 'left', 'right']}>
+      <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
+        <View style={[styles.container, { backgroundColor }]}>
+          <View style={[styles.header, { backgroundColor }, isTablet && styles.headerTablet]}>
             <Image
               source={{ uri: `${url}${UserInfo.user.pi_photo}` }}
-              style={styles.profileImage}
+              style={[styles.profileImage, isTablet && styles.profileImageTablet]}
               defaultSource={require("../../assets/public/tempProfile.png")}
             />
             <View style={styles.headerInfo}>
-              <Text style={[styles.name, { color: textColor }]}>
+              <Text style={[styles.name, { color: textColor }, isTablet && styles.nameTablet]}>
                 {session?.user.name || "Not logged in"}
               </Text>
-              <Text style={[styles.employeeId, { color: iconColor }]}>
+              <Text style={[styles.employeeId, { color: iconColor }, isTablet && styles.employeeIdTablet]}>
                 Employee ID: {session?.user.id || "N/A"}
               </Text>
-              <Text style={[styles.email, { color: iconColor }]}>
+              <Text style={[styles.email, { color: iconColor }, isTablet && styles.emailTablet]}>
                 {session?.user.email || "N/A"}
               </Text>
             </View>
           </View>
 
-          <View style={[styles.qrContainer, { backgroundColor }]}>
+          <View style={[styles.qrContainer, { backgroundColor }, isTablet && styles.qrContainerTablet]}>
             <CustomQRCode
               data={qrCodeData}
-              size={200}
+              size={isTablet ? 250 : 200}
               backgroundColor="white"
               foregroundColor="#112866"
             />
@@ -108,27 +111,27 @@ const UserInformation = (props: any) => {
             <View style={styles.sectionHeader}>
               <MaterialCommunityIcons
                 name="account-details"
-                size={24}
+                size={isTablet ? 28 : 24}
                 color={iconColor}
               />
-              <Text style={[styles.sectionTitle, { color: textColor }]}>
+              <Text style={[styles.sectionTitle, { color: textColor }, isTablet && styles.sectionTitleTablet]}>
                 Employee Details
               </Text>
             </View>
-            <View style={[styles.infoCard, { backgroundColor }]}>
+            <View style={[styles.infoCard, { backgroundColor }, isTablet && styles.infoCardTablet]}>
               <View style={styles.infoRow}>
                 <Ionicons
                   name="briefcase-outline"
-                  size={20}
+                  size={isTablet ? 24 : 20}
                   color={iconColor}
                 />
-                <Text style={[styles.infoText, { color: iconColor }]}>
+                <Text style={[styles.infoText, { color: iconColor }, isTablet && styles.infoTextTablet]}>
                   Position: {UserInfo.user.comp_assign_designation}
                 </Text>
               </View>
               <View style={styles.infoRow}>
-                <Ionicons name="people-outline" size={20} color={iconColor} />
-                <Text style={[styles.infoText, { color: iconColor }]}>
+                <Ionicons name="people-outline" size={isTablet ? 24 : 20} color={iconColor} />
+                <Text style={[styles.infoText, { color: iconColor }, isTablet && styles.infoTextTablet]}>
                   Department: {UserInfo.user.comp_assign_department}
                 </Text>
               </View>
@@ -139,14 +142,14 @@ const UserInformation = (props: any) => {
             <View style={styles.sectionHeader}>
               <MaterialCommunityIcons
                 name="bullhorn"
-                size={24}
+                size={isTablet ? 28 : 24}
                 color={iconColor}
               />
-              <Text style={[styles.sectionTitle, { color: textColor }]}>
+              <Text style={[styles.sectionTitle, { color: textColor }, isTablet && styles.sectionTitleTablet]}>
                 Announcements
               </Text>
             </View>
-            <View style={[styles.infoCard, { backgroundColor }]}>
+            <View style={[styles.infoCard, { backgroundColor }, isTablet && styles.infoCardTablet]}>
               <ScrollView
                 style={styles.scrollableContent}
                 nestedScrollEnabled={true}
@@ -155,12 +158,12 @@ const UserInformation = (props: any) => {
                 {announcements.map((announcement) => (
                   <View key={announcement.id} style={styles.announcementItem}>
                     <Text
-                      style={[styles.announcementTitle, { color: textColor }]}
+                      style={[styles.announcementTitle, { color: textColor }, isTablet && styles.announcementTitleTablet]}
                     >
                       {announcement.title}
                     </Text>
                     <Text
-                      style={[styles.announcementDate, { color: iconColor }]}
+                      style={[styles.announcementDate, { color: iconColor }, isTablet && styles.announcementDateTablet]}
                     >
                       {announcement.date}
                     </Text>
@@ -174,27 +177,27 @@ const UserInformation = (props: any) => {
 
       <View style={[styles.buttonContainer, { backgroundColor }]}>
         <Pressable
-          style={styles.button}
+          style={[styles.button, isTablet && styles.buttonTablet]}
           android_ripple={{
             color: "rgba(255,255,255,0.2)",
             borderless: false,
           }}
           onPress={() => router.push("/(tabs)")}
         >
-          <Text style={styles.buttonText}>Menu</Text>
+          <Text style={[styles.buttonText, isTablet && styles.buttonTextTablet]}>Menu</Text>
         </Pressable>
         <Pressable
-          style={[styles.button, styles.logoutButton]}
+          style={[styles.button, styles.logoutButton, isTablet && styles.buttonTablet]}
           android_ripple={{
             color: "rgba(255,255,255,0.2)",
             borderless: false,
           }}
           onPress={handleLogout}
         >
-          <Text style={styles.buttonText}>Logout</Text>
+          <Text style={[styles.buttonText, isTablet && styles.buttonTextTablet]}>Logout</Text>
         </Pressable>
       </View>
-    </View>
+    </SafeAreaView>
   );
 };
 
@@ -225,11 +228,24 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "#e0e0e0",
   },
+  headerTablet: {
+    padding: 24,
+    borderRadius: 16,
+    maxWidth: 600,
+    alignSelf: 'center',
+    width: '100%',
+  },
   profileImage: {
     width: 80,
     height: 80,
     borderRadius: 40,
     marginRight: 16,
+  },
+  profileImageTablet: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    marginRight: 20,
   },
   headerInfo: {
     flex: 1,
@@ -239,12 +255,23 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     marginBottom: 4,
   },
+  nameTablet: {
+    fontSize: 24,
+    marginBottom: 6,
+  },
   employeeId: {
     fontSize: 14,
     marginBottom: 2,
   },
+  employeeIdTablet: {
+    fontSize: 16,
+    marginBottom: 4,
+  },
   email: {
     fontSize: 14,
+  },
+  emailTablet: {
+    fontSize: 16,
   },
   divider: {
     height: 1,
@@ -263,6 +290,10 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     marginLeft: 8,
   },
+  sectionTitleTablet: {
+    fontSize: 20,
+    marginLeft: 10,
+  },
   infoCard: {
     padding: 16,
     borderRadius: 12,
@@ -275,6 +306,13 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "#e0e0e0",
   },
+  infoCardTablet: {
+    padding: 20,
+    borderRadius: 16,
+    maxWidth: 600,
+    alignSelf: 'center',
+    width: '100%',
+  },
   infoRow: {
     flexDirection: "row",
     alignItems: "center",
@@ -283,6 +321,10 @@ const styles = StyleSheet.create({
   infoText: {
     fontSize: 14,
     marginLeft: 8,
+  },
+  infoTextTablet: {
+    fontSize: 16,
+    marginLeft: 10,
   },
   qrContainer: {
     alignItems: "center",
@@ -296,6 +338,13 @@ const styles = StyleSheet.create({
     elevation: 3,
     borderWidth: 1,
     borderColor: "#e0e0e0",
+  },
+  qrContainerTablet: {
+    padding: 32,
+    borderRadius: 16,
+    maxWidth: 600,
+    alignSelf: 'center',
+    width: '100%',
   },
   buttonContainer: {
     position: "absolute",
@@ -313,6 +362,13 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     alignItems: "center",
   },
+  buttonTablet: {
+    paddingVertical: 20,
+    borderRadius: 16,
+    maxWidth: 600,
+    alignSelf: 'center',
+    width: '100%',
+  },
   logoutButton: {
     backgroundColor: "#dc3545",
   },
@@ -320,6 +376,9 @@ const styles = StyleSheet.create({
     color: "white",
     fontSize: 16,
     fontWeight: "600",
+  },
+  buttonTextTablet: {
+    fontSize: 18,
   },
   scrollableContent: {
     maxHeight: 200,
@@ -336,8 +395,15 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     marginBottom: 4,
   },
+  announcementTitleTablet: {
+    fontSize: 16,
+    marginBottom: 6,
+  },
   announcementDate: {
     fontSize: 12,
+  },
+  announcementDateTablet: {
+    fontSize: 14,
   },
   birthdayItem: {
     marginBottom: 12,

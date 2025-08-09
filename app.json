@@ -10,7 +10,8 @@
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
-      "icon": "./assets/Logo.png"
+      "icon": "./assets/Logo.png",
+      "bundleIdentifier": "com.attScnnr.ios"
     },
     "android": {
       "adaptiveIcon": {

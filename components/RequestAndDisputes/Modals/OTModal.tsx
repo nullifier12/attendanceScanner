@@ -1,9 +1,9 @@
 import { useAuth } from "@/contexts/AuthContext";
 import { useRequest } from "@/contexts/RequestContext";
+import { useResponsive } from "@/hooks/useResponsive";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import DateTimePicker from "@react-native-community/datetimepicker";
-import { Picker } from "@react-native-picker/picker";
 import Constants from "expo-constants";
 import React, { useState } from "react";
 import {
@@ -16,6 +16,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 interface OTModalProps {
   isVisible: boolean;
@@ -55,14 +56,26 @@ const OTModal = ({ isVisible, setModalVisible }: OTModalProps) => {
   const [showToTimePicker, setShowToTimePicker] = useState(false);
   const [reason, setReason] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showRequestTypePicker, setShowRequestTypePicker] = useState(false);
   const { session } = useAuth();
   const { refreshData } = useRequest();
+  const { isTablet } = useResponsive();
 
   // Get theme colors
   const textColor = useThemeColor({}, "text");
   const backgroundColor = useThemeColor({}, "background");
   const iconColor = useThemeColor({}, "icon");
   const url = Constants.expoConfig?.extra?.apiUrl;
+
+  const requestTypes = [
+    { label: "Overtime (OT)", value: "OT" },
+    { label: "Undertime (UT)", value: "UT" },
+  ];
+
+  const handleRequestTypeSelect = (type: "OT" | "UT") => {
+    setRequestType(type);
+    setShowRequestTypePicker(false);
+  };
 
   const submitOtUt = async () => {
     // Validation
@@ -158,8 +171,8 @@ const OTModal = ({ isVisible, setModalVisible }: OTModalProps) => {
       visible={isVisible}
       onRequestClose={setModalVisible}
     >
-      <View style={styles.overlay}>
-        <View style={[styles.modalView, { backgroundColor }]}>
+      <SafeAreaView style={styles.overlay} edges={['top', 'bottom']}>
+        <View style={[styles.modalView, { backgroundColor }, isTablet && styles.modalViewTablet]}>
           {/* Modal Title */}
           <Text
             style={[
@@ -170,45 +183,48 @@ const OTModal = ({ isVisible, setModalVisible }: OTModalProps) => {
                 fontSize: 18,
                 marginBottom: 8,
               },
+              isTablet && styles.modalTitleTablet,
             ]}
           >
             Overtime/Undertime Request
           </Text>
           {/* Employee Info Section */}
-          <View style={styles.employeeInfoRow}>
+          <View style={[styles.employeeInfoRow, isTablet && styles.employeeInfoRowTablet]}>
             <View style={{ flex: 1 }}>
-              <Text style={[styles.empLabel, { color: textColor }]}>
+              <Text style={[styles.empLabel, { color: textColor }, isTablet && styles.empLabelTablet]}>
                 Last, First MI
               </Text>
               <Text
                 style={[
                   styles.empValue,
                   { color: textColor, fontWeight: "bold" },
+                  isTablet && styles.empValueTablet,
                 ]}
               >
                 {session?.user?.name || "-"}
               </Text>
-              <Text style={[styles.empLabel, { color: textColor }]}>
+              <Text style={[styles.empLabel, { color: textColor }, isTablet && styles.empLabelTablet]}>
                 Subsidiary
               </Text>
-              <Text style={[styles.empValue, { color: textColor }]}>
+              <Text style={[styles.empValue, { color: textColor }, isTablet && styles.empValueTablet]}>
                 ABACUS
               </Text>
             </View>
             <View style={{ flex: 1 }}>
-              <Text style={[styles.empLabel, { color: textColor }]}>
+              <Text style={[styles.empLabel, { color: textColor }, isTablet && styles.empLabelTablet]}>
                 Designation
               </Text>
-              <Text style={[styles.empValue, { fontWeight: "bold" }]}>
+              <Text style={[styles.empValue, { fontWeight: "bold" }, isTablet && styles.empValueTablet]}>
                 Developer
               </Text>
-              <Text style={[styles.empLabel, { color: textColor }]}>
+              <Text style={[styles.empLabel, { color: textColor }, isTablet && styles.empLabelTablet]}>
                 Department
               </Text>
               <Text
                 style={[
                   styles.empValue,
                   { color: textColor, fontWeight: "bold" },
+                  isTablet && styles.empValueTablet,
                 ]}
               >
                 Information Technology
@@ -216,44 +232,34 @@ const OTModal = ({ isVisible, setModalVisible }: OTModalProps) => {
             </View>
           </View>
           {/* Overtime/Undertime Request Form */}
-          <View style={styles.actionContainer}>
-            <View style={styles.inputRow}>
-              <View style={[styles.inputWrapper, { flex: 1 }]}>
-                <Text style={[styles.label, { color: textColor }]}>
-                  Request Type
+          <View style={[styles.actionContainer, isTablet && styles.actionContainerTablet]}>
+            {/* Request Type - Touchable Selector */}
+            <View style={styles.inputWrapper}>
+              <Text style={[styles.label, { color: textColor }, isTablet && styles.labelTablet]}>
+                Request Type
+              </Text>
+              <TouchableOpacity
+                onPress={() => setShowRequestTypePicker(true)}
+                style={[styles.requestTypeBox, { backgroundColor }, isTablet && styles.requestTypeBoxTablet]}
+              >
+                <Text style={[styles.requestTypeText, { color: textColor }, isTablet && styles.requestTypeTextTablet]}>
+                  {requestTypes.find(type => type.value === requestType)?.label || "Select request type"}
                 </Text>
-                <View style={[styles.pickerBox, { backgroundColor }]}>
-                  <Picker
-                    selectedValue={requestType}
-                    style={[styles.picker, { color: textColor }]}
-                    onValueChange={(itemValue: "OT" | "UT") =>
-                      setRequestType(itemValue)
-                    }
-                  >
-                    <Picker.Item
-                      label="Overtime"
-                      value="OT"
-                      color={textColor}
-                    />
-                    <Picker.Item
-                      label="Undertime"
-                      value="UT"
-                      color={textColor}
-                    />
-                  </Picker>
-                </View>
-              </View>
+                <Text style={[styles.dropdownArrow, { color: textColor }]}>▼</Text>
+              </TouchableOpacity>
             </View>
-            <View style={styles.inputRow}>
+
+            {/* Date From and Time From - Side by Side */}
+            <View style={[styles.inputRow, isTablet && styles.inputRowTablet]}>
               <View style={[styles.inputWrapper, { flex: 1 }]}>
-                <Text style={[styles.label, { color: textColor }]}>
+                <Text style={[styles.label, { color: textColor }, isTablet && styles.labelTablet]}>
                   Date From
                 </Text>
                 <Pressable
                   onPress={() => setShowFromDatePicker(true)}
-                  style={[styles.datePickerBox, { backgroundColor }]}
+                  style={[styles.datePickerBox, { backgroundColor }, isTablet && styles.datePickerBoxTablet]}
                 >
-                  <Text style={[styles.datePickerText, { color: textColor }]}>
+                  <Text style={[styles.datePickerText, { color: textColor }, isTablet && styles.datePickerTextTablet]}>
                     {fromDate ? fromDate.toDateString() : "Select date"}
                   </Text>
                 </Pressable>
@@ -270,7 +276,7 @@ const OTModal = ({ isVisible, setModalVisible }: OTModalProps) => {
                 )}
               </View>
               <View style={[styles.inputWrapper, { flex: 1, marginLeft: 8 }]}>
-                <Text style={[styles.label, { color: textColor }]}>
+                <Text style={[styles.label, { color: textColor }, isTablet && styles.labelTablet]}>
                   Time From
                 </Text>
                 <Pressable
@@ -283,9 +289,10 @@ const OTModal = ({ isVisible, setModalVisible }: OTModalProps) => {
                       alignItems: "center",
                       justifyContent: "space-between",
                     },
+                    isTablet && styles.datePickerBoxTablet,
                   ]}
                 >
-                  <Text style={[styles.datePickerText, { color: textColor }]}>
+                  <Text style={[styles.datePickerText, { color: textColor }, isTablet && styles.datePickerTextTablet]}>
                     {fromTime
                       ? fromTime.toLocaleTimeString([], {
                           hour: "2-digit",
@@ -295,7 +302,7 @@ const OTModal = ({ isVisible, setModalVisible }: OTModalProps) => {
                   </Text>
                   <MaterialCommunityIcons
                     name="clock-outline"
-                    size={20}
+                    size={isTablet ? 24 : 20}
                     color={iconColor}
                   />
                 </Pressable>
@@ -312,16 +319,18 @@ const OTModal = ({ isVisible, setModalVisible }: OTModalProps) => {
                 )}
               </View>
             </View>
-            <View style={styles.inputRow}>
+
+            {/* Date To and Time To - Side by Side */}
+            <View style={[styles.inputRow, isTablet && styles.inputRowTablet]}>
               <View style={[styles.inputWrapper, { flex: 1 }]}>
-                <Text style={[styles.label, { color: textColor }]}>
+                <Text style={[styles.label, { color: textColor }, isTablet && styles.labelTablet]}>
                   Date To
                 </Text>
                 <Pressable
                   onPress={() => setShowToDatePicker(true)}
-                  style={[styles.datePickerBox, { backgroundColor }]}
+                  style={[styles.datePickerBox, { backgroundColor }, isTablet && styles.datePickerBoxTablet]}
                 >
-                  <Text style={[styles.datePickerText, { color: textColor }]}>
+                  <Text style={[styles.datePickerText, { color: textColor }, isTablet && styles.datePickerTextTablet]}>
                     {toDate ? toDate.toDateString() : "Select date"}
                   </Text>
                 </Pressable>
@@ -338,7 +347,7 @@ const OTModal = ({ isVisible, setModalVisible }: OTModalProps) => {
                 )}
               </View>
               <View style={[styles.inputWrapper, { flex: 1, marginLeft: 8 }]}>
-                <Text style={[styles.label, { color: textColor }]}>
+                <Text style={[styles.label, { color: textColor }, isTablet && styles.labelTablet]}>
                   Time To
                 </Text>
                 <Pressable
@@ -351,9 +360,10 @@ const OTModal = ({ isVisible, setModalVisible }: OTModalProps) => {
                       alignItems: "center",
                       justifyContent: "space-between",
                     },
+                    isTablet && styles.datePickerBoxTablet,
                   ]}
                 >
-                  <Text style={[styles.datePickerText, { color: textColor }]}>
+                  <Text style={[styles.datePickerText, { color: textColor }, isTablet && styles.datePickerTextTablet]}>
                     {toTime
                       ? toTime.toLocaleTimeString([], {
                           hour: "2-digit",
@@ -363,7 +373,7 @@ const OTModal = ({ isVisible, setModalVisible }: OTModalProps) => {
                   </Text>
                   <MaterialCommunityIcons
                     name="clock-outline"
-                    size={20}
+                    size={isTablet ? 24 : 20}
                     color={iconColor}
                   />
                 </Pressable>
@@ -380,44 +390,90 @@ const OTModal = ({ isVisible, setModalVisible }: OTModalProps) => {
                 )}
               </View>
             </View>
+
             {/* Reason Textarea */}
             <View style={styles.inputWrapper}>
-              <Text style={[styles.label, { color: textColor }]}>Reason</Text>
+              <Text style={[styles.label, { color: textColor }, isTablet && styles.labelTablet]}>Reason</Text>
               <TextInput
                 style={[
                   styles.reasonInput,
                   { color: textColor, backgroundColor },
+                  isTablet && styles.reasonInputTablet,
                 ]}
                 value={reason}
                 onChangeText={setReason}
-                placeholder="Enter reason for OT/UT"
+                placeholder="Enter reason for overtime/undertime"
                 placeholderTextColor="#aaa"
                 multiline
-                numberOfLines={3}
+                numberOfLines={isTablet ? 4 : 3}
               />
             </View>
+
             {/* Buttons */}
-            <View style={styles.buttonRow}>
+            <View style={[styles.buttonRow, isTablet && styles.buttonRowTablet]}>
               <TouchableOpacity
-                style={[styles.cancelBtn, { opacity: isSubmitting ? 0.5 : 1 }]}
+                style={[styles.cancelBtn, isTablet && styles.cancelBtnTablet]}
                 onPress={setModalVisible}
-                disabled={isSubmitting}
               >
-                <Text style={styles.cancelBtnText}>CANCEL</Text>
+                <Text style={[styles.cancelBtnText, isTablet && styles.cancelBtnTextTablet]}>CANCEL</Text>
               </TouchableOpacity>
               <TouchableOpacity
-                style={[styles.submitBtn, { opacity: isSubmitting ? 0.5 : 1 }]}
+                style={[styles.submitBtn, isTablet && styles.submitBtnTablet]}
                 onPress={submitOtUt}
                 disabled={isSubmitting}
               >
-                <Text style={styles.submitBtnText}>
+                <Text style={[styles.submitBtnText, isTablet && styles.submitBtnTextTablet]}>
                   {isSubmitting ? "SUBMITTING..." : "SUBMIT"}
                 </Text>
               </TouchableOpacity>
             </View>
           </View>
         </View>
-      </View>
+      </SafeAreaView>
+
+      {/* Request Type Picker Modal */}
+      <Modal
+        visible={showRequestTypePicker}
+        transparent={true}
+        animationType="slide"
+        onRequestClose={() => setShowRequestTypePicker(false)}
+      >
+        <View style={styles.pickerOverlay}>
+          <View style={[styles.pickerModal, { backgroundColor }, isTablet && styles.pickerModalTablet]}>
+            <View style={styles.pickerHeader}>
+              <Text style={[styles.pickerTitle, { color: textColor }, isTablet && styles.pickerTitleTablet]}>
+                Select Request Type
+              </Text>
+              <TouchableOpacity onPress={() => setShowRequestTypePicker(false)}>
+                <Text style={[styles.pickerClose, { color: textColor }]}>✕</Text>
+              </TouchableOpacity>
+            </View>
+            {requestTypes.map((type) => (
+              <TouchableOpacity
+                key={type.value}
+                style={[
+                  styles.pickerOption,
+                  { backgroundColor },
+                  requestType === type.value && styles.pickerOptionSelected,
+                  isTablet && styles.pickerOptionTablet,
+                ]}
+                onPress={() => handleRequestTypeSelect(type.value as "OT" | "UT")}
+              >
+                <Text
+                  style={[
+                    styles.pickerOptionText,
+                    { color: textColor },
+                    requestType === type.value && styles.pickerOptionTextSelected,
+                    isTablet && styles.pickerOptionTextTablet,
+                  ]}
+                >
+                  {type.label}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+        </View>
+      </Modal>
     </Modal>
   );
 };
@@ -432,95 +488,58 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   modalView: {
-    padding: 20,
+    padding: 16,
     borderRadius: 10,
     width: "90%",
     elevation: 10,
   },
+  modalViewTablet: {
+    padding: 24,
+    borderRadius: 16,
+    width: "80%",
+    maxWidth: 600,
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: "#112866",
+    marginBottom: 6,
+    textAlign: "left",
+  },
+  modalTitleTablet: {
+    fontSize: 20,
+    marginBottom: 8,
+  },
   employeeInfoRow: {
     flexDirection: "row",
     justifyContent: "space-between",
+    marginBottom: 12,
+    gap: 12,
+  },
+  employeeInfoRowTablet: {
     marginBottom: 16,
     gap: 16,
   },
   empLabel: {
-    fontSize: 12,
+    fontSize: 11,
     color: "#888",
   },
+  empLabelTablet: {
+    fontSize: 13,
+  },
   empValue: {
-    fontSize: 14,
+    fontSize: 13,
+    marginBottom: 2,
+  },
+  empValueTablet: {
+    fontSize: 15,
     marginBottom: 4,
   },
-  inputRow: {
-    flexDirection: "row",
-    gap: 8,
-    marginBottom: 8,
+  actionContainer: {
+    rowGap: 12,
   },
-  dateRequestedBox: {
-    borderWidth: 1,
-    borderColor: "#ccc",
-    borderRadius: 5,
-    padding: 10,
-    minHeight: 40,
-    justifyContent: "center",
-  },
-  dateRequestedText: {
-    fontSize: 14,
-  },
-  reasonInput: {
-    borderWidth: 1,
-    borderColor: "#ccc",
-    borderRadius: 5,
-    padding: 10,
-    minHeight: 60,
-    textAlignVertical: "top",
-  },
-  buttonRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    marginTop: 16,
-    gap: 16,
-  },
-  cancelBtn: {
-    flex: 1,
-    backgroundColor: "#b71c1c",
-    padding: 12,
-    borderRadius: 5,
-    alignItems: "center",
-  },
-  cancelBtnText: {
-    color: "#fff",
-    fontWeight: "bold",
-  },
-  submitBtn: {
-    flex: 1,
-    backgroundColor: "#112866",
-    padding: 12,
-    borderRadius: 5,
-    alignItems: "center",
-  },
-  submitBtnText: {
-    color: "#fff",
-    fontWeight: "bold",
-  },
-  pickerBox: {
-    borderWidth: 1,
-    borderColor: "#ccc",
-    borderRadius: 5,
-    paddingHorizontal: 10,
-  },
-  picker: {
-    height: 50,
-    width: "100%",
-  },
-  datePickerBox: {
-    borderWidth: 1,
-    borderColor: "#ccc",
-    borderRadius: 5,
-    padding: 10,
-  },
-  datePickerText: {
-    color: "#333",
+  actionContainerTablet: {
+    rowGap: 16,
   },
   inputWrapper: {
     marginBottom: 12,
@@ -528,15 +547,186 @@ const styles = StyleSheet.create({
   label: {
     marginBottom: 4,
     fontWeight: "600",
+    fontSize: 14,
   },
-  actionContainer: {
-    rowGap: 12,
+  labelTablet: {
+    marginBottom: 6,
+    fontSize: 16,
   },
-  modalTitle: {
+  requestTypeBox: {
+    borderWidth: 1,
+    borderColor: "#ccc",
+    borderRadius: 5,
+    padding: 8,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    minHeight: 36,
+  },
+  requestTypeBoxTablet: {
+    borderRadius: 8,
+    padding: 10,
+    minHeight: 42,
+  },
+  requestTypeText: {
+    fontSize: 14,
+    flex: 1,
+  },
+  requestTypeTextTablet: {
+    fontSize: 16,
+  },
+  dropdownArrow: {
+    fontSize: 12,
+    marginLeft: 8,
+  },
+  inputRow: {
+    flexDirection: "row",
+    gap: 6,
+    marginBottom: 12,
+  },
+  inputRowTablet: {
+    gap: 8,
+    marginBottom: 16,
+  },
+  datePickerBox: {
+    borderWidth: 1,
+    borderColor: "#ccc",
+    borderRadius: 5,
+    padding: 8,
+  },
+  datePickerBoxTablet: {
+    borderRadius: 8,
+    padding: 10,
+  },
+  datePickerText: {
+    color: "#333",
+    fontSize: 14,
+  },
+  datePickerTextTablet: {
+    fontSize: 16,
+  },
+  reasonInput: {
+    borderWidth: 1,
+    borderColor: "#ccc",
+    borderRadius: 5,
+    padding: 8,
+    minHeight: 48,
+    textAlignVertical: "top",
+    fontSize: 14,
+  },
+  reasonInputTablet: {
+    borderRadius: 8,
+    padding: 10,
+    minHeight: 60,
+    fontSize: 16,
+  },
+  buttonRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginTop: 12,
+    gap: 12,
+  },
+  buttonRowTablet: {
+    marginTop: 16,
+    gap: 16,
+  },
+  cancelBtn: {
+    flex: 1,
+    backgroundColor: "#b71c1c",
+    padding: 10,
+    borderRadius: 5,
+    alignItems: "center",
+  },
+  cancelBtnTablet: {
+    padding: 12,
+    borderRadius: 8,
+  },
+  cancelBtnText: {
+    color: "#fff",
+    fontWeight: "bold",
+    fontSize: 14,
+  },
+  cancelBtnTextTablet: {
+    fontSize: 16,
+  },
+  submitBtn: {
+    flex: 1,
+    backgroundColor: "#112866",
+    padding: 10,
+    borderRadius: 5,
+    alignItems: "center",
+  },
+  submitBtnTablet: {
+    padding: 12,
+    borderRadius: 8,
+  },
+  submitBtnText: {
+    color: "#fff",
+    fontWeight: "bold",
+    fontSize: 14,
+  },
+  submitBtnTextTablet: {
+    fontSize: 16,
+  },
+  // Picker Modal Styles
+  pickerOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  pickerModal: {
+    width: "80%",
+    maxWidth: 400,
+    borderRadius: 10,
+    padding: 16,
+  },
+  pickerModalTablet: {
+    maxWidth: 500,
+    borderRadius: 16,
+    padding: 24,
+  },
+  pickerHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 16,
+  },
+  pickerTitle: {
     fontSize: 18,
     fontWeight: "bold",
-    color: "#112866",
+  },
+  pickerTitleTablet: {
+    fontSize: 20,
+  },
+  pickerClose: {
+    fontSize: 20,
+    fontWeight: "bold",
+  },
+  pickerOption: {
+    padding: 12,
+    borderRadius: 8,
+    marginBottom: 6,
+    borderWidth: 1,
+    borderColor: "#e0e0e0",
+  },
+  pickerOptionTablet: {
+    padding: 16,
+    borderRadius: 12,
     marginBottom: 8,
-    textAlign: "left",
+  },
+  pickerOptionSelected: {
+    backgroundColor: "#112866",
+    borderColor: "#112866",
+  },
+  pickerOptionText: {
+    fontSize: 16,
+  },
+  pickerOptionTextTablet: {
+    fontSize: 18,
+  },
+  pickerOptionTextSelected: {
+    color: "#fff",
+    fontWeight: "bold",
   },
 });

@@ -1,14 +1,16 @@
-import ViewWrapper from "@/components/Layout/View";
 import { useAuth } from "@/contexts/AuthContext";
+import { useResponsive } from "@/hooks/useResponsive";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { ScrollView, StyleSheet, Text, View } from "react-native";
 import { Divider } from "react-native-paper";
+import { SafeAreaView } from 'react-native-safe-area-context';
 import TimeKeepingTable from "./TimekeepingTable";
 
 const TimeKeeping = () => {
   const { session } = useAuth();
+  const { isTablet } = useResponsive();
   
   // Get theme colors
   const textColor = useThemeColor({}, 'text');
@@ -47,63 +49,63 @@ const TimeKeeping = () => {
   };
 
   return (
-    <ViewWrapper>
+    <SafeAreaView style={[styles.container, { backgroundColor }]} edges={['top', 'left', 'right']}>
       <ScrollView 
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.scrollContent}
+        contentContainerStyle={[styles.scrollContent, isTablet && styles.scrollContentTablet]}
       >
         {/* Header Section */}
-        <View style={[styles.pageHeader, { backgroundColor }]}>
+        <View style={[styles.pageHeader, { backgroundColor }, isTablet && styles.pageHeaderTablet]}>
           <View style={styles.headerLeft}>
-            <MaterialCommunityIcons name="clock-time-four" size={24} color={iconColor} />
-            <Text style={[styles.headerTitle, { color: textColor }]}>Time Keeping</Text>
+            <MaterialCommunityIcons name="clock-time-four" size={isTablet ? 28 : 24} color={iconColor} />
+            <Text style={[styles.headerTitle, { color: textColor }, isTablet && styles.headerTitleTablet]}>Time Keeping</Text>
           </View>
           <View style={styles.headerRight}>
-            <MaterialCommunityIcons name="calendar-clock" size={24} color={iconColor} />
+            <MaterialCommunityIcons name="calendar-clock" size={isTablet ? 28 : 24} color={iconColor} />
           </View>
         </View>
 
         <Divider style={styles.divider} />
 
         {/* Quick Stats */}
-        <View style={styles.statsContainer}>
-          <View style={[styles.statCard, { backgroundColor }]}>
-            <MaterialCommunityIcons name="calendar-check" size={24} color={iconColor} />
+        <View style={[styles.statsContainer, isTablet && styles.statsContainerTablet]}>
+          <View style={[styles.statCard, { backgroundColor }, isTablet && styles.statCardTablet]}>
+            <MaterialCommunityIcons name="calendar-check" size={isTablet ? 28 : 24} color={iconColor} />
             <View style={styles.statContent}>
-              <Text style={[styles.statValue, { color: textColor }]}>{stats.present}</Text>
-              <Text style={[styles.statLabel, { color: iconColor }]}>Present</Text>
+              <Text style={[styles.statValue, { color: textColor }, isTablet && styles.statValueTablet]}>{stats.present}</Text>
+              <Text style={[styles.statLabel, { color: iconColor }, isTablet && styles.statLabelTablet]}>Present</Text>
             </View>
           </View>
-          <View style={[styles.statCard, { backgroundColor }]}>
-            <MaterialCommunityIcons name="clock-alert" size={24} color={iconColor} />
+          <View style={[styles.statCard, { backgroundColor }, isTablet && styles.statCardTablet]}>
+            <MaterialCommunityIcons name="clock-alert" size={isTablet ? 28 : 24} color={iconColor} />
             <View style={styles.statContent}>
-              <Text style={[styles.statValue, { color: textColor }]}>{stats.late}</Text>
-              <Text style={[styles.statLabel, { color: iconColor }]}>Late</Text>
+              <Text style={[styles.statValue, { color: textColor }, isTablet && styles.statValueTablet]}>{stats.late}</Text>
+              <Text style={[styles.statLabel, { color: iconColor }, isTablet && styles.statLabelTablet]}>Late</Text>
             </View>
           </View>
-          <View style={[styles.statCard, { backgroundColor }]}>
-            <MaterialCommunityIcons name="clock-time-four" size={24} color={iconColor} />
+          <View style={[styles.statCard, { backgroundColor }, isTablet && styles.statCardTablet]}>
+            <MaterialCommunityIcons name="clock-time-four" size={isTablet ? 28 : 24} color={iconColor} />
             <View style={styles.statContent}>
-              <Text style={[styles.statValue, { color: textColor }]}>{stats.totalHours}</Text>
-              <Text style={[styles.statLabel, { color: iconColor }]}>Total Hours</Text>
+              <Text style={[styles.statValue, { color: textColor }, isTablet && styles.statValueTablet]}>{stats.totalHours}</Text>
+              <Text style={[styles.statLabel, { color: iconColor }, isTablet && styles.statLabelTablet]}>Total Hours</Text>
             </View>
           </View>
         </View>
 
         {/* Leave Balance */}
-        <View style={styles.leaveContainer}>
-          <View style={[styles.leaveCard, { backgroundColor }]}>
-            <MaterialCommunityIcons name="beach" size={24} color={iconColor} />
+        <View style={[styles.leaveContainer, isTablet && styles.leaveContainerTablet]}>
+          <View style={[styles.leaveCard, { backgroundColor }, isTablet && styles.leaveCardTablet]}>
+            <MaterialCommunityIcons name="beach" size={isTablet ? 28 : 24} color={iconColor} />
             <View style={styles.leaveContent}>
-              <Text style={[styles.leaveValue, { color: textColor }]}>7</Text>
-              <Text style={[styles.leaveLabel, { color: iconColor }]}>Vacation Leave</Text>
+              <Text style={[styles.leaveValue, { color: textColor }, isTablet && styles.leaveValueTablet]}>7</Text>
+              <Text style={[styles.leaveLabel, { color: iconColor }, isTablet && styles.leaveLabelTablet]}>Vacation Leave</Text>
             </View>
           </View>
-          <View style={[styles.leaveCard, { backgroundColor }]}>
-            <MaterialIcons name="sick" size={24} color={iconColor} />
+          <View style={[styles.leaveCard, { backgroundColor }, isTablet && styles.leaveCardTablet]}>
+            <MaterialIcons name="sick" size={isTablet ? 28 : 24} color={iconColor} />
             <View style={styles.leaveContent}>
-              <Text style={[styles.leaveValue, { color: textColor }]}>7</Text>
-              <Text style={[styles.leaveLabel, { color: iconColor }]}>Sick Leave</Text>
+              <Text style={[styles.leaveValue, { color: textColor }, isTablet && styles.leaveValueTablet]}>7</Text>
+              <Text style={[styles.leaveLabel, { color: iconColor }, isTablet && styles.leaveLabelTablet]}>Sick Leave</Text>
             </View>
           </View>
         </View>
@@ -111,15 +113,25 @@ const TimeKeeping = () => {
         {/* Attendance Table */}
         <TimeKeepingTable attendance={attendance} />
       </ScrollView>
-    </ViewWrapper>
+    </SafeAreaView>
   );
 };
 
 export default TimeKeeping;
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
   scrollContent: {
     paddingBottom: 16,
+    paddingHorizontal: 20,
+  },
+  scrollContentTablet: {
+    paddingHorizontal: 32,
+    maxWidth: 800,
+    alignSelf: 'center',
+    width: '100%',
   },
   pageHeader: {
     flexDirection: "row",
@@ -136,6 +148,10 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#e0e0e0',
   },
+  pageHeaderTablet: {
+    padding: 24,
+    borderRadius: 16,
+  },
   headerLeft: {
     flexDirection: "row",
     alignItems: "center",
@@ -144,6 +160,9 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 18,
     fontWeight: "600",
+  },
+  headerTitleTablet: {
+    fontSize: 20,
   },
   headerRight: {
     padding: 4,
@@ -157,6 +176,9 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     gap: 12,
     marginBottom: 16,
+  },
+  statsContainerTablet: {
+    gap: 16,
   },
   statCard: {
     flex: 1,
@@ -173,6 +195,11 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#e0e0e0',
   },
+  statCardTablet: {
+    padding: 20,
+    borderRadius: 16,
+    gap: 16,
+  },
   statContent: {
     flex: 1,
   },
@@ -180,13 +207,22 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: "bold",
   },
+  statValueTablet: {
+    fontSize: 24,
+  },
   statLabel: {
     fontSize: 12,
+  },
+  statLabelTablet: {
+    fontSize: 14,
   },
   leaveContainer: {
     flexDirection: "row",
     gap: 12,
     marginBottom: 16,
+  },
+  leaveContainerTablet: {
+    gap: 16,
   },
   leaveCard: {
     flex: 1,
@@ -203,6 +239,11 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#e0e0e0',
   },
+  leaveCardTablet: {
+    padding: 20,
+    borderRadius: 16,
+    gap: 16,
+  },
   leaveContent: {
     flex: 1,
   },
@@ -210,7 +251,13 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: "bold",
   },
+  leaveValueTablet: {
+    fontSize: 24,
+  },
   leaveLabel: {
     fontSize: 12,
+  },
+  leaveLabelTablet: {
+    fontSize: 14,
   },
 });

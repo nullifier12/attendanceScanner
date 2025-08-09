@@ -1,5 +1,7 @@
 import { DebugPanel } from "@/components/DebugPanel/DebugPanel";
 import { useAuth } from "@/contexts/AuthContext";
+import { useCalendar } from "@/contexts/CalendarContext";
+import { useResponsive } from "@/hooks/useResponsive";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import { debugHelper } from "@/utils/debugHelper";
 import { logger } from "@/utils/logger";
@@ -10,18 +12,20 @@ import * as LocalAuthentication from "expo-local-authentication";
 import { useRouter, useSegments } from "expo-router";
 import React, { useEffect, useRef, useState } from "react";
 import {
-  Alert,
-  Image,
-  KeyboardAvoidingView,
-  Platform,
-  Pressable,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
+    Alert,
+    Image,
+    KeyboardAvoidingView,
+    Platform,
+    Pressable,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { useNotification } from "../contexts/NotificationContext";
+
 const Login = () => {
   const router = useRouter();
   const segments = useSegments();
@@ -47,6 +51,8 @@ const Login = () => {
   const backgroundColor = useThemeColor({}, "background");
   const iconColor = useThemeColor({}, "icon");
   const { expoPushToken } = useNotification();
+  const { isIOS, isTablet } = useResponsive();
+  const { setEventsFromApi } = useCalendar();
 
   // Combined initialization and biometric check
   useEffect(() => {
@@ -291,7 +297,15 @@ const Login = () => {
       });
 
       await setSession(session);
-
+      const calendarEvent = await fetch(`${url}/api/mobile/getemployeeeventgeneral`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${tokenData.token}`,
+        },
+      });
+      const calendarevent = await calendarEvent.json();
+      setEventsFromApi(calendarevent);
       logger.info("Session set successfully, navigating to userinfo");
 
       // Log navigation
@@ -339,107 +353,138 @@ const Login = () => {
   };
 
   return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
+    <SafeAreaView
       style={[styles.container, { backgroundColor }]}
+      edges={["top", "left", "right"]}
     >
-      <View style={[styles.content, { backgroundColor }]}>
-        {/* Debug Panel Toggle - Only show in development */}
-        {__DEV__ && (
-          <TouchableOpacity
-            style={styles.debugButton}
-            onPress={() => setShowDebugPanel(true)}
-          >
-            <Text style={styles.debugButtonText}>🐛 Debug</Text>
-          </TouchableOpacity>
-        )}
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        style={styles.keyboardView}
+      >
+        <View style={[styles.content, { backgroundColor }]}>
+          {/* Debug Panel Toggle - Only show in development */}
+          {__DEV__ && (
+            <TouchableOpacity
+              style={styles.debugButton}
+              onPress={() => setShowDebugPanel(true)}
+            >
+              <Text style={styles.debugButtonText}>🐛 Debug</Text>
+            </TouchableOpacity>
+          )}
 
-        <View style={styles.logoContainer}>
-          <Image
-            source={require("./../assets/images/KCPAPI.png")}
-            style={styles.logo}
-            resizeMode="contain"
-          />
-        </View>
-
-        <View style={[styles.formContainer, { backgroundColor }]}>
-          <View style={[styles.inputContainer, { backgroundColor }]}>
-            <Ionicons name="id-card-outline" size={20} color={iconColor} />
-            <TextInput
-              style={[styles.input, { color: textColor }]}
-              placeholder="Employee Number"
-              placeholderTextColor={iconColor}
-              value={employeeNumber}
-              onChangeText={(text) => {
-                setEmployeeNumber(text);
-                setErrors((prev) => ({
-                  ...prev,
-                  employeeNumber: "",
-                  credentials: "",
-                }));
-              }}
-              // keyboardType="number-pad"
-              maxLength={8}
+          <View style={styles.logoContainer}>
+            <Image
+              source={require("./../assets/images/KCPAPI.png")}
+              style={[styles.logo, isTablet && styles.logoTablet]}
+              resizeMode="contain"
             />
           </View>
-          {errors.employeeNumber ? (
-            <Text style={styles.errorText}>{errors.employeeNumber}</Text>
-          ) : null}
 
-          <View style={[styles.inputContainer, { backgroundColor }]}>
-            <Ionicons name="lock-closed-outline" size={20} color={iconColor} />
-            <TextInput
-              style={[styles.input, { color: textColor }]}
-              placeholder="Password"
-              placeholderTextColor={iconColor}
-              value={password}
-              onChangeText={(text) => {
-                setPassword(text);
-                setErrors((prev) => ({
-                  ...prev,
-                  password: "",
-                  credentials: "",
-                }));
-              }}
-              secureTextEntry={!showPassword}
-            />
-            <Pressable
-              onPress={() => setShowPassword(!showPassword)}
-              style={styles.eyeIcon}
-            >
+          <View
+            style={[
+              styles.formContainer,
+              { backgroundColor },
+              isTablet && styles.formContainerTablet,
+            ]}
+          >
+            <View style={[styles.inputContainer, { backgroundColor }]}>
               <Ionicons
-                name={showPassword ? "eye-off-outline" : "eye-outline"}
-                size={20}
+                name="id-card-outline"
+                size={isTablet ? 24 : 20}
                 color={iconColor}
               />
+              <TextInput
+                style={[
+                  styles.input,
+                  { color: textColor },
+                  isTablet && styles.inputTablet,
+                ]}
+                placeholder="Employee Number"
+                placeholderTextColor={iconColor}
+                value={employeeNumber}
+                onChangeText={(text) => {
+                  setEmployeeNumber(text);
+                  setErrors((prev) => ({
+                    ...prev,
+                    employeeNumber: "",
+                    credentials: "",
+                  }));
+                }}
+                maxLength={8}
+              />
+            </View>
+            {errors.employeeNumber ? (
+              <Text style={styles.errorText}>{errors.employeeNumber}</Text>
+            ) : null}
+
+            <View style={[styles.inputContainer, { backgroundColor }]}>
+              <Ionicons
+                name="lock-closed-outline"
+                size={isTablet ? 24 : 20}
+                color={iconColor}
+              />
+              <TextInput
+                style={[
+                  styles.input,
+                  { color: textColor },
+                  isTablet && styles.inputTablet,
+                ]}
+                placeholder="Password"
+                placeholderTextColor={iconColor}
+                value={password}
+                onChangeText={(text) => {
+                  setPassword(text);
+                  setErrors((prev) => ({
+                    ...prev,
+                    password: "",
+                    credentials: "",
+                  }));
+                }}
+                secureTextEntry={!showPassword}
+              />
+              <Pressable
+                onPress={() => setShowPassword(!showPassword)}
+                style={styles.eyeIcon}
+              >
+                <Ionicons
+                  name={showPassword ? "eye-off-outline" : "eye-outline"}
+                  size={isTablet ? 24 : 20}
+                  color={iconColor}
+                />
+              </Pressable>
+            </View>
+            {errors.password ? (
+              <Text style={styles.errorText}>{errors.password}</Text>
+            ) : null}
+            {errors.credentials ? (
+              <Text style={styles.errorText}>{errors.credentials}</Text>
+            ) : null}
+
+            <Pressable
+              style={[
+                styles.loginButton,
+                isLoading && styles.loginButtonDisabled,
+                isTablet && styles.loginButtonTablet,
+              ]}
+              onPress={handleLogin}
+              disabled={isLoading}
+              android_ripple={{
+                color: "rgba(255,255,255,0.2)",
+                borderless: false,
+              }}
+            >
+              <Text
+                style={[
+                  styles.loginButtonText,
+                  isTablet && styles.loginButtonTextTablet,
+                ]}
+              >
+                {isLoading ? "Logging in..." : "Login"}
+              </Text>
             </Pressable>
-          </View>
-          {errors.password ? (
-            <Text style={styles.errorText}>{errors.password}</Text>
-          ) : null}
-          {errors.credentials ? (
-            <Text style={styles.errorText}>{errors.credentials}</Text>
-          ) : null}
 
-          <Pressable
-            style={[
-              styles.loginButton,
-              isLoading && styles.loginButtonDisabled,
-            ]}
-            onPress={handleLogin}
-            disabled={isLoading}
-            android_ripple={{
-              color: "rgba(255,255,255,0.2)",
-              borderless: false,
-            }}
-          >
-            <Text style={styles.loginButtonText}>
-              {isLoading ? "Logging in..." : "Login"}
-            </Text>
-          </Pressable>
-
-          {/* Biometric Authentication */}
-          {/* {isBiometricSupported && isBiometricEnrolled ? (
+            {/* Biometric Authentication */}
+            {/* {isBiometricSupported && isBiometricEnrolled ? (
             <>
               <View style={styles.dividerContainer}>
                 <View style={styles.divider} />
@@ -474,27 +519,31 @@ const Login = () => {
               </Text>
             </View>
           )} */}
+          </View>
+
+          {/* Version Number */}
+          <View style={styles.versionContainer}>
+            <Text style={[styles.versionText, { color: iconColor }]}>
+              Version: {Constants.expoConfig?.version || "1.0.0"}
+            </Text>
+          </View>
         </View>
 
-        {/* Version Number */}
-        <View style={styles.versionContainer}>
-          <Text style={[styles.versionText, { color: iconColor }]}>
-            Version: {Constants.expoConfig?.version || "1.0.0"}
-          </Text>
-        </View>
-      </View>
-
-      {/* Debug Panel */}
-      <DebugPanel
-        visible={showDebugPanel}
-        onClose={() => setShowDebugPanel(false)}
-      />
-    </KeyboardAvoidingView>
+        {/* Debug Panel */}
+        <DebugPanel
+          visible={showDebugPanel}
+          onClose={() => setShowDebugPanel(false)}
+        />
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
+    flex: 1,
+  },
+  keyboardView: {
     flex: 1,
   },
   content: {
@@ -511,6 +560,10 @@ const styles = StyleSheet.create({
     width: 250,
     height: 200,
   },
+  logoTablet: {
+    width: 350,
+    height: 280,
+  },
   appName: {
     fontSize: 24,
     fontWeight: "bold",
@@ -521,6 +574,12 @@ const styles = StyleSheet.create({
     padding: 20,
     borderWidth: 1,
     borderColor: "#eee",
+  },
+  formContainerTablet: {
+    padding: 32,
+    maxWidth: 500,
+    alignSelf: "center",
+    width: "100%",
   },
   inputContainer: {
     flexDirection: "row",
@@ -536,6 +595,10 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     marginLeft: 8,
     fontSize: 16,
+  },
+  inputTablet: {
+    paddingVertical: 16,
+    fontSize: 18,
   },
   eyeIcon: {
     padding: 8,
@@ -554,6 +617,10 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginTop: 8,
   },
+  loginButtonTablet: {
+    paddingVertical: 20,
+    borderRadius: 16,
+  },
   loginButtonDisabled: {
     backgroundColor: "#8a9ac4",
   },
@@ -561,6 +628,9 @@ const styles = StyleSheet.create({
     color: "white",
     fontSize: 16,
     fontWeight: "600",
+  },
+  loginButtonTextTablet: {
+    fontSize: 18,
   },
   dividerContainer: {
     flexDirection: "row",

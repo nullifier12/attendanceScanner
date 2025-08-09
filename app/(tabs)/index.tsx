@@ -1,8 +1,10 @@
+import { useResponsive } from "@/hooks/useResponsive";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import React from "react";
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const navigationTiles = [
   {
@@ -62,45 +64,48 @@ export default function HomeScreen() {
   const textColor = useThemeColor({}, "text");
   const backgroundColor = useThemeColor({}, "background");
   const iconColor = useThemeColor({}, "icon");
+  const { isTablet } = useResponsive();
 
   return (
-    <ScrollView style={[styles.container, { backgroundColor }]}>
-      <View style={[styles.header, { backgroundColor }]}>
-        <Text style={[styles.title, { color: textColor }]}>Menu</Text>
-        {/* <BellNotification /> */}
-      </View>
-      {/* Push Token Display */}
-      {/* <PushTokenDisplay /> */}
-      <View style={[styles.navigationContainer, { backgroundColor }]}>
-        {navigationTiles.map((tile) => (
-          <Pressable
-            key={tile.id}
-            style={[styles.navigationTile, { backgroundColor }]}
-            onPress={() => router.push(tile.route)}
-            android_ripple={{
-              color: "rgba(255,255,255,0.2)",
-              borderless: false,
-            }}
-          >
-            <MaterialCommunityIcons
-              name={tile.icon}
-              size={32}
-              color={iconColor}
-            />
-            <Text style={[styles.tileText, { color: textColor }]}>
-              {tile.title}
-            </Text>
-          </Pressable>
-        ))}
-      </View>
-    </ScrollView>
+    <SafeAreaView style={[styles.container, { backgroundColor }]} edges={['top', 'left', 'right']}>
+      <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
+        <View style={[styles.header, { backgroundColor }]}>
+          <Text style={[styles.title, { color: textColor }]}>Menu</Text>
+        </View>
+        
+        <View style={[styles.navigationContainer, { backgroundColor }]}>
+          {navigationTiles.map((tile) => (
+            <Pressable
+              key={tile.id}
+              style={[styles.navigationTile, { backgroundColor }, isTablet && styles.navigationTileTablet]}
+              onPress={() => router.push(tile.route)}
+              android_ripple={{
+                color: "rgba(255,255,255,0.2)",
+                borderless: false,
+              }}
+            >
+              <MaterialCommunityIcons
+                name={tile.icon}
+                size={isTablet ? 40 : 32}
+                color={iconColor}
+              />
+              <Text style={[styles.tileText, { color: textColor }, isTablet && styles.tileTextTablet]}>
+                {tile.title}
+              </Text>
+            </Pressable>
+          ))}
+        </View>
+      </ScrollView>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 20,
+  },
+  scrollView: {
+    flex: 1,
   },
   header: {
     marginTop: 20,
@@ -108,6 +113,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
+    paddingHorizontal: 20,
   },
   title: {
     fontSize: 24,
@@ -119,6 +125,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     borderRadius: 12,
     padding: 16,
+    marginHorizontal: 20,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
@@ -136,10 +143,19 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "#e0e0e0",
   },
+  navigationTileTablet: {
+    width: "30%",
+    padding: 24,
+    borderRadius: 16,
+  },
   tileText: {
     marginTop: 8,
     fontSize: 14,
     fontWeight: "600",
     textAlign: "center",
+  },
+  tileTextTablet: {
+    fontSize: 16,
+    marginTop: 12,
   },
 });

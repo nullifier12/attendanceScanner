@@ -1,20 +1,22 @@
 import { useAuth } from "@/contexts/AuthContext";
+import { useResponsive } from "@/hooks/useResponsive";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import { LeaveRequestForm } from "@/types/leave";
 import DateTimePicker from "@react-native-community/datetimepicker";
-import { Picker } from "@react-native-picker/picker";
 import Constants from "expo-constants";
 import React, { useState } from "react";
 import {
-  Alert,
-  Modal,
-  Pressable,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
+    Alert,
+    Modal,
+    Pressable,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View,
 } from "react-native";
+import { SafeAreaView } from 'react-native-safe-area-context';
+
 interface Props {
   isVisible: boolean;
   setModalVisible: () => void;
@@ -28,14 +30,22 @@ const LeaveModal = ({ isVisible, setModalVisible }: Props) => {
   const [toDate, setToDate] = useState<Date | null>(null);
   const [showToPicker, setShowToPicker] = useState(false);
   const [reason, setReason] = useState("");
+  const [showLeaveTypePicker, setShowLeaveTypePicker] = useState(false);
   const { session } = useAuth();
   const url = Constants.expoConfig?.extra?.apiUrl;
+  const { isTablet } = useResponsive();
+  
   // Get theme colors
   console.log("session", session?.user);
   const textColor = useThemeColor({}, "text");
   const backgroundColor = useThemeColor({}, "background");
   const iconColor = useThemeColor({}, "icon");
   const now = new Date();
+
+  const leaveTypes = [
+    { label: "Sick Leave (SL)", value: "SL" },
+    { label: "Vacation Leave (VL)", value: "VL" },
+  ];
 
   const handleSubmit = async () => {
     // Validate form
@@ -113,6 +123,11 @@ const LeaveModal = ({ isVisible, setModalVisible }: Props) => {
     }
   };
 
+  const handleLeaveTypeSelect = (type: string) => {
+    setLeaveType(type);
+    setShowLeaveTypePicker(false);
+  };
+
   return (
     <Modal
       animationType="slide"
@@ -120,8 +135,8 @@ const LeaveModal = ({ isVisible, setModalVisible }: Props) => {
       visible={isVisible}
       onRequestClose={setModalVisible}
     >
-      <View style={styles.overlay}>
-        <View style={[styles.modalView, { backgroundColor }]}>
+      <SafeAreaView style={styles.overlay} edges={['top', 'bottom']}>
+        <View style={[styles.modalView, { backgroundColor }, isTablet && styles.modalViewTablet]}>
           {/* Modal Title */}
           <Text
             style={[
@@ -132,93 +147,99 @@ const LeaveModal = ({ isVisible, setModalVisible }: Props) => {
                 fontSize: 18,
                 marginBottom: 8,
               },
+              isTablet && styles.modalTitleTablet,
             ]}
           >
             Leave Request
           </Text>
+          
           {/* Employee Info Section */}
-          <View style={styles.employeeInfoRow}>
+          <View style={[styles.employeeInfoRow, isTablet && styles.employeeInfoRowTablet]}>
             <View style={{ flex: 1 }}>
-              <Text style={[styles.empLabel, { color: textColor }]}>
+              <Text style={[styles.empLabel, { color: textColor }, isTablet && styles.empLabelTablet]}>
                 Last, First MI
               </Text>
               <Text
                 style={[
                   styles.empValue,
                   { color: textColor, fontWeight: "bold" },
+                  isTablet && styles.empValueTablet,
                 ]}
               >
                 {session?.user?.name || "-"}
               </Text>
-              <Text style={[styles.empLabel, { color: textColor }]}>
+              <Text style={[styles.empLabel, { color: textColor }, isTablet && styles.empLabelTablet]}>
                 Subsidiary
               </Text>
-              <Text style={[styles.empValue, { color: textColor }]}>
+              <Text style={[styles.empValue, { color: textColor }, isTablet && styles.empValueTablet]}>
                 ABACUS
               </Text>
             </View>
             <View style={{ flex: 1 }}>
-              <Text style={[styles.empLabel, { color: textColor }]}>
+              <Text style={[styles.empLabel, { color: textColor }, isTablet && styles.empLabelTablet]}>
                 Designation
               </Text>
-              <Text style={[styles.empValue, { fontWeight: "bold" }]}>
+              <Text style={[styles.empValue, { fontWeight: "bold" }, isTablet && styles.empValueTablet]}>
                 Developer
               </Text>
-              <Text style={[styles.empLabel, { color: textColor }]}>
+              <Text style={[styles.empLabel, { color: textColor }, isTablet && styles.empLabelTablet]}>
                 Department
               </Text>
               <Text
                 style={[
                   styles.empValue,
                   { color: textColor, fontWeight: "bold" },
+                  isTablet && styles.empValueTablet,
                 ]}
               >
                 Information Technology
               </Text>
             </View>
           </View>
+          
           {/* Leave Request Form */}
-          <View style={styles.actionContainer}>
-            <View style={styles.inputRow}>
-              <View style={[styles.inputWrapper, { flex: 1 }]}>
-                <Text style={[styles.label, { color: textColor }]}>
-                  Leave Type
+          <View style={[styles.actionContainer, isTablet && styles.actionContainerTablet]}>
+            {/* Leave Type - Touchable Selector */}
+            <View style={styles.inputWrapper}>
+              <Text style={[styles.label, { color: textColor }, isTablet && styles.labelTablet]}>
+                Leave Type
+              </Text>
+              <TouchableOpacity
+                onPress={() => setShowLeaveTypePicker(true)}
+                style={[styles.leaveTypeBox, { backgroundColor }, isTablet && styles.leaveTypeBoxTablet]}
+              >
+                <Text style={[styles.leaveTypeText, { color: textColor }, isTablet && styles.leaveTypeTextTablet]}>
+                  {leaveTypes.find(type => type.value === leaveType)?.label || "Select leave type"}
                 </Text>
-                <View style={[styles.pickerBox, { backgroundColor }]}>
-                  <Picker
-                    selectedValue={leaveType}
-                    style={[styles.picker, { color: textColor }]}
-                    onValueChange={(itemValue) => setLeaveType(itemValue)}
-                  >
-                    <Picker.Item label="SL" value="SL" color={textColor} />
-                    <Picker.Item label="VL" value="VL" color={textColor} />
-                  </Picker>
-                </View>
-              </View>
-              <View style={[styles.inputWrapper, { flex: 1, marginLeft: 8 }]}>
-                <Text style={[styles.label, { color: textColor }]}>
-                  Date Requested
+                <Text style={[styles.dropdownArrow, { color: textColor }]}>▼</Text>
+              </TouchableOpacity>
+            </View>
+
+            {/* Date Requested - Single Column */}
+            <View style={styles.inputWrapper}>
+              <Text style={[styles.label, { color: textColor }, isTablet && styles.labelTablet]}>
+                Date Requested
+              </Text>
+              <View style={[styles.dateRequestedBox, { backgroundColor }, isTablet && styles.dateRequestedBoxTablet]}>
+                <Text
+                  style={[styles.dateRequestedText, { color: textColor }, isTablet && styles.dateRequestedTextTablet]}
+                >
+                  {now.toLocaleString()}
                 </Text>
-                <View style={[styles.dateRequestedBox, { backgroundColor }]}>
-                  <Text
-                    style={[styles.dateRequestedText, { color: textColor }]}
-                  >
-                    {now.toLocaleString()}
-                  </Text>
-                </View>
               </View>
             </View>
-            {/* From Date Picker */}
-            <View style={styles.inputRow}>
+            
+            {/* Date From and To - Side by Side */}
+            <View style={[styles.inputRow, isTablet && styles.inputRowTablet]}>
               <View style={[styles.inputWrapper, { flex: 1 }]}>
-                <Text style={[styles.label, { color: textColor }]}>
+                <Text style={[styles.label, { color: textColor }, isTablet && styles.labelTablet]}>
                   Date From
                 </Text>
                 <Pressable
                   onPress={() => setShowFromPicker(true)}
-                  style={[styles.datePickerBox, { backgroundColor }]}
+                  style={[styles.datePickerBox, { backgroundColor }, isTablet && styles.datePickerBoxTablet]}
                 >
-                  <Text style={[styles.datePickerText, { color: textColor }]}>
+                  <Text style={[styles.datePickerText, { color: textColor }, isTablet && styles.datePickerTextTablet]}>
                     {fromDate ? fromDate.toDateString() : "Select date"}
                   </Text>
                 </Pressable>
@@ -235,14 +256,14 @@ const LeaveModal = ({ isVisible, setModalVisible }: Props) => {
                 )}
               </View>
               <View style={[styles.inputWrapper, { flex: 1, marginLeft: 8 }]}>
-                <Text style={[styles.label, { color: textColor }]}>
+                <Text style={[styles.label, { color: textColor }, isTablet && styles.labelTablet]}>
                   Date To
                 </Text>
                 <Pressable
                   onPress={() => setShowToPicker(true)}
-                  style={[styles.datePickerBox, { backgroundColor }]}
+                  style={[styles.datePickerBox, { backgroundColor }, isTablet && styles.datePickerBoxTablet]}
                 >
-                  <Text style={[styles.datePickerText, { color: textColor }]}>
+                  <Text style={[styles.datePickerText, { color: textColor }, isTablet && styles.datePickerTextTablet]}>
                     {toDate ? toDate.toDateString() : "Select date"}
                   </Text>
                 </Pressable>
@@ -259,37 +280,84 @@ const LeaveModal = ({ isVisible, setModalVisible }: Props) => {
                 )}
               </View>
             </View>
+            
             {/* Reason Textarea */}
             <View style={styles.inputWrapper}>
-              <Text style={[styles.label, { color: textColor }]}>Reason</Text>
+              <Text style={[styles.label, { color: textColor }, isTablet && styles.labelTablet]}>Reason</Text>
               <TextInput
                 style={[
                   styles.reasonInput,
                   { color: textColor, backgroundColor },
+                  isTablet && styles.reasonInputTablet,
                 ]}
                 value={reason}
                 onChangeText={setReason}
                 placeholder="Enter reason for leave"
                 placeholderTextColor="#aaa"
                 multiline
-                numberOfLines={3}
+                numberOfLines={isTablet ? 4 : 3}
               />
             </View>
+            
             {/* Buttons */}
-            <View style={styles.buttonRow}>
+            <View style={[styles.buttonRow, isTablet && styles.buttonRowTablet]}>
               <TouchableOpacity
-                style={styles.cancelBtn}
+                style={[styles.cancelBtn, isTablet && styles.cancelBtnTablet]}
                 onPress={setModalVisible}
               >
-                <Text style={styles.cancelBtnText}>CANCEL</Text>
+                <Text style={[styles.cancelBtnText, isTablet && styles.cancelBtnTextTablet]}>CANCEL</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={styles.submitBtn} onPress={handleSubmit}>
-                <Text style={styles.submitBtnText}>SUBMIT</Text>
+              <TouchableOpacity style={[styles.submitBtn, isTablet && styles.submitBtnTablet]} onPress={handleSubmit}>
+                <Text style={[styles.submitBtnText, isTablet && styles.submitBtnTextTablet]}>SUBMIT</Text>
               </TouchableOpacity>
             </View>
           </View>
         </View>
-      </View>
+      </SafeAreaView>
+
+      {/* Leave Type Picker Modal */}
+      <Modal
+        visible={showLeaveTypePicker}
+        transparent={true}
+        animationType="slide"
+        onRequestClose={() => setShowLeaveTypePicker(false)}
+      >
+        <View style={styles.pickerOverlay}>
+          <View style={[styles.pickerModal, { backgroundColor }, isTablet && styles.pickerModalTablet]}>
+            <View style={styles.pickerHeader}>
+              <Text style={[styles.pickerTitle, { color: textColor }, isTablet && styles.pickerTitleTablet]}>
+                Select Leave Type
+              </Text>
+              <TouchableOpacity onPress={() => setShowLeaveTypePicker(false)}>
+                <Text style={[styles.pickerClose, { color: textColor }]}>✕</Text>
+              </TouchableOpacity>
+            </View>
+            {leaveTypes.map((type) => (
+              <TouchableOpacity
+                key={type.value}
+                style={[
+                  styles.pickerOption,
+                  { backgroundColor },
+                  leaveType === type.value && styles.pickerOptionSelected,
+                  isTablet && styles.pickerOptionTablet,
+                ]}
+                onPress={() => handleLeaveTypeSelect(type.value)}
+              >
+                <Text
+                  style={[
+                    styles.pickerOptionText,
+                    { color: textColor },
+                    leaveType === type.value && styles.pickerOptionTextSelected,
+                    isTablet && styles.pickerOptionTextTablet,
+                  ]}
+                >
+                  {type.label}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+        </View>
+      </Modal>
     </Modal>
   );
 };
@@ -304,10 +372,16 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   modalView: {
-    padding: 20,
+    padding: 16,
     borderRadius: 10,
     width: "90%",
     elevation: 10,
+  },
+  modalViewTablet: {
+    padding: 24,
+    borderRadius: 16,
+    width: "80%",
+    maxWidth: 600,
   },
   header: {
     flexDirection: "row",
@@ -328,103 +402,250 @@ const styles = StyleSheet.create({
   actionContainer: {
     rowGap: 12,
   },
+  actionContainerTablet: {
+    rowGap: 16,
+  },
   inputWrapper: {
     marginBottom: 12,
   },
   label: {
     marginBottom: 4,
     fontWeight: "600",
+    fontSize: 14,
   },
-  pickerBox: {
+  labelTablet: {
+    marginBottom: 6,
+    fontSize: 16,
+  },
+  leaveTypeBox: {
     borderWidth: 1,
     borderColor: "#ccc",
     borderRadius: 5,
-    paddingHorizontal: 10,
+    padding: 8,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    minHeight: 36,
   },
-  picker: {
-    height: 50, // Reduced height to keep text visible
-    width: "100%",
+  leaveTypeBoxTablet: {
+    borderRadius: 8,
+    padding: 10,
+    minHeight: 42,
+  },
+  leaveTypeText: {
+    fontSize: 14,
+    flex: 1,
+  },
+  leaveTypeTextTablet: {
+    fontSize: 16,
+  },
+  dropdownArrow: {
+    fontSize: 12,
+    marginLeft: 8,
   },
   datePickerBox: {
     borderWidth: 1,
     borderColor: "#ccc",
     borderRadius: 5,
+    padding: 8,
+  },
+  datePickerBoxTablet: {
+    borderRadius: 8,
     padding: 10,
   },
   datePickerText: {
     color: "#333",
+    fontSize: 14,
+  },
+  datePickerTextTablet: {
+    fontSize: 16,
   },
   employeeInfoRow: {
     flexDirection: "row",
     justifyContent: "space-between",
+    marginBottom: 12,
+    gap: 12,
+  },
+  employeeInfoRowTablet: {
     marginBottom: 16,
     gap: 16,
   },
   empLabel: {
-    fontSize: 12,
+    fontSize: 11,
     color: "#888",
   },
+  empLabelTablet: {
+    fontSize: 13,
+  },
   empValue: {
-    fontSize: 14,
+    fontSize: 13,
+    marginBottom: 2,
+  },
+  empValueTablet: {
+    fontSize: 15,
     marginBottom: 4,
   },
   inputRow: {
     flexDirection: "row",
+    gap: 6,
+    marginBottom: 12,
+  },
+  inputRowTablet: {
     gap: 8,
-    marginBottom: 8,
+    marginBottom: 16,
   },
   dateRequestedBox: {
     borderWidth: 1,
     borderColor: "#ccc",
     borderRadius: 5,
-    padding: 10,
-    minHeight: 40,
+    padding: 8,
+    minHeight: 36,
     justifyContent: "center",
+  },
+  dateRequestedBoxTablet: {
+    borderRadius: 8,
+    padding: 10,
+    minHeight: 42,
   },
   dateRequestedText: {
     fontSize: 14,
+  },
+  dateRequestedTextTablet: {
+    fontSize: 16,
   },
   reasonInput: {
     borderWidth: 1,
     borderColor: "#ccc",
     borderRadius: 5,
+    padding: 8,
+    minHeight: 48,
+    textAlignVertical: "top",
+    fontSize: 14,
+  },
+  reasonInputTablet: {
+    borderRadius: 8,
     padding: 10,
     minHeight: 60,
-    textAlignVertical: "top",
+    fontSize: 16,
   },
   buttonRow: {
     flexDirection: "row",
     justifyContent: "space-between",
+    marginTop: 12,
+    gap: 12,
+  },
+  buttonRowTablet: {
     marginTop: 16,
     gap: 16,
   },
   cancelBtn: {
     flex: 1,
     backgroundColor: "#b71c1c",
-    padding: 12,
+    padding: 10,
     borderRadius: 5,
     alignItems: "center",
+  },
+  cancelBtnTablet: {
+    padding: 12,
+    borderRadius: 8,
   },
   cancelBtnText: {
     color: "#fff",
     fontWeight: "bold",
+    fontSize: 14,
+  },
+  cancelBtnTextTablet: {
+    fontSize: 16,
   },
   submitBtn: {
     flex: 1,
     backgroundColor: "#112866",
-    padding: 12,
+    padding: 10,
     borderRadius: 5,
     alignItems: "center",
+  },
+  submitBtnTablet: {
+    padding: 12,
+    borderRadius: 8,
   },
   submitBtnText: {
     color: "#fff",
     fontWeight: "bold",
+    fontSize: 14,
+  },
+  submitBtnTextTablet: {
+    fontSize: 16,
   },
   modalTitle: {
     fontSize: 18,
     fontWeight: "bold",
     color: "#112866",
-    marginBottom: 8,
+    marginBottom: 6,
     textAlign: "left",
+  },
+  modalTitleTablet: {
+    fontSize: 20,
+    marginBottom: 8,
+  },
+  // Picker Modal Styles
+  pickerOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  pickerModal: {
+    width: "80%",
+    maxWidth: 400,
+    borderRadius: 10,
+    padding: 16,
+  },
+  pickerModalTablet: {
+    maxWidth: 500,
+    borderRadius: 16,
+    padding: 24,
+  },
+  pickerHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 16,
+  },
+  pickerTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+  },
+  pickerTitleTablet: {
+    fontSize: 20,
+  },
+  pickerClose: {
+    fontSize: 20,
+    fontWeight: "bold",
+  },
+  pickerOption: {
+    padding: 12,
+    borderRadius: 8,
+    marginBottom: 6,
+    borderWidth: 1,
+    borderColor: "#e0e0e0",
+  },
+  pickerOptionTablet: {
+    padding: 16,
+    borderRadius: 12,
+    marginBottom: 8,
+  },
+  pickerOptionSelected: {
+    backgroundColor: "#112866",
+    borderColor: "#112866",
+  },
+  pickerOptionText: {
+    fontSize: 16,
+  },
+  pickerOptionTextTablet: {
+    fontSize: 18,
+  },
+  pickerOptionTextSelected: {
+    color: "#fff",
+    fontWeight: "bold",
   },
 });

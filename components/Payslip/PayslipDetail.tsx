@@ -1,12 +1,14 @@
+import { useResponsive } from "@/hooks/useResponsive";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import * as FileSystem from "expo-file-system";
 import * as Print from "expo-print";
-import { Alert, Platform } from "react-native";
+import { Alert, Platform, Share } from "react-native";
 
 import React from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { Button, IconButton } from "react-native-paper";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { currencyFormatter } from "../../utils/currencyFormatter";
 
 interface PayslipDetailProps {
@@ -29,6 +31,7 @@ const PayslipDetail = ({ payslip, onClose }: PayslipDetailProps) => {
   const iconColor = useThemeColor({}, "icon");
   const cardColor = backgroundColor;
   const boxColor = backgroundColor;
+  const { isTablet } = useResponsive();
 
   const getStatusColor = (status: string) => {
     switch (status.toLowerCase()) {
@@ -181,15 +184,21 @@ const PayslipDetail = ({ payslip, onClose }: PayslipDetailProps) => {
               <div class="box">
                 <div class="row">
                   <span class="row-label">Basic Pay</span>
-                  <span class="row-value">${currencyFormatter.format(payslip.basicPay)}</span>
+                  <span class="row-value">${currencyFormatter.format(
+                    payslip.basicPay
+                  )}</span>
                 </div>
                 <div class="row">
                   <span class="row-label">Allowances</span>
-                  <span class="row-value">${currencyFormatter.format(payslip.allowances)}</span>
+                  <span class="row-value">${currencyFormatter.format(
+                    payslip.allowances
+                  )}</span>
                 </div>
                 <div class="row total-row">
                   <span>Total Earnings</span>
-                  <span>${currencyFormatter.format(payslip.basicPay + payslip.allowances)}</span>
+                  <span>${currencyFormatter.format(
+                    payslip.basicPay + payslip.allowances
+                  )}</span>
                 </div>
               </div>
             </div>
@@ -198,21 +207,27 @@ const PayslipDetail = ({ payslip, onClose }: PayslipDetailProps) => {
               <div class="box">
                 <div class="row">
                   <span class="row-label">Total Deductions</span>
-                  <span class="row-value">${currencyFormatter.format(payslip.deductions)}</span>
+                  <span class="row-value">${currencyFormatter.format(
+                    payslip.deductions
+                  )}</span>
                 </div>
               </div>
             </div>
             <div class="section">
               <div class="section-title">Net Pay</div>
               <div class="netpay-box">
-                <span class="netpay-value">${currencyFormatter.format(payslip.netPay)}</span>
+                <span class="netpay-value">${currencyFormatter.format(
+                  payslip.netPay
+                )}</span>
               </div>
             </div>
           </body>
         </html>
       `;
+
       const { uri } = await Print.printToFileAsync({ html });
       const fileName = `Payslip_${payslip.id}.pdf`;
+
       if (Platform.OS === "android") {
         const permissions =
           await FileSystem.StorageAccessFramework.requestDirectoryPermissionsAsync();
@@ -228,7 +243,7 @@ const PayslipDetail = ({ payslip, onClose }: PayslipDetailProps) => {
             await FileSystem.writeAsStringAsync(uriSAF, base64, {
               encoding: FileSystem.EncodingType.Base64,
             });
-            Alert.alert("Success", "Payslip saved !");
+            Alert.alert("Success", "Payslip saved successfully!");
           });
         } else {
           Alert.alert(
@@ -237,12 +252,32 @@ const PayslipDetail = ({ payslip, onClose }: PayslipDetailProps) => {
           );
         }
       } else {
-        const destPath = `${FileSystem.documentDirectory}${fileName}`;
-        await FileSystem.moveAsync({ from: uri, to: destPath });
-        Alert.alert(
-          "Saved",
-          `Payslip saved to app's document directory:\n${destPath}`
-        );
+        try {
+          const destPath = `${FileSystem.documentDirectory}${fileName}`;
+          await FileSystem.moveAsync({ from: uri, to: destPath });
+
+          const shareResult = await Share.share({
+            url: destPath,
+            title: `Payslip ${payslip.id}`,
+            message: `Payslip for period ${payslip.period}`,
+          });
+
+          if (shareResult.action === Share.sharedAction) {
+            Alert.alert("Success", "Payslip shared successfully!");
+          } else if (shareResult.action === Share.dismissedAction) {
+            Alert.alert("Cancelled", "Payslip sharing was cancelled.");
+          }
+        } catch (error) {
+          console.error("Error sharing PDF on iOS:", error);
+
+          // If sharing fails, just save to app directory
+          const destPath = `${FileSystem.documentDirectory}${fileName}`;
+          await FileSystem.moveAsync({ from: uri, to: destPath });
+          Alert.alert(
+            "Saved to App Directory",
+            `Payslip saved to app's document directory:\n${destPath}`
+          );
+        }
       }
     } catch (error) {
       console.error("Error saving PDF:", error);
@@ -251,15 +286,30 @@ const PayslipDetail = ({ payslip, onClose }: PayslipDetailProps) => {
   };
 
   return (
-    <View style={[styles.container, { backgroundColor }]}>
-      <View style={[styles.header, { backgroundColor }]}>
+    <SafeAreaView
+      style={[styles.container, { backgroundColor }]}
+      edges={["top", "left", "right"]}
+    >
+      <View
+        style={[
+          styles.header,
+          { backgroundColor },
+          isTablet && styles.headerTablet,
+        ]}
+      >
         <View style={styles.headerLeft}>
           <MaterialCommunityIcons
             name="file-document-outline"
-            size={24}
+            size={isTablet ? 28 : 24}
             color={iconColor}
           />
-          <Text style={[styles.headerTitle, { color: textColor }]}>
+          <Text
+            style={[
+              styles.headerTitle,
+              { color: textColor },
+              isTablet && styles.headerTitleTablet,
+            ]}
+          >
             Payslip Details
           </Text>
         </View>
@@ -275,8 +325,20 @@ const PayslipDetail = ({ payslip, onClose }: PayslipDetailProps) => {
         </View>
       </View>
 
-      <View style={[styles.content, { backgroundColor }]}>
-        <View style={[styles.section, { backgroundColor: cardColor }]}>
+      <View
+        style={[
+          styles.content,
+          { backgroundColor },
+          isTablet && styles.contentTablet,
+        ]}
+      >
+        <View
+          style={[
+            styles.section,
+            { backgroundColor: cardColor },
+            isTablet && styles.sectionTablet,
+          ]}
+        >
           <View
             style={{
               flexDirection: "row",
@@ -288,85 +350,190 @@ const PayslipDetail = ({ payslip, onClose }: PayslipDetailProps) => {
               style={[
                 styles.sectionTitle,
                 { textAlign: "left", flex: 1, color: textColor },
+                isTablet && styles.sectionTitleTablet,
               ]}
             >
               Payslip Information
             </Text>
             <IconButton
               icon="download"
-              size={20}
+              size={isTablet ? 24 : 20}
               onPress={handleDownload}
               style={{ marginBottom: 4 }}
               iconColor={iconColor}
             />
           </View>
-          <View style={styles.infoGrid}>
-            <View style={styles.infoItem}>
-              <Text style={[styles.infoLabel, { color: textColor }]}>
+          <View style={[styles.infoGrid, isTablet && styles.infoGridTablet]}>
+            <View style={[styles.infoItem, isTablet && styles.infoItemTablet]}>
+              <Text
+                style={[
+                  styles.infoLabel,
+                  { color: textColor },
+                  isTablet && styles.infoLabelTablet,
+                ]}
+              >
                 Payslip ID
               </Text>
-              <Text style={[styles.infoValue, { color: textColor }]}>
+              <Text
+                style={[
+                  styles.infoValue,
+                  { color: textColor },
+                  isTablet && styles.infoValueTablet,
+                ]}
+              >
                 {payslip.id}
               </Text>
             </View>
-            <View style={styles.infoItem}>
-              <Text style={[styles.infoLabel, { color: textColor }]}>
+            <View style={[styles.infoItem, isTablet && styles.infoItemTablet]}>
+              <Text
+                style={[
+                  styles.infoLabel,
+                  { color: textColor },
+                  isTablet && styles.infoLabelTablet,
+                ]}
+              >
                 Period
               </Text>
-              <Text style={[styles.infoValue, { color: textColor }]}>
+              <Text
+                style={[
+                  styles.infoValue,
+                  { color: textColor },
+                  isTablet && styles.infoValueTablet,
+                ]}
+              >
                 {payslip.period}
               </Text>
             </View>
-            <View style={styles.infoItem}>
-              <Text style={[styles.infoLabel, { color: textColor }]}>Date</Text>
-              <Text style={[styles.infoValue, { color: textColor }]}>
+            <View style={[styles.infoItem, isTablet && styles.infoItemTablet]}>
+              <Text
+                style={[
+                  styles.infoLabel,
+                  { color: textColor },
+                  isTablet && styles.infoLabelTablet,
+                ]}
+              >
+                Date
+              </Text>
+              <Text
+                style={[
+                  styles.infoValue,
+                  { color: textColor },
+                  isTablet && styles.infoValueTablet,
+                ]}
+              >
                 {payslip.date}
               </Text>
             </View>
-            <View style={styles.infoItem}>
-              <Text style={[styles.infoLabel, { color: textColor }]}>
+            <View style={[styles.infoItem, isTablet && styles.infoItemTablet]}>
+              <Text
+                style={[
+                  styles.infoLabel,
+                  { color: textColor },
+                  isTablet && styles.infoLabelTablet,
+                ]}
+              >
                 Status
               </Text>
               <View
                 style={[
                   styles.statusBadge,
                   { backgroundColor: getStatusColor(payslip.status) },
+                  isTablet && styles.statusBadgeTablet,
                 ]}
               >
-                <Text style={styles.statusText}>{payslip.status}</Text>
+                <Text
+                  style={[
+                    styles.statusText,
+                    isTablet && styles.statusTextTablet,
+                  ]}
+                >
+                  {payslip.status}
+                </Text>
               </View>
             </View>
           </View>
         </View>
 
-        <View style={[styles.section, { backgroundColor: cardColor }]}>
-          <Text style={[styles.sectionTitle, { color: textColor }]}>
+        <View
+          style={[
+            styles.section,
+            { backgroundColor: cardColor },
+            isTablet && styles.sectionTablet,
+          ]}
+        >
+          <Text
+            style={[
+              styles.sectionTitle,
+              { color: textColor },
+              isTablet && styles.sectionTitleTablet,
+            ]}
+          >
             Earnings
           </Text>
           <View
-            style={[styles.earningsContainer, { backgroundColor: boxColor }]}
+            style={[
+              styles.earningsContainer,
+              { backgroundColor: boxColor },
+              isTablet && styles.earningsContainerTablet,
+            ]}
           >
             <View style={styles.earningsRow}>
-              <Text style={[styles.earningsLabel, { color: textColor }]}>
+              <Text
+                style={[
+                  styles.earningsLabel,
+                  { color: textColor },
+                  isTablet && styles.earningsLabelTablet,
+                ]}
+              >
                 Basic Pay
               </Text>
-              <Text style={[styles.earningsValue, { color: textColor }]}>
+              <Text
+                style={[
+                  styles.earningsValue,
+                  { color: textColor },
+                  isTablet && styles.earningsValueTablet,
+                ]}
+              >
                 {currencyFormatter.format(payslip.basicPay)}
               </Text>
             </View>
             <View style={styles.earningsRow}>
-              <Text style={[styles.earningsLabel, { color: textColor }]}>
+              <Text
+                style={[
+                  styles.earningsLabel,
+                  { color: textColor },
+                  isTablet && styles.earningsLabelTablet,
+                ]}
+              >
                 Allowances
               </Text>
-              <Text style={[styles.earningsValue, { color: textColor }]}>
+              <Text
+                style={[
+                  styles.earningsValue,
+                  { color: textColor },
+                  isTablet && styles.earningsValueTablet,
+                ]}
+              >
                 {currencyFormatter.format(payslip.allowances)}
               </Text>
             </View>
             <View style={[styles.earningsRow, styles.totalRow]}>
-              <Text style={[styles.totalLabel, { color: textColor }]}>
+              <Text
+                style={[
+                  styles.totalLabel,
+                  { color: textColor },
+                  isTablet && styles.totalLabelTablet,
+                ]}
+              >
                 Total Earnings
               </Text>
-              <Text style={[styles.totalValue, { color: textColor }]}>
+              <Text
+                style={[
+                  styles.totalValue,
+                  { color: textColor },
+                  isTablet && styles.totalValueTablet,
+                ]}
+              >
                 {currencyFormatter.format(
                   payslip.basicPay + payslip.allowances
                 )}
@@ -375,36 +542,88 @@ const PayslipDetail = ({ payslip, onClose }: PayslipDetailProps) => {
           </View>
         </View>
 
-        <View style={[styles.section, { backgroundColor: cardColor }]}>
-          <Text style={[styles.sectionTitle, { color: textColor }]}>
+        <View
+          style={[
+            styles.section,
+            { backgroundColor: cardColor },
+            isTablet && styles.sectionTablet,
+          ]}
+        >
+          <Text
+            style={[
+              styles.sectionTitle,
+              { color: textColor },
+              isTablet && styles.sectionTitleTablet,
+            ]}
+          >
             Deductions
           </Text>
           <View
-            style={[styles.deductionsContainer, { backgroundColor: boxColor }]}
+            style={[
+              styles.deductionsContainer,
+              { backgroundColor: boxColor },
+              isTablet && styles.deductionsContainerTablet,
+            ]}
           >
             <View style={styles.deductionsRow}>
-              <Text style={[styles.deductionsLabel, { color: textColor }]}>
+              <Text
+                style={[
+                  styles.deductionsLabel,
+                  { color: textColor },
+                  isTablet && styles.deductionsLabelTablet,
+                ]}
+              >
                 Total Deductions
               </Text>
-              <Text style={[styles.deductionsValue, { color: textColor }]}>
+              <Text
+                style={[
+                  styles.deductionsValue,
+                  { color: textColor },
+                  isTablet && styles.deductionsValueTablet,
+                ]}
+              >
                 {currencyFormatter.format(payslip.deductions)}
               </Text>
             </View>
           </View>
         </View>
 
-        <View style={[styles.section, { backgroundColor: cardColor }]}>
-          <Text style={[styles.sectionTitle, { color: textColor }]}>
+        <View
+          style={[
+            styles.section,
+            { backgroundColor: cardColor },
+            isTablet && styles.sectionTablet,
+          ]}
+        >
+          <Text
+            style={[
+              styles.sectionTitle,
+              { color: textColor },
+              isTablet && styles.sectionTitleTablet,
+            ]}
+          >
             Net Pay
           </Text>
-          <View style={[styles.netPayContainer, { backgroundColor: boxColor }]}>
-            <Text style={[styles.netPayValue, { color: textColor }]}>
+          <View
+            style={[
+              styles.netPayContainer,
+              { backgroundColor: boxColor },
+              isTablet && styles.netPayContainerTablet,
+            ]}
+          >
+            <Text
+              style={[
+                styles.netPayValue,
+                { color: textColor },
+                isTablet && styles.netPayValueTablet,
+              ]}
+            >
               {currencyFormatter.format(payslip.netPay)}
             </Text>
           </View>
         </View>
       </View>
-    </View>
+    </SafeAreaView>
   );
 };
 
@@ -423,6 +642,9 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: "#E0E0E0",
   },
+  headerTablet: {
+    padding: 24,
+  },
   headerLeft: {
     flexDirection: "row",
     alignItems: "center",
@@ -433,12 +655,24 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     color: "#112866",
   },
+  headerTitleTablet: {
+    fontSize: 20,
+  },
   content: {
     flex: 1,
     padding: 16,
   },
+  contentTablet: {
+    padding: 24,
+    maxWidth: 800,
+    alignSelf: "center",
+    width: "100%",
+  },
   section: {
     marginBottom: 24,
+  },
+  sectionTablet: {
+    marginBottom: 32,
   },
   sectionTitle: {
     fontSize: 16,
@@ -446,24 +680,41 @@ const styles = StyleSheet.create({
     color: "#112866",
     marginBottom: 16,
   },
+  sectionTitleTablet: {
+    fontSize: 18,
+    marginBottom: 20,
+  },
   infoGrid: {
     flexDirection: "row",
     flexWrap: "wrap",
     gap: 16,
   },
+  infoGridTablet: {
+    gap: 24,
+  },
   infoItem: {
     flex: 1,
     minWidth: "45%",
+  },
+  infoItemTablet: {
+    minWidth: "48%",
   },
   infoLabel: {
     fontSize: 12,
     color: "#666",
     marginBottom: 4,
   },
+  infoLabelTablet: {
+    fontSize: 14,
+    marginBottom: 6,
+  },
   infoValue: {
     fontSize: 14,
     color: "#333",
     fontWeight: "500",
+  },
+  infoValueTablet: {
+    fontSize: 16,
   },
   statusBadge: {
     paddingHorizontal: 12,
@@ -471,15 +722,27 @@ const styles = StyleSheet.create({
     borderRadius: 4,
     alignSelf: "flex-start",
   },
+  statusBadgeTablet: {
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 6,
+  },
   statusText: {
     color: "white",
     fontSize: 12,
     fontWeight: "500",
   },
+  statusTextTablet: {
+    fontSize: 14,
+  },
   earningsContainer: {
     backgroundColor: "#F8F9FA",
     borderRadius: 8,
     padding: 16,
+  },
+  earningsContainerTablet: {
+    borderRadius: 12,
+    padding: 20,
   },
   earningsRow: {
     flexDirection: "row",
@@ -493,10 +756,16 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: "#666",
   },
+  earningsLabelTablet: {
+    fontSize: 16,
+  },
   earningsValue: {
     fontSize: 14,
     color: "#333",
     fontWeight: "500",
+  },
+  earningsValueTablet: {
+    fontSize: 16,
   },
   totalRow: {
     borderBottomWidth: 0,
@@ -507,15 +776,25 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     color: "#112866",
   },
+  totalLabelTablet: {
+    fontSize: 18,
+  },
   totalValue: {
     fontSize: 16,
     fontWeight: "600",
     color: "#112866",
   },
+  totalValueTablet: {
+    fontSize: 18,
+  },
   deductionsContainer: {
     backgroundColor: "#F8F9FA",
     borderRadius: 8,
     padding: 16,
+  },
+  deductionsContainerTablet: {
+    borderRadius: 12,
+    padding: 20,
   },
   deductionsRow: {
     flexDirection: "row",
@@ -527,10 +806,16 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: "#666",
   },
+  deductionsLabelTablet: {
+    fontSize: 16,
+  },
   deductionsValue: {
     fontSize: 14,
     color: "#333",
     fontWeight: "500",
+  },
+  deductionsValueTablet: {
+    fontSize: 16,
   },
   netPayContainer: {
     backgroundColor: "#E3F2FD",
@@ -538,10 +823,17 @@ const styles = StyleSheet.create({
     padding: 16,
     alignItems: "center",
   },
+  netPayContainerTablet: {
+    borderRadius: 12,
+    padding: 24,
+  },
   netPayValue: {
     fontSize: 24,
     fontWeight: "600",
     color: "#1976D2",
+  },
+  netPayValueTablet: {
+    fontSize: 28,
   },
   downloadButton: {
     backgroundColor: "#112866",
