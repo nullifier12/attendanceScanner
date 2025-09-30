@@ -1,4 +1,5 @@
 import ViewWrapper from "@/components/Layout/View";
+import { useAnnouncements } from "@/contexts/AnnouncementContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import {
@@ -13,23 +14,14 @@ import { Divider } from "react-native-paper";
 export default function Profile() {
   const router = useRouter();
   const { session } = useAuth();
+  const { announcements, isLoading: announcementsLoading } = useAnnouncements();
   
   // Get theme colors
   const textColor = useThemeColor({}, 'text');
   const backgroundColor = useThemeColor({}, 'background');
   const iconColor = useThemeColor({}, 'icon');
 
-  const announcements = [
-    { id: "1", title: "Team Meeting at 3 PM", date: "2024-03-20" },
-    { id: "2", title: "New Policy Update", date: "2024-03-19" },
-    { id: "3", title: "System Maintenance Tonight", date: "2024-03-18" },
-    { id: "4", title: "Holiday Schedule Released", date: "2024-03-17" },
-    { id: "5", title: "Office Renovation Notice", date: "2024-03-16" },
-    { id: "6", title: "New Employee Onboarding", date: "2024-03-15" },
-    { id: "7", title: "Quarterly Review Meeting", date: "2024-03-14" },
-    { id: "8", title: "Health and Safety Training", date: "2024-03-13" },
-    { id: "9", title: "Team Building Event", date: "2024-03-12" },
-  ];
+  // Announcements are now loaded from context
 
   const birthdays = [
     { id: "1", name: "John Doe", date: "March 25" },
@@ -122,16 +114,35 @@ export default function Profile() {
               nestedScrollEnabled={true}
               showsVerticalScrollIndicator={false}
             >
-              {announcements.map((announcement) => (
-                <View key={announcement.id} style={styles.announcementItem}>
+              {announcementsLoading ? (
+                <View style={styles.announcementItem}>
                   <Text style={[styles.announcementTitle, { color: textColor }]}>
-                    {announcement.title}
-                  </Text>
-                  <Text style={[styles.announcementDate, { color: iconColor }]}>
-                    {announcement.date}
+                    Loading announcements...
                   </Text>
                 </View>
-              ))}
+              ) : announcements.length > 0 ? (
+                announcements.map((announcement) => (
+                  <View key={announcement.id} style={styles.announcementItem}>
+                    <Text style={[styles.announcementTitle, { color: textColor }]}>
+                      {announcement.title}
+                    </Text>
+                    {announcement.content && announcement.content !== announcement.title && (
+                      <Text style={[styles.announcementContent, { color: textColor }]}>
+                        {announcement.content}
+                      </Text>
+                    )}
+                    <Text style={[styles.announcementDate, { color: iconColor }]}>
+                      {announcement.date}
+                    </Text>
+                  </View>
+                ))
+              ) : (
+                <View style={styles.announcementItem}>
+                  <Text style={[styles.announcementTitle, { color: textColor }]}>
+                    No announcements available
+                  </Text>
+                </View>
+              )}
             </ScrollView>
           </View>
         </View>
@@ -293,8 +304,10 @@ const styles = StyleSheet.create({
     borderBottomColor: "#f0f0f0",
   },
   announcementContent: {
-    flex: 1,
-    marginRight: 12,
+    fontSize: 13,
+    marginBottom: 4,
+    lineHeight: 18,
+    color: "#666",
   },
   announcementTitle: {
     fontSize: 14,

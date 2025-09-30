@@ -1,7 +1,7 @@
 import { useResponsive } from "@/hooks/useResponsive";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-import * as FileSystem from "expo-file-system";
+import * as FileSystem from "expo-file-system/legacy";
 import * as Print from "expo-print";
 import { Alert, Platform, Share } from "react-native";
 

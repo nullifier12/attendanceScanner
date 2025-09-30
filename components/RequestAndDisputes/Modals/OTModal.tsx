@@ -7,14 +7,14 @@ import DateTimePicker from "@react-native-community/datetimepicker";
 import Constants from "expo-constants";
 import React, { useState } from "react";
 import {
-  Alert,
-  Modal,
-  Pressable,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
+    Alert,
+    Modal,
+    Pressable,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View,
 } from "react-native";
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -207,7 +207,7 @@ const OTModal = ({ isVisible, setModalVisible }: OTModalProps) => {
                 Subsidiary
               </Text>
               <Text style={[styles.empValue, { color: textColor }, isTablet && styles.empValueTablet]}>
-                ABACUS
+                {session?.user?.company || "-"}
               </Text>
             </View>
             <View style={{ flex: 1 }}>
@@ -215,7 +215,7 @@ const OTModal = ({ isVisible, setModalVisible }: OTModalProps) => {
                 Designation
               </Text>
               <Text style={[styles.empValue, { fontWeight: "bold" }, isTablet && styles.empValueTablet]}>
-                Developer
+                {session?.user?.designation || "-"}
               </Text>
               <Text style={[styles.empLabel, { color: textColor }, isTablet && styles.empLabelTablet]}>
                 Department
@@ -227,7 +227,7 @@ const OTModal = ({ isVisible, setModalVisible }: OTModalProps) => {
                   isTablet && styles.empValueTablet,
                 ]}
               >
-                Information Technology
+                {session?.user?.department || "-"}
               </Text>
             </View>
           </View>

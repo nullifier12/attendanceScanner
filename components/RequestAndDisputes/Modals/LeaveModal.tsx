@@ -6,16 +6,16 @@ import DateTimePicker from "@react-native-community/datetimepicker";
 import Constants from "expo-constants";
 import React, { useState } from "react";
 import {
-    Alert,
-    Modal,
-    Pressable,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  Alert,
+  Modal,
+  Pressable,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from "react-native";
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView } from "react-native-safe-area-context";
 
 interface Props {
   isVisible: boolean;
@@ -34,7 +34,7 @@ const LeaveModal = ({ isVisible, setModalVisible }: Props) => {
   const { session } = useAuth();
   const url = Constants.expoConfig?.extra?.apiUrl;
   const { isTablet } = useResponsive();
-  
+
   // Get theme colors
   console.log("session", session?.user);
   const textColor = useThemeColor({}, "text");
@@ -135,8 +135,14 @@ const LeaveModal = ({ isVisible, setModalVisible }: Props) => {
       visible={isVisible}
       onRequestClose={setModalVisible}
     >
-      <SafeAreaView style={styles.overlay} edges={['top', 'bottom']}>
-        <View style={[styles.modalView, { backgroundColor }, isTablet && styles.modalViewTablet]}>
+      <SafeAreaView style={styles.overlay} edges={["top", "bottom"]}>
+        <View
+          style={[
+            styles.modalView,
+            { backgroundColor },
+            isTablet && styles.modalViewTablet,
+          ]}
+        >
           {/* Modal Title */}
           <Text
             style={[
@@ -152,11 +158,22 @@ const LeaveModal = ({ isVisible, setModalVisible }: Props) => {
           >
             Leave Request
           </Text>
-          
+
           {/* Employee Info Section */}
-          <View style={[styles.employeeInfoRow, isTablet && styles.employeeInfoRowTablet]}>
+          <View
+            style={[
+              styles.employeeInfoRow,
+              isTablet && styles.employeeInfoRowTablet,
+            ]}
+          >
             <View style={{ flex: 1 }}>
-              <Text style={[styles.empLabel, { color: textColor }, isTablet && styles.empLabelTablet]}>
+              <Text
+                style={[
+                  styles.empLabel,
+                  { color: textColor },
+                  isTablet && styles.empLabelTablet,
+                ]}
+              >
                 Last, First MI
               </Text>
               <Text
@@ -168,21 +185,51 @@ const LeaveModal = ({ isVisible, setModalVisible }: Props) => {
               >
                 {session?.user?.name || "-"}
               </Text>
-              <Text style={[styles.empLabel, { color: textColor }, isTablet && styles.empLabelTablet]}>
+              <Text
+                style={[
+                  styles.empLabel,
+                  { color: textColor },
+                  isTablet && styles.empLabelTablet,
+                ]}
+              >
                 Subsidiary
               </Text>
-              <Text style={[styles.empValue, { color: textColor }, isTablet && styles.empValueTablet]}>
-                ABACUS
+              <Text
+                style={[
+                  styles.empValue,
+                  { color: textColor },
+                  isTablet && styles.empValueTablet,
+                ]}
+              >
+                {session?.user?.company}
               </Text>
             </View>
             <View style={{ flex: 1 }}>
-              <Text style={[styles.empLabel, { color: textColor }, isTablet && styles.empLabelTablet]}>
+              <Text
+                style={[
+                  styles.empLabel,
+                  { color: textColor },
+                  isTablet && styles.empLabelTablet,
+                ]}
+              >
                 Designation
               </Text>
-              <Text style={[styles.empValue, { fontWeight: "bold" }, isTablet && styles.empValueTablet]}>
-                Developer
+              <Text
+                style={[
+                  styles.empValue,
+                  { fontWeight: "bold" },
+                  isTablet && styles.empValueTablet,
+                ]}
+              >
+                {session?.user.designation}
               </Text>
-              <Text style={[styles.empLabel, { color: textColor }, isTablet && styles.empLabelTablet]}>
+              <Text
+                style={[
+                  styles.empLabel,
+                  { color: textColor },
+                  isTablet && styles.empLabelTablet,
+                ]}
+              >
                 Department
               </Text>
               <Text
@@ -192,54 +239,110 @@ const LeaveModal = ({ isVisible, setModalVisible }: Props) => {
                   isTablet && styles.empValueTablet,
                 ]}
               >
-                Information Technology
+                {session?.user.department}
               </Text>
             </View>
           </View>
-          
+
           {/* Leave Request Form */}
-          <View style={[styles.actionContainer, isTablet && styles.actionContainerTablet]}>
+          <View
+            style={[
+              styles.actionContainer,
+              isTablet && styles.actionContainerTablet,
+            ]}
+          >
             {/* Leave Type - Touchable Selector */}
             <View style={styles.inputWrapper}>
-              <Text style={[styles.label, { color: textColor }, isTablet && styles.labelTablet]}>
+              <Text
+                style={[
+                  styles.label,
+                  { color: textColor },
+                  isTablet && styles.labelTablet,
+                ]}
+              >
                 Leave Type
               </Text>
               <TouchableOpacity
                 onPress={() => setShowLeaveTypePicker(true)}
-                style={[styles.leaveTypeBox, { backgroundColor }, isTablet && styles.leaveTypeBoxTablet]}
+                style={[
+                  styles.leaveTypeBox,
+                  { backgroundColor },
+                  isTablet && styles.leaveTypeBoxTablet,
+                ]}
               >
-                <Text style={[styles.leaveTypeText, { color: textColor }, isTablet && styles.leaveTypeTextTablet]}>
-                  {leaveTypes.find(type => type.value === leaveType)?.label || "Select leave type"}
+                <Text
+                  style={[
+                    styles.leaveTypeText,
+                    { color: textColor },
+                    isTablet && styles.leaveTypeTextTablet,
+                  ]}
+                >
+                  {leaveTypes.find((type) => type.value === leaveType)?.label ||
+                    "Select leave type"}
                 </Text>
-                <Text style={[styles.dropdownArrow, { color: textColor }]}>▼</Text>
+                <Text style={[styles.dropdownArrow, { color: textColor }]}>
+                  ▼
+                </Text>
               </TouchableOpacity>
             </View>
 
             {/* Date Requested - Single Column */}
             <View style={styles.inputWrapper}>
-              <Text style={[styles.label, { color: textColor }, isTablet && styles.labelTablet]}>
+              <Text
+                style={[
+                  styles.label,
+                  { color: textColor },
+                  isTablet && styles.labelTablet,
+                ]}
+              >
                 Date Requested
               </Text>
-              <View style={[styles.dateRequestedBox, { backgroundColor }, isTablet && styles.dateRequestedBoxTablet]}>
+              <View
+                style={[
+                  styles.dateRequestedBox,
+                  { backgroundColor },
+                  isTablet && styles.dateRequestedBoxTablet,
+                ]}
+              >
                 <Text
-                  style={[styles.dateRequestedText, { color: textColor }, isTablet && styles.dateRequestedTextTablet]}
+                  style={[
+                    styles.dateRequestedText,
+                    { color: textColor },
+                    isTablet && styles.dateRequestedTextTablet,
+                  ]}
                 >
                   {now.toLocaleString()}
                 </Text>
               </View>
             </View>
-            
+
             {/* Date From and To - Side by Side */}
             <View style={[styles.inputRow, isTablet && styles.inputRowTablet]}>
               <View style={[styles.inputWrapper, { flex: 1 }]}>
-                <Text style={[styles.label, { color: textColor }, isTablet && styles.labelTablet]}>
+                <Text
+                  style={[
+                    styles.label,
+                    { color: textColor },
+                    isTablet && styles.labelTablet,
+                  ]}
+                >
                   Date From
                 </Text>
                 <Pressable
                   onPress={() => setShowFromPicker(true)}
-                  style={[styles.datePickerBox, { backgroundColor }, isTablet && styles.datePickerBoxTablet]}
+                  style={[
+                    styles.datePickerBox,
+                    { backgroundColor },
+                    isTablet && styles.datePickerBoxTablet,
+                  ]}
                 >
-                  <Text style={[styles.datePickerText, { color: textColor }, isTablet && styles.datePickerTextTablet]}>
+                  <Text
+                    style={[
+                      styles.datePickerText,
+                      { color: textColor },
+                      isTablet && styles.datePickerTextTablet,
+                    ]}
+                  >
                     {fromDate ? fromDate.toDateString() : "Select date"}
                   </Text>
                 </Pressable>
@@ -256,14 +359,30 @@ const LeaveModal = ({ isVisible, setModalVisible }: Props) => {
                 )}
               </View>
               <View style={[styles.inputWrapper, { flex: 1, marginLeft: 8 }]}>
-                <Text style={[styles.label, { color: textColor }, isTablet && styles.labelTablet]}>
+                <Text
+                  style={[
+                    styles.label,
+                    { color: textColor },
+                    isTablet && styles.labelTablet,
+                  ]}
+                >
                   Date To
                 </Text>
                 <Pressable
                   onPress={() => setShowToPicker(true)}
-                  style={[styles.datePickerBox, { backgroundColor }, isTablet && styles.datePickerBoxTablet]}
+                  style={[
+                    styles.datePickerBox,
+                    { backgroundColor },
+                    isTablet && styles.datePickerBoxTablet,
+                  ]}
                 >
-                  <Text style={[styles.datePickerText, { color: textColor }, isTablet && styles.datePickerTextTablet]}>
+                  <Text
+                    style={[
+                      styles.datePickerText,
+                      { color: textColor },
+                      isTablet && styles.datePickerTextTablet,
+                    ]}
+                  >
                     {toDate ? toDate.toDateString() : "Select date"}
                   </Text>
                 </Pressable>
@@ -280,10 +399,18 @@ const LeaveModal = ({ isVisible, setModalVisible }: Props) => {
                 )}
               </View>
             </View>
-            
+
             {/* Reason Textarea */}
             <View style={styles.inputWrapper}>
-              <Text style={[styles.label, { color: textColor }, isTablet && styles.labelTablet]}>Reason</Text>
+              <Text
+                style={[
+                  styles.label,
+                  { color: textColor },
+                  isTablet && styles.labelTablet,
+                ]}
+              >
+                Reason
+              </Text>
               <TextInput
                 style={[
                   styles.reasonInput,
@@ -298,17 +425,36 @@ const LeaveModal = ({ isVisible, setModalVisible }: Props) => {
                 numberOfLines={isTablet ? 4 : 3}
               />
             </View>
-            
+
             {/* Buttons */}
-            <View style={[styles.buttonRow, isTablet && styles.buttonRowTablet]}>
+            <View
+              style={[styles.buttonRow, isTablet && styles.buttonRowTablet]}
+            >
               <TouchableOpacity
                 style={[styles.cancelBtn, isTablet && styles.cancelBtnTablet]}
                 onPress={setModalVisible}
               >
-                <Text style={[styles.cancelBtnText, isTablet && styles.cancelBtnTextTablet]}>CANCEL</Text>
+                <Text
+                  style={[
+                    styles.cancelBtnText,
+                    isTablet && styles.cancelBtnTextTablet,
+                  ]}
+                >
+                  CANCEL
+                </Text>
               </TouchableOpacity>
-              <TouchableOpacity style={[styles.submitBtn, isTablet && styles.submitBtnTablet]} onPress={handleSubmit}>
-                <Text style={[styles.submitBtnText, isTablet && styles.submitBtnTextTablet]}>SUBMIT</Text>
+              <TouchableOpacity
+                style={[styles.submitBtn, isTablet && styles.submitBtnTablet]}
+                onPress={handleSubmit}
+              >
+                <Text
+                  style={[
+                    styles.submitBtnText,
+                    isTablet && styles.submitBtnTextTablet,
+                  ]}
+                >
+                  SUBMIT
+                </Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -323,13 +469,27 @@ const LeaveModal = ({ isVisible, setModalVisible }: Props) => {
         onRequestClose={() => setShowLeaveTypePicker(false)}
       >
         <View style={styles.pickerOverlay}>
-          <View style={[styles.pickerModal, { backgroundColor }, isTablet && styles.pickerModalTablet]}>
+          <View
+            style={[
+              styles.pickerModal,
+              { backgroundColor },
+              isTablet && styles.pickerModalTablet,
+            ]}
+          >
             <View style={styles.pickerHeader}>
-              <Text style={[styles.pickerTitle, { color: textColor }, isTablet && styles.pickerTitleTablet]}>
+              <Text
+                style={[
+                  styles.pickerTitle,
+                  { color: textColor },
+                  isTablet && styles.pickerTitleTablet,
+                ]}
+              >
                 Select Leave Type
               </Text>
               <TouchableOpacity onPress={() => setShowLeaveTypePicker(false)}>
-                <Text style={[styles.pickerClose, { color: textColor }]}>✕</Text>
+                <Text style={[styles.pickerClose, { color: textColor }]}>
+                  ✕
+                </Text>
               </TouchableOpacity>
             </View>
             {leaveTypes.map((type) => (

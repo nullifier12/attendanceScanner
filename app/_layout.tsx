@@ -1,3 +1,4 @@
+import { AnnouncementProvider } from "@/contexts/AnnouncementContext";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { CalendarProvider } from "@/contexts/CalendarContext";
 import { NotificationProvider } from "@/contexts/NotificationContext";
@@ -211,7 +212,9 @@ export default function RootLayout() {
         <AuthProvider>
           <RequestProvider>
             <CalendarProvider>
-              <RootLayoutNav />
+              <AnnouncementProvider>
+                <RootLayoutNav />
+              </AnnouncementProvider>
             </CalendarProvider>
           </RequestProvider>
         </AuthProvider>

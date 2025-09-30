@@ -214,7 +214,7 @@ const OBModal = ({ isVisible, setModalVisible }: OBModalProps) => {
                 Subsidiary
               </Text>
               <Text style={[styles.empValue, { color: textColor }, isTablet && styles.empValueTablet]}>
-                ABACUS
+                {session?.user?.company || "-"}
               </Text>
             </View>
             <View style={{ flex: 1 }}>
@@ -222,7 +222,7 @@ const OBModal = ({ isVisible, setModalVisible }: OBModalProps) => {
                 Designation
               </Text>
               <Text style={[styles.empValue, { fontWeight: "bold" }, isTablet && styles.empValueTablet]}>
-                Developer
+                {session?.user?.designation || "-"}
               </Text>
               <Text style={[styles.empLabel, { color: textColor }, isTablet && styles.empLabelTablet]}>
                 Department
@@ -234,7 +234,7 @@ const OBModal = ({ isVisible, setModalVisible }: OBModalProps) => {
                   isTablet && styles.empValueTablet,
                 ]}
               >
-                Information Technology
+                {session?.user?.department || "-"}
               </Text>
             </View>
           </View>

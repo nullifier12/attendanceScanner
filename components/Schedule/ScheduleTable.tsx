@@ -1,8 +1,10 @@
+import { useAuth } from "@/contexts/AuthContext";
 import { useThemeColor } from "@/hooks/useThemeColor";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
+import Constants from "expo-constants";
+import { useEffect, useState } from "react";
 import { ScrollView, StyleSheet, Text, View } from "react-native";
 import { DataTable } from "react-native-paper";
-
 interface WorkSchedule {
   day: string;
   time: string;
@@ -10,48 +12,31 @@ interface WorkSchedule {
 }
 
 const ScheduleTable = () => {
+  const url = Constants.expoConfig?.extra?.apiUrl;
+  const mobileKey = Constants.expoConfig?.extra?.mobileKey;
+  const { session } = useAuth();
   // Get theme colors
-  const textColor = useThemeColor({}, 'text');
-  const backgroundColor = useThemeColor({}, 'background');
-  const iconColor = useThemeColor({}, 'icon');
-
-  const workSchedule: WorkSchedule[] = [
-    {
-      day: "Monday",
-      time: "8:00 AM - 5:00 PM",
-      breakTime: "12:00 PM - 1:00 PM",
-    },
-    {
-      day: "Tuesday",
-      time: "8:00 AM - 5:00 PM",
-      breakTime: "12:00 PM - 1:00 PM",
-    },
-    {
-      day: "Wednesday",
-      time: "8:00 AM - 5:00 PM",
-      breakTime: "12:00 PM - 1:00 PM",
-    },
-    {
-      day: "Thursday",
-      time: "8:00 AM - 5:00 PM",
-      breakTime: "12:00 PM - 1:00 PM",
-    },
-    {
-      day: "Friday",
-      time: "8:00 AM - 5:00 PM",
-      breakTime: "12:00 PM - 1:00 PM",
-    },
-    {
-      day: "Saturday",
-      time: "Day Off",
-      breakTime: "N/A",
-    },
-    {
-      day: "Sunday",
-      time: "Day Off",
-      breakTime: "N/A",
-    },
-  ];
+  const textColor = useThemeColor({}, "text");
+  const backgroundColor = useThemeColor({}, "background");
+  const iconColor = useThemeColor({}, "icon");
+  const [workSchedule, setWorkSched] = useState<any>([]);
+  const getuserSched = async () => {
+    const sched = await fetch(`${url}/api/mobile/getworkschedule`, {
+      method: "Post",
+      headers: {
+        "Content-Type": "application/json",
+        "x-api-key": `${mobileKey}`,
+      },
+      body: JSON.stringify({
+        ID: session?.user?.requestorId,
+      }),
+    });
+    const sc = await sched.json();
+    setWorkSched(sc);
+  };
+  useEffect(() => {
+    getuserSched();
+  }, []);
 
   return (
     <View style={[styles.container, { backgroundColor }]}>
@@ -62,7 +47,9 @@ const ScheduleTable = () => {
             size={24}
             color={iconColor}
           />
-          <Text style={[styles.headerTitle, { color: textColor }]}>Work Schedule</Text>
+          <Text style={[styles.headerTitle, { color: textColor }]}>
+            Work Schedule
+          </Text>
         </View>
       </View>
 
@@ -71,33 +58,47 @@ const ScheduleTable = () => {
           <DataTable style={styles.table}>
             <DataTable.Header>
               <DataTable.Title style={styles.dayColumn}>
-                <Text style={[styles.headerText, { color: textColor }]}>Day</Text>
+                <Text style={[styles.headerText, { color: textColor }]}>
+                  Day
+                </Text>
               </DataTable.Title>
               <DataTable.Title style={styles.timeColumn}>
-                <Text style={[styles.headerText, { color: textColor }]}>Time</Text>
+                <Text style={[styles.headerText, { color: textColor }]}>
+                  Time From
+                </Text>
               </DataTable.Title>
               <DataTable.Title style={styles.breakColumn}>
-                <Text style={[styles.headerText, { color: textColor }]}>Break Time</Text>
+                <Text style={[styles.headerText, { color: textColor }]}>
+                  Time To
+                </Text>
               </DataTable.Title>
             </DataTable.Header>
 
-            {workSchedule.map((schedule) => (
-              <DataTable.Row key={schedule.day}>
+            {workSchedule.map((schedule: any) => (
+              <DataTable.Row key={schedule.ID}>
                 <DataTable.Cell style={styles.dayColumn}>
-                  <Text style={[styles.cellText, { color: textColor }]}>{schedule.day}</Text>
+                  <Text style={[styles.cellText, { color: textColor }]}>
+                    {schedule.work_sched_day}
+                  </Text>
                 </DataTable.Cell>
                 <DataTable.Cell style={styles.timeColumn}>
-                  <Text style={[styles.cellText, { color: textColor }]}>{schedule.time}</Text>
+                  <Text style={[styles.cellText, { color: textColor }]}>
+                    {schedule.work_sched_fromdate}
+                  </Text>
                 </DataTable.Cell>
                 <DataTable.Cell style={styles.breakColumn}>
-                  <Text style={[styles.cellText, { color: textColor }]}>{schedule.breakTime}</Text>
+                  <Text style={[styles.cellText, { color: textColor }]}>
+                    {schedule.work_schedule_todate}
+                  </Text>
                 </DataTable.Cell>
                 <DataTable.Cell style={styles.actionColumn}>
                   <MaterialCommunityIcons
                     name="eye"
                     size={20}
                     color={iconColor}
-                    onPress={() => console.log("View details for:", schedule.day)}
+                    onPress={() =>
+                      console.log("View details for:", schedule.day)
+                    }
                   />
                 </DataTable.Cell>
               </DataTable.Row>
@@ -127,7 +128,7 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 3,
     borderWidth: 1,
-    borderColor: '#e0e0e0',
+    borderColor: "#e0e0e0",
   },
   headerLeft: {
     flexDirection: "row",
@@ -149,7 +150,7 @@ const styles = StyleSheet.create({
     overflow: "hidden",
     maxHeight: 400,
     borderWidth: 1,
-    borderColor: '#e0e0e0',
+    borderColor: "#e0e0e0",
   },
   table: {
     backgroundColor: "transparent",

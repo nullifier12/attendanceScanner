@@ -190,7 +190,7 @@ const DisputeModal = ({ isVisible, setModalVisible }: DisputeModalProps) => {
                 Subsidiary
               </Text>
               <Text style={[styles.empValue, { color: textColor }, isTablet && styles.empValueTablet]}>
-                ABACUS
+                {session?.user?.company || "-"}
               </Text>
             </View>
             <View style={{ flex: 1 }}>
@@ -198,7 +198,7 @@ const DisputeModal = ({ isVisible, setModalVisible }: DisputeModalProps) => {
                 Designation
               </Text>
               <Text style={[styles.empValue, { fontWeight: "bold" }, isTablet && styles.empValueTablet]}>
-                Developer
+                {session?.user?.designation || "-"}
               </Text>
               <Text style={[styles.empLabel, { color: textColor }, isTablet && styles.empLabelTablet]}>
                 Department
@@ -210,7 +210,7 @@ const DisputeModal = ({ isVisible, setModalVisible }: DisputeModalProps) => {
                   isTablet && styles.empValueTablet,
                 ]}
               >
-                Information Technology
+                {session?.user?.department || "-"}
               </Text>
             </View>
           </View>

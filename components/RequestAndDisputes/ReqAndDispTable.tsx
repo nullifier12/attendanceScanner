@@ -3,13 +3,13 @@ import { useThemeColor } from "@/hooks/useThemeColor";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import React, { useCallback, useState } from "react";
 import {
-    Modal,
-    Pressable,
-    RefreshControl,
-    ScrollView,
-    StyleSheet,
-    Text,
-    View,
+  Modal,
+  Pressable,
+  RefreshControl,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
 } from "react-native";
 import { Chip, DataTable } from "react-native-paper";
 
@@ -158,7 +158,7 @@ const RequestAndDisp = ({ type, data }: RequestAndDispProps) => {
                         ? "Pending"
                         : item.status === 2
                         ? "Approved"
-                        : item.status === 0
+                        : item.status === 3
                         ? "Rejected"
                         : "Unknown"}
                     </Chip>
@@ -285,7 +285,7 @@ const RequestAndDisp = ({ type, data }: RequestAndDispProps) => {
                         ? "Pending"
                         : item.status === 2
                         ? "Approved"
-                        : item.status === 0
+                        : item.status === 3
                         ? "Rejected"
                         : "Unknown"}
                     </Chip>
@@ -422,7 +422,7 @@ const RequestAndDisp = ({ type, data }: RequestAndDispProps) => {
                         ? "Pending"
                         : item.status === 2
                         ? "Approved"
-                        : item.status === 0
+                        : item.status === 3
                         ? "Rejected"
                         : "Unknown"}
                     </Chip>
@@ -451,22 +451,34 @@ const RequestAndDisp = ({ type, data }: RequestAndDispProps) => {
           <>
             <DataTable.Header>
               <DataTable.Title style={styles.dateColumn}>
-                <Text style={[styles.headerText, { color: textColor }]}>Type</Text>
+                <Text style={[styles.headerText, { color: textColor }]}>
+                  Type
+                </Text>
               </DataTable.Title>
               <DataTable.Title style={styles.hoursColumn}>
-                <Text style={[styles.headerText, { color: textColor }]}>From</Text>
+                <Text style={[styles.headerText, { color: textColor }]}>
+                  From
+                </Text>
               </DataTable.Title>
               <DataTable.Title style={styles.statusColumn}>
-                <Text style={[styles.headerText, { color: textColor }]}>To</Text>
+                <Text style={[styles.headerText, { color: textColor }]}>
+                  To
+                </Text>
               </DataTable.Title>
               <DataTable.Title style={styles.statusColumn}>
-                <Text style={[styles.headerText, { color: textColor }]}>Reason</Text>
+                <Text style={[styles.headerText, { color: textColor }]}>
+                  Reason
+                </Text>
               </DataTable.Title>
               <DataTable.Title style={styles.statusColumn}>
-                <Text style={[styles.headerText, { color: textColor }]}>Status</Text>
+                <Text style={[styles.headerText, { color: textColor }]}>
+                  Status
+                </Text>
               </DataTable.Title>
               <DataTable.Title style={styles.actionColumn}>
-                <Text style={[styles.headerText, { color: textColor }]}>Action</Text>
+                <Text style={[styles.headerText, { color: textColor }]}>
+                  Action
+                </Text>
               </DataTable.Title>
             </DataTable.Header>
             <ScrollView
@@ -525,7 +537,7 @@ const RequestAndDisp = ({ type, data }: RequestAndDispProps) => {
                         ? "Pending"
                         : item.status === 2
                         ? "Approved"
-                        : item.status === 0
+                        : item.status === 3
                         ? "Rejected"
                         : "Unknown"}
                     </Chip>
@@ -789,7 +801,7 @@ const RequestAndDisp = ({ type, data }: RequestAndDispProps) => {
                             ? "Pending"
                             : selectedItem.status === 2
                             ? "Approved"
-                            : selectedItem.status === 0
+                            : selectedItem.status === 3
                             ? "Rejected"
                             : "Unknown"}
                         </Chip>

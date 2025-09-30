@@ -1,4 +1,5 @@
 import { DebugPanel } from "@/components/DebugPanel/DebugPanel";
+import { useAnnouncements } from "@/contexts/AnnouncementContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { useCalendar } from "@/contexts/CalendarContext";
 import { useResponsive } from "@/hooks/useResponsive";
@@ -12,16 +13,16 @@ import * as LocalAuthentication from "expo-local-authentication";
 import { useRouter, useSegments } from "expo-router";
 import React, { useEffect, useRef, useState } from "react";
 import {
-    Alert,
-    Image,
-    KeyboardAvoidingView,
-    Platform,
-    Pressable,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  Alert,
+  Image,
+  KeyboardAvoidingView,
+  Platform,
+  Pressable,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useNotification } from "../contexts/NotificationContext";
@@ -53,6 +54,7 @@ const Login = () => {
   const { expoPushToken } = useNotification();
   const { isIOS, isTablet } = useResponsive();
   const { setEventsFromApi } = useCalendar();
+  const { loadAnnouncements } = useAnnouncements();
 
   // Combined initialization and biometric check
   useEffect(() => {
@@ -178,6 +180,37 @@ const Login = () => {
     setIsLoading(true);
 
     try {
+      // Check if user exists first
+      const checkUser = await fetch(`${url}/api/mobile/checkusercreds`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-api-key": `${mobileKey}`,
+        },
+        body: JSON.stringify({
+          ID: employeeNumber,
+        }),
+      });
+
+      const userCheckResult = await checkUser.json();
+      console.log("check", userCheckResult.length === 0);
+      // If user doesn't exist or has no credentials, redirect to first-time login
+      if (userCheckResult.length === 0) {
+        logger.info("User not found, redirecting to first-time login", {
+          employeeNumber,
+          exists: userCheckResult.exists,
+          length: userCheckResult.length,
+        });
+
+        router.push({
+          pathname: "/firsttime-login",
+          params: {
+            employeeNumber: employeeNumber,
+          },
+        });
+        return;
+      }
+
       await logger.logApiRequest(`${url}/api/mobile/mobileAuth`, "POST", {
         ID: employeeNumber,
         password: "***",
@@ -230,7 +263,7 @@ const Login = () => {
       });
 
       const tokenData = await tokenResponse.json();
-
+      console.log("tokenData ", tokenData);
       if (!tokenResponse.ok) {
         throw new Error(tokenData.message || "Failed to generate token");
       }
@@ -247,7 +280,8 @@ const Login = () => {
           device_id: Device.osInternalBuildId,
         }),
       });
-
+      const responseData = await response.json();
+      console.log("responseData", responseData);
       // Log API response
       await logger.logApiResponse(
         `${url}/api/mobile/mobileAuth`,
@@ -269,8 +303,6 @@ const Login = () => {
         setIsLoading(false);
         return;
       }
-
-      const responseData = await response.json();
 
       logger.info("Login API response received", {
         hasData: !!responseData,
@@ -297,17 +329,22 @@ const Login = () => {
       });
 
       await setSession(session);
-      const calendarEvent = await fetch(`${url}/api/mobile/getemployeeeventgeneral`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${tokenData.token}`,
-        },
-      });
+      const calendarEvent = await fetch(
+        `${url}/api/mobile/getemployeeeventgeneral`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${tokenData.token}`,
+          },
+        }
+      );
       const calendarevent = await calendarEvent.json();
       setEventsFromApi(calendarevent);
       logger.info("Session set successfully, navigating to userinfo");
 
+      // Load announcements using context
+      await loadAnnouncements(tokenData.token);
       // Log navigation
       debugHelper.logNavigation("login", "userinfo/userinfo", {
         hasUserData: !!responseData,
