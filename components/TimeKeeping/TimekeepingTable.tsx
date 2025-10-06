@@ -1,35 +1,30 @@
 import { useResponsive } from "@/hooks/useResponsive";
 import { useThemeColor } from "@/hooks/useThemeColor";
+import { FormattedAttendanceRecord } from "@/types/attendance";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import React from "react";
 import { ScrollView, StyleSheet, Text, View } from "react-native";
 import { Chip, DataTable } from "react-native-paper";
 
-interface AttendanceRecord {
-  date: string;
-  in: string;
-  out: string;
-  status: string;
-  hours: string;
-}
-
 interface TimeKeepingTableProps {
-  attendance: AttendanceRecord[];
+  attendance: FormattedAttendanceRecord[];
 }
 
 const TimeKeepingTable = ({ attendance }: TimeKeepingTableProps) => {
   // Get theme colors
-  const textColor = useThemeColor({}, 'text');
-  const backgroundColor = useThemeColor({}, 'background');
-  const iconColor = useThemeColor({}, 'icon');
+  const textColor = useThemeColor({}, "text");
+  const backgroundColor = useThemeColor({}, "background");
+  const iconColor = useThemeColor({}, "icon");
   const { isTablet } = useResponsive();
-
+  console.log("attendance", attendance);
   const getStatusColor = (status: string) => {
     switch (status.toLowerCase()) {
       case "present":
         return "#4CAF50";
       case "late":
         return "#FFA000";
+      case "no time out":
+        return "#FF9800";
       case "absent":
         return "#F44336";
       default:
@@ -38,37 +33,125 @@ const TimeKeepingTable = ({ attendance }: TimeKeepingTableProps) => {
   };
 
   return (
-    <View style={[styles.container, { backgroundColor }, isTablet && styles.containerTablet]}>
+    <View
+      style={[
+        styles.container,
+        { backgroundColor },
+        isTablet && styles.containerTablet,
+      ]}
+    >
       <View style={styles.pageHeader}>
         <View style={styles.headerLeft}>
-          <MaterialCommunityIcons name="calendar-clock" size={isTablet ? 28 : 24} color={iconColor} />
-          <Text style={[styles.headerTitle, { color: textColor }, isTablet && styles.headerTitleTablet]}>Attendance Records</Text>
+          <MaterialCommunityIcons
+            name="calendar-clock"
+            size={isTablet ? 28 : 24}
+            color={iconColor}
+          />
+          <Text
+            style={[
+              styles.headerTitle,
+              { color: textColor },
+              isTablet && styles.headerTitleTablet,
+            ]}
+          >
+            Attendance Records
+          </Text>
         </View>
         <View style={styles.headerRight}>
-          <MaterialCommunityIcons name="calendar-check" size={isTablet ? 28 : 24} color={iconColor} />
+          <MaterialCommunityIcons
+            name="calendar-check"
+            size={isTablet ? 28 : 24}
+            color={iconColor}
+          />
         </View>
       </View>
 
       <ScrollView horizontal showsHorizontalScrollIndicator={false}>
         <DataTable>
           <DataTable.Header>
-            <DataTable.Title style={[styles.dateColumn, isTablet && styles.dateColumnTablet]}>
-              <Text style={[styles.headerText, { color: textColor }, isTablet && styles.headerTextTablet]}>Date</Text>
+            <DataTable.Title
+              style={[styles.dateColumn, isTablet && styles.dateColumnTablet]}
+            >
+              <Text
+                style={[
+                  styles.headerText,
+                  { color: textColor },
+                  isTablet && styles.headerTextTablet,
+                ]}
+              >
+                Date
+              </Text>
             </DataTable.Title>
-            <DataTable.Title style={[styles.timeColumn, isTablet && styles.timeColumnTablet]}>
-              <Text style={[styles.headerText, { color: textColor }, isTablet && styles.headerTextTablet]}>Time In</Text>
+            <DataTable.Title
+              style={[styles.timeColumn, isTablet && styles.timeColumnTablet]}
+            >
+              <Text
+                style={[
+                  styles.headerText,
+                  { color: textColor },
+                  isTablet && styles.headerTextTablet,
+                ]}
+              >
+                Time In
+              </Text>
             </DataTable.Title>
-            <DataTable.Title style={[styles.timeColumn, isTablet && styles.timeColumnTablet]}>
-              <Text style={[styles.headerText, { color: textColor }, isTablet && styles.headerTextTablet]}>Time Out</Text>
+            <DataTable.Title
+              style={[styles.timeColumn, isTablet && styles.timeColumnTablet]}
+            >
+              <Text
+                style={[
+                  styles.headerText,
+                  { color: textColor },
+                  isTablet && styles.headerTextTablet,
+                ]}
+              >
+                Time Out
+              </Text>
             </DataTable.Title>
-            <DataTable.Title style={[styles.statusColumn, isTablet && styles.statusColumnTablet]}>
-              <Text style={[styles.headerText, { color: textColor }, isTablet && styles.headerTextTablet]}>Status</Text>
+            <DataTable.Title
+              style={[
+                styles.statusColumn,
+                isTablet && styles.statusColumnTablet,
+              ]}
+            >
+              <Text
+                style={[
+                  styles.headerText,
+                  { color: textColor },
+                  isTablet && styles.headerTextTablet,
+                ]}
+              >
+                Status
+              </Text>
             </DataTable.Title>
-            <DataTable.Title style={[styles.hoursColumn, isTablet && styles.hoursColumnTablet]}>
-              <Text style={[styles.headerText, { color: textColor }, isTablet && styles.headerTextTablet]}>Hours</Text>
+            <DataTable.Title
+              style={[styles.hoursColumn, isTablet && styles.hoursColumnTablet]}
+            >
+              <Text
+                style={[
+                  styles.headerText,
+                  { color: textColor },
+                  isTablet && styles.headerTextTablet,
+                ]}
+              >
+                Hours
+              </Text>
             </DataTable.Title>
-            <DataTable.Title style={[styles.actionColumn, isTablet && styles.actionColumnTablet]}>
-              <Text style={[styles.headerText, { color: textColor }, isTablet && styles.headerTextTablet]}>Action</Text>
+            <DataTable.Title
+              style={[
+                styles.actionColumn,
+                isTablet && styles.actionColumnTablet,
+              ]}
+            >
+              <Text
+                style={[
+                  styles.headerText,
+                  { color: textColor },
+                  isTablet && styles.headerTextTablet,
+                ]}
+              >
+                Action
+              </Text>
             </DataTable.Title>
           </DataTable.Header>
           <ScrollView
@@ -78,33 +161,104 @@ const TimeKeepingTable = ({ attendance }: TimeKeepingTableProps) => {
           >
             {attendance.map((record, index) => (
               <DataTable.Row key={index}>
-                <DataTable.Cell style={[styles.dateColumn, isTablet && styles.dateColumnTablet]}>
-                  <Text style={[styles.cellText, { color: textColor }, isTablet && styles.cellTextTablet]}>{record.date}</Text>
+                <DataTable.Cell
+                  style={[
+                    styles.dateColumn,
+                    isTablet && styles.dateColumnTablet,
+                  ]}
+                >
+                  <Text
+                    style={[
+                      styles.cellText,
+                      { color: textColor },
+                      isTablet && styles.cellTextTablet,
+                    ]}
+                  >
+                    {record.date}
+                  </Text>
                 </DataTable.Cell>
-                <DataTable.Cell style={[styles.timeColumn, isTablet && styles.timeColumnTablet]}>
-                  <Text style={[styles.cellText, { color: textColor }, isTablet && styles.cellTextTablet]}>{record.in}</Text>
+                <DataTable.Cell
+                  style={[
+                    styles.timeColumn,
+                    isTablet && styles.timeColumnTablet,
+                  ]}
+                >
+                  <Text
+                    style={[
+                      styles.cellText,
+                      { color: textColor },
+                      isTablet && styles.cellTextTablet,
+                    ]}
+                  >
+                    {record.timeIn}
+                  </Text>
                 </DataTable.Cell>
-                <DataTable.Cell style={[styles.timeColumn, isTablet && styles.timeColumnTablet]}>
-                  <Text style={[styles.cellText, { color: textColor }, isTablet && styles.cellTextTablet]}>{record.out}</Text>
+                <DataTable.Cell
+                  style={[
+                    styles.timeColumn,
+                    isTablet && styles.timeColumnTablet,
+                  ]}
+                >
+                  <Text
+                    style={[
+                      styles.cellText,
+                      { color: textColor },
+                      isTablet && styles.cellTextTablet,
+                    ]}
+                  >
+                    {record.timeOut}
+                  </Text>
                 </DataTable.Cell>
-                <DataTable.Cell style={[styles.statusColumn, isTablet && styles.statusColumnTablet]}>
+                <DataTable.Cell
+                  style={[
+                    styles.statusColumn,
+                    isTablet && styles.statusColumnTablet,
+                  ]}
+                >
                   <Chip
                     mode="flat"
-                    style={[styles.statusChip, { backgroundColor: getStatusColor(record.status) }, isTablet && styles.statusChipTablet]}
-                    textStyle={[styles.statusText, isTablet && styles.statusTextTablet]}
+                    style={[
+                      styles.statusChip,
+                      { backgroundColor: getStatusColor(record.status) },
+                      isTablet && styles.statusChipTablet,
+                    ]}
+                    textStyle={[
+                      styles.statusText,
+                      isTablet && styles.statusTextTablet,
+                    ]}
                   >
                     {record.status}
                   </Chip>
                 </DataTable.Cell>
-                <DataTable.Cell style={[styles.hoursColumn, isTablet && styles.hoursColumnTablet]}>
-                  <Text style={[styles.cellText, { color: textColor }, isTablet && styles.cellTextTablet]}>{record.hours}</Text>
+                <DataTable.Cell
+                  style={[
+                    styles.hoursColumn,
+                    isTablet && styles.hoursColumnTablet,
+                  ]}
+                >
+                  <Text
+                    style={[
+                      styles.cellText,
+                      { color: textColor },
+                      isTablet && styles.cellTextTablet,
+                    ]}
+                  >
+                    {record.hours}
+                  </Text>
                 </DataTable.Cell>
-                <DataTable.Cell style={[styles.actionColumn, isTablet && styles.actionColumnTablet]}>
+                <DataTable.Cell
+                  style={[
+                    styles.actionColumn,
+                    isTablet && styles.actionColumnTablet,
+                  ]}
+                >
                   <MaterialCommunityIcons
                     name="eye"
                     size={isTablet ? 24 : 20}
                     color={iconColor}
-                    onPress={() => console.log("View details for:", record.date)}
+                    onPress={() =>
+                      console.log("View details for:", record.date)
+                    }
                   />
                 </DataTable.Cell>
               </DataTable.Row>
@@ -128,7 +282,7 @@ const styles = StyleSheet.create({
     shadowRadius: 2,
     elevation: 2,
     borderWidth: 1,
-    borderColor: '#e0e0e0',
+    borderColor: "#e0e0e0",
   },
   containerTablet: {
     borderRadius: 16,
@@ -228,4 +382,3 @@ const styles = StyleSheet.create({
     minWidth: 100,
   },
 });
-

@@ -436,7 +436,7 @@ const Login = () => {
                   { color: textColor },
                   isTablet && styles.inputTablet,
                 ]}
-                placeholder="Employee Number"
+                placeholder="Employee No. or Email"
                 placeholderTextColor={iconColor}
                 value={employeeNumber}
                 onChangeText={(text) => {
@@ -447,7 +447,6 @@ const Login = () => {
                     credentials: "",
                   }));
                 }}
-                maxLength={8}
               />
             </View>
             {errors.employeeNumber ? (
