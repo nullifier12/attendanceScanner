@@ -1,5 +1,4 @@
 import { useThemeColor } from "@/hooks/useThemeColor";
-import { MaterialCommunityIcons } from "@expo/vector-icons";
 import React, { useState } from "react";
 import {
   Modal,
@@ -106,7 +105,7 @@ const PayslipTable = () => {
 
   return (
     <View style={[styles.container, { backgroundColor }]}>
-      <View style={[styles.pageHeader, { backgroundColor }]}>
+      {/* <View style={[styles.pageHeader, { backgroundColor }]}>
         <View style={styles.headerLeft}>
           <MaterialCommunityIcons
             name="file-document-outline"
@@ -124,7 +123,7 @@ const PayslipTable = () => {
             color={iconColor}
           />
         </View>
-      </View>
+      </View> */}
 
       <View style={[styles.tableContainer, { backgroundColor }]}>
         <ScrollView horizontal showsHorizontalScrollIndicator={false}>

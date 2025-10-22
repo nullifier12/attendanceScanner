@@ -127,22 +127,12 @@ const RequestAndDisp = ({ type, data }: RequestAndDispProps) => {
                   </DataTable.Cell>
                   <DataTable.Cell style={styles.dateColumn}>
                     <Text style={[styles.cellText, { color: textColor }]}>
-                      {item.date_from
-                        ? new Date(item.date_from)
-                            .toISOString()
-                            .slice(0, 10)
-                            .replace(/-/g, "/")
-                        : "-"}
+                      {new Date(item.date_from).toLocaleDateString("en-CA")}
                     </Text>
                   </DataTable.Cell>
                   <DataTable.Cell style={styles.dateColumn}>
                     <Text style={[styles.cellText, { color: textColor }]}>
-                      {item.date_to
-                        ? new Date(item.date_to)
-                            .toISOString()
-                            .slice(0, 10)
-                            .replace(/-/g, "/")
-                        : "-"}
+                      {new Date(item.date_to).toLocaleDateString("en-CA")}
                     </Text>
                   </DataTable.Cell>
                   <DataTable.Cell style={styles.statusColumn}>

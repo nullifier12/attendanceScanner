@@ -8,7 +8,6 @@ export const formatDateTime = (
     year: "numeric",
     month: "short",
     day: "numeric",
-    weekday: "short",
   });
 
   const formattedTime = date.toLocaleTimeString("en-US", {
